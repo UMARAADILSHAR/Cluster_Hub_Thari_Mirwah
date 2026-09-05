@@ -6,23 +6,24 @@ const isProduction = process.env.NODE_ENV === 'production';
 let poolConfig = {};
 
 if (process.env.DATABASE_URL) {
-  const isLocalDbUrl = process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1');
+  const isInternalRailway = process.env.DATABASE_URL.includes('railway.internal');
+  const isLocal = process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1');
+  const needsSsl = process.env.PGSSL === 'true' || (!isLocal && !isInternalRailway && process.env.PGSSL !== 'false');
+  
   poolConfig = {
     connectionString: process.env.DATABASE_URL,
-    ssl: (isProduction || !isLocalDbUrl) && process.env.PGSSL !== 'false'
-      ? { rejectUnauthorized: false }
-      : false,
+    ssl: needsSsl ? { rejectUnauthorized: false } : false,
   };
 } else {
   const host = process.env.PGHOST || '127.0.0.1';
-  const isLocalHost = host === 'localhost' || host === '127.0.0.1';
+  const isLocalHost = host === 'localhost' || host === '127.0.0.1' || host.includes('railway.internal');
   poolConfig = {
     host,
     port: parseInt(process.env.PGPORT || '5432', 10),
     user: process.env.PGUSER || 'postgres',
     password: process.env.PGPASSWORD || 'jawadJAAN@1951',
     database: process.env.PGDATABASE || 'hub_cluster_db',
-    ssl: (!isLocalHost || process.env.PGSSL === 'true')
+    ssl: (!isLocalHost && process.env.PGSSL !== 'false') || process.env.PGSSL === 'true'
       ? { rejectUnauthorized: false }
       : false,
   };
