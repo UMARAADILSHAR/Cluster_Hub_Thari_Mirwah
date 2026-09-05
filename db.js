@@ -205,6 +205,25 @@ async function initDb() {
       );
     `);
 
+    // Users Table (username only authentication)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(20) DEFAULT 'admin',
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    // Seed default admin users
+    const defaultPass = process.env.PGPASSWORD || 'jawadJAAN@1951';
+    await client.query(`
+      INSERT INTO users (username, password, role)
+      VALUES ('admin', $1, 'admin'), ('jawad', $1, 'admin')
+      ON CONFLICT (username) DO NOTHING;
+    `, [defaultPass]);
+
     await client.query('COMMIT');
 
     // Check if initial cluster exists; if empty, seed default KX03099
@@ -523,6 +542,29 @@ async function resetClusterClasses(clusterCode) {
   `, [clusterCode]);
 }
 
+async function authenticateUser(username, password) {
+  if (!username || !password) return null;
+  try {
+    const res = await pool.query(
+      'SELECT id, username, role FROM users WHERE LOWER(username) = LOWER($1) AND password = $2',
+      [username.trim(), password]
+    );
+    if (res.rows.length > 0) {
+      return res.rows[0];
+    }
+  } catch (err) {
+    console.error('Error during user authentication:', err.message);
+  }
+
+  // Fallback to default admin check
+  const u = username.trim().toLowerCase();
+  const defaultPass = process.env.PGPASSWORD || 'jawadJAAN@1951';
+  if ((u === 'admin' || u === 'jawad') && password === defaultPass) {
+    return { username: u, role: 'admin' };
+  }
+  return null;
+}
+
 module.exports = {
   pool,
   initDb,
@@ -533,5 +575,6 @@ module.exports = {
   deleteSchool,
   updateSchoolClasses,
   resetClusterClasses,
+  authenticateUser,
   TYPE_INFO,
 };

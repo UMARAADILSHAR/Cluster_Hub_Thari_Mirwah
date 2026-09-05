@@ -42,6 +42,41 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// Authentication endpoint (Username only authentication)
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !username.trim()) {
+      return res.status(400).json({ success: false, error: 'Username is required' });
+    }
+    if (!password) {
+      return res.status(400).json({ success: false, error: 'Password is required' });
+    }
+
+    const user = await db.authenticateUser(username, password);
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Invalid username or password' });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        username: user.username,
+        role: user.role,
+      },
+      message: 'Login successful'
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ success: false, error: 'Internal server error during login' });
+  }
+});
+
+// Verify authentication status
+app.get('/api/auth/verify', (req, res) => {
+  res.json({ success: true });
+});
+
 // Get all clusters with nested schools and class records
 app.get('/api/clusters', async (req, res) => {
   try {
