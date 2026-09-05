@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hub Cluster Dashboard — Sindh School Education Department</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --ink: #1C2420;
+    --paper: #F7F5EF;
+    --paper-raised: #FFFFFF;
+    --line: #D9D3C4;
+    --green: #1B5E3A;
+    --green-dk: #123F27;
+    --gold: #C9962C;
+    --slate: #5B6B63;
+    --danger: #A6402A;
+    --ok: #2F7D52;
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  body { font-variant-numeric: tabular-nums; }
+  a { color: inherit; }
+
+  /* Top Connection Bar */
+  .system-banner {
+    background: #0d2819;
+    color: #e2f0e6;
+    padding: 6px 28px;
+    font-size: 11.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .system-banner .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #28a745;
+    box-shadow: 0 0 6px #28a745;
+  }
+  .dot.syncing { background: #ffc107; box-shadow: 0 0 6px #ffc107; }
+  .dot.error { background: #dc3545; box-shadow: 0 0 6px #dc3545; }
+  .sync-indicator { font-size: 11px; opacity: 0.85; }
+
+  /* Letterhead */
+  .letterhead {
+    background: linear-gradient(180deg, var(--green) 0%, var(--green-dk) 100%);
+    color: #F4EFDF;
+    padding: 22px 28px 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    border-bottom: 4px solid var(--gold);
+  }
+  .letterhead .crest { width: 46px; height: 46px; flex: none; }
+  .letterhead .titles { flex: 1; min-width: 240px; }
+  .letterhead h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 0 3px;
+    letter-spacing: 0.2px;
+  }
+  .letterhead p { margin: 0; font-size: 13px; color: #D9CFA9; }
+  .cluster-picker { display: flex; align-items: center; gap: 8px; flex: none; }
+  .cluster-picker label {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: #D9CFA9;
+    display: block;
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+  .cluster-picker select {
+    background: rgba(244,239,223, 0.12);
+    border: 1px solid rgba(244,239,223, 0.4);
+    color: #F4EFDF;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: var(--font-body);
+    min-width: 250px;
+    border-radius: 4px;
+  }
+  .cluster-picker select option { color: #111; }
+  .letterhead .badge {
+    background: rgba(244,239,223, 0.12);
+    border: 1px solid rgba(244,239,223, 0.35);
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-align: center;
+    flex: none;
+  }
+  .letterhead .badge b { display: block; font-size: 22px; font-family: var(--font-display); }
+  .letterhead .badge span { font-size: 10px; letter-spacing: 0.5px; color: #D9CFA9; }
+  .letterhead button.mini {
+    background: rgba(244,239,223, 0.15);
+    border: 1px solid rgba(244,239,223, 0.4);
+    color: #F4EFDF;
+    font-size: 12px;
+    padding: 9px 14px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 500;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+  }
+  .letterhead button.mini:hover { background: rgba(244,239,223, 0.28); }
+
+  /* Nav Tabs */
+  nav.tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--paper-raised);
+    border-bottom: 1px solid var(--line);
+    padding: 0 28px;
+    overflow-x: auto;
+  }
+  nav.tabs button {
+    appearance: none;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    color: var(--slate);
+    padding: 14px 18px;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  nav.tabs button.active {
+    color: var(--green-dk);
+    border-bottom-color: var(--gold);
+    font-weight: 600;
+  }
+  nav.tabs button:hover { color: var(--green-dk); }
+
+  /* Main Container */
+  main {
+    padding: 26px 28px 60px;
+    max-width: 1340px;
+    margin: 0 auto;
+  }
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.2s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(3px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h2.section-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 16px;
+    color: var(--green-dk);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  h2.section-title small {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  /* KPIs */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+  .kpi {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--green);
+    padding: 16px 18px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+  .kpi .n {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .kpi .l { font-size: 11.5px; color: var(--slate); margin-top: 5px; font-weight: 500; }
+  .kpi.gold { border-left-color: var(--gold); }
+  .kpi.danger .n { color: var(--danger); }
+  .kpi.danger { border-left-color: var(--danger); }
+
+  /* Grids & Cards */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  @media (max-width: 960px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    padding: 18px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+  .card h3 {
+    margin: 0 0 14px;
+    font-size: 13.5px;
+    color: var(--green-dk);
+    font-weight: 600;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card canvas { max-height: 230px; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+  th {
+    background: #EFEAD9;
+    color: var(--green-dk);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  tr:hover td { background: #FBFAF5; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    background: var(--paper-raised);
+    border-radius: 4px;
+  }
+
+  /* Badges & Tags */
+  .tag {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 11px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .tag.ok { background: #E4F1E9; color: var(--ok); }
+  .tag.bad { background: #F6E3DD; color: var(--danger); }
+  .tag.type { background: #EAE3F0; color: #5B4A7A; }
+  .tag.cell { background: #DDEAE1; color: var(--green-dk); }
+  .tag.hub { background: var(--gold); color: #3A2A05; }
+
+  /* Form Elements */
+  input[type=text], input[type=number], select {
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    padding: 7px 9px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    border-radius: 3px;
+    width: 100%;
+    transition: border-color 0.15s ease;
+  }
+  input[type=text]:focus, input[type=number]:focus, select:focus {
+    border-color: var(--green);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(27,94,58,0.15);
+  }
+  input[type=number] { text-align: right; }
+
+  button.btn {
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+  }
+  button.btn:hover { background: var(--green-dk); }
+  button.btn.ghost {
+    background: none;
+    color: var(--green-dk);
+    border: 1px solid var(--green);
+  }
+  button.btn.ghost:hover {
+    background: rgba(27,94,58,0.06);
+  }
+  button.btn.danger { background: var(--danger); }
+  button.btn.danger:hover { background: #7E301E; }
+  button.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--danger);
+    font-size: 15px;
+    padding: 3px 6px;
+    border-radius: 3px;
+  }
+  button.icon-btn:hover { background: #F6E3DD; }
+
+  /* Layout components */
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .toolbar-right { display: flex; gap: 8px; flex-wrap: wrap; }
+  .entry-select-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .field { display: flex; flex-direction: column; gap: 5px; min-width: 280px; }
+  .field label { font-size: 11px; color: var(--slate); font-weight: 600; }
+  .school-meta {
+    font-size: 12.5px;
+    color: var(--slate);
+    margin-bottom: 16px;
+    line-height: 1.7;
+    background: #fdfbf7;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .school-meta b { color: var(--green-dk); }
+
+  .validation-banner {
+    padding: 10px 14px;
+    font-size: 12.5px;
+    margin-bottom: 16px;
+    border: 1px solid;
+    border-radius: 4px;
+    display: none;
+    font-weight: 500;
+  }
+  .validation-banner.ok { display: block; background: #E4F1E9; border-color: #BFE0CC; color: var(--ok); }
+  .validation-banner.bad { display: block; background: #F6E3DD; border-color: #E7BEAF; color: var(--danger); }
+
+  /* Toast Notification */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 28px;
+    background: #1C2420;
+    color: #fff;
+    padding: 10px 18px;
+    font-size: 12.5px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.25s ease;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast.error { background: var(--danger); }
+
+  footer.app-foot {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--slate);
+    border-top: 1px solid var(--line);
+    margin-top: 40px;
+  }
+
+  @media print {
+    .system-banner, nav.tabs, .toolbar-right, .no-print, .cluster-picker button { display: none !important; }
+    .panel { display: block !important; }
+    main { padding: 0; }
+    .letterhead { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Live PostgreSQL Connectivity Header -->
+<div class="system-banner no-print">
+  <div class="status-pill">
+    <span class="dot" id="dbDot"></span>
+    <span id="dbStatusText">Checking PostgreSQL connection...</span>
+  </div>
+  <div class="sync-indicator" id="syncStatus">Connected &bull; Auto-save ready</div>
+</div>
+
+<div class="letterhead">
+  <svg class="crest" viewBox="0 0 48 48" fill="none">
+    <path d="M24 3 L42 10 V22 C42 33 34 41 24 45 C14 41 6 33 6 22 V10 Z" fill="#F4EFDF" opacity="0.18" stroke="#F4EFDF" stroke-width="1.6"/>
+    <path d="M24 12 L24 30 M16 20 L32 20" stroke="#F4EFDF" stroke-width="1.6"/>
+    <circle cx="24" cy="12" r="2.5" fill="#C9962C"/>
+  </svg>
+  <div class="titles">
+    <h1 id="hubTitle">Govt. Boys High School, Thari Mirwah</h1>
+    <p id="hubSub">Hub Cluster Enrolment &amp; Facilities Dashboard &mdash; Sindh School Education Department</p>
+  </div>
+  <div class="cluster-picker">
+    <div>
+      <label>SELECT YOUR CLUSTER</label>
+      <select id="clusterSelect"></select>
+    </div>
+    <button class="mini no-print" id="addClusterBtn" title="Add another cluster">+ New Cluster</button>
+  </div>
+  <div class="badge"><b id="clusterCountBadge">22</b><span>CELL SCHOOLS</span></div>
+</div>
+
+<nav class="tabs">
+  <button data-tab="dashboard" class="active">Dashboard</button>
+  <button data-tab="schools">Schools</button>
+  <button data-tab="entry">Data Entry</button>
+  <button data-tab="export">Export &amp; Print</button>
+</nav>
+
+<main>
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <section class="panel active" id="panel-dashboard">
+    <h2 class="section-title">Cluster Overview <small id="overviewSub">Live totals synced directly from PostgreSQL</small></h2>
+
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <div class="grid-3">
+      <div class="card"><h3>Enrolment by School</h3><canvas id="chartBySchool"></canvas></div>
+      <div class="card"><h3>Boys / Girls</h3><canvas id="chartGender"></canvas></div>
+      <div class="card"><h3>Muslim / Non-Muslim</h3><canvas id="chartReligion"></canvas></div>
+    </div>
+    <div class="grid-3">
+      <div class="card"><h3>Medium of Instruction</h3><canvas id="chartMedium"></canvas></div>
+      <div class="card"><h3>Furniture Status</h3><canvas id="chartFurniture"></canvas></div>
+      <div class="card"><h3>Sections per School</h3><canvas id="chartSections"></canvas></div>
+    </div>
+
+    <h2 class="section-title" style="margin-top:12px;">School-wise Summary</h2>
+    <div class="table-wrap">
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>#</th><th>Cell</th><th>School</th><th>Type</th>
+            <th class="num">Boys</th><th class="num">Girls</th><th class="num">Total</th>
+            <th class="num">Muslim</th><th class="num">Non-Muslim</th>
+            <th class="num">Sindhi</th><th class="num">Urdu</th><th class="num">English</th>
+            <th class="num">Sections</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== SCHOOLS ===================== -->
+  <section class="panel" id="panel-schools">
+    <h2 class="section-title">Hub &amp; Cell Schools <small>Edit school records; changes save directly to PostgreSQL</small></h2>
+    <div class="toolbar">
+      <div style="font-size:12.5px;color:var(--slate)">GBHS = Boys High &bull; GBPS/GGPS = Boys/Girls Primary &bull; GBELS/GGELS = Elementary Lower (1–8) &bull; GGHS = Higher Secondary (6–12)</div>
+      <div class="toolbar-right">
+        <button class="btn ghost" id="addCellBtn">+ Add Cell School</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="schoolsTable">
+        <thead>
+          <tr><th>#</th><th>Cell</th><th>School Name</th><th>Type</th><th>Classes</th><th>SEMIS Code</th><th>Head / Teacher</th><th>Contact</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== DATA ENTRY ===================== -->
+  <section class="panel" id="panel-entry">
+    <h2 class="section-title">Class-wise Data Entry <small>Changes are automatically saved to PostgreSQL</small></h2>
+    <div class="entry-select-row">
+      <div class="field">
+        <label>SELECT SCHOOL</label>
+        <select id="entrySchoolSelect"></select>
+      </div>
+    </div>
+    <div class="school-meta" id="entrySchoolMeta"></div>
+    <div class="validation-banner" id="schoolValidationBanner"></div>
+    <div class="table-wrap">
+      <table id="entryTable">
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th class="num">Boys</th><th class="num">Girls</th><th class="num">Total</th>
+            <th class="num">Muslim</th><th class="num">Non-Muslim</th><th class="num">Total</th>
+            <th class="num">Sindhi</th><th class="num">Urdu</th><th class="num">English</th><th class="num">Total</th>
+            <th>Furniture</th><th>Section(s)</th><th>Check</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== EXPORT ===================== -->
+  <section class="panel" id="panel-export">
+    <h2 class="section-title">Export &amp; Print <small>Download live records or print administrative reports</small></h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Export CSV</h3>
+        <p style="font-size:12.5px;color:var(--slate)">Downloads one row per class, per school, for the active cluster &mdash; formatted for official reporting or Excel analysis.</p>
+        <button class="btn" id="exportCsvBtn">Download CSV</button>
+      </div>
+      <div class="card">
+        <h3>Print Report</h3>
+        <p style="font-size:12.5px;color:var(--slate)">Prepares clean, printer-friendly summary pages for official submission.</p>
+        <button class="btn ghost" id="printBtn">Print Dashboard</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Reset Cluster Enrolment Figures</h3>
+      <p style="font-size:12.5px;color:var(--slate)">Resets all class enrolment and facility figures in PostgreSQL to zero for the selected cluster (school records, SEMIS codes, and contacts remain preserved).</p>
+      <button class="btn danger" id="resetBtn">Reset Class Figures in Database</button>
+    </div>
+  </section>
+
+</main>
+
+<div id="toast"></div>
+
+<footer class="app-foot">
+  Hub Cluster Enrolment & Facilities Management System &bull; Powered by PostgreSQL &bull; Sindh School Education Department
+</footer>
+
+<script>
+(function(){
+
+const TYPE_INFO = {
+  GBHS:  {label:'Boys High School',              classMin:1, classMax:10},
+  GBPS:  {label:'Boys Primary School',           classMin:1, classMax:5},
+  GGPS:  {label:'Girls Primary School',          classMin:1, classMax:5},
+  GBELS: {label:'Boys Elementary Lower School',  classMin:1, classMax:8},
+  GGELS: {label:'Girls Elementary Lower School', classMin:1, classMax:8},
+  GGHS:  {label:'Girls Higher Secondary School', classMin:6, classMax:12},
+};
+const FURNITURE_OPTIONS = [
+  {v:'available', l:'Available'},
+  {v:'shortage', l:'Shortage'},
+  {v:'not_available', l:'Not Available'},
+];
+
+let state = {
+  activeClusterCode: 'KX03099',
+  clusters: []
+};
+
+// UI Elements
+const dbDot = document.getElementById('dbDot');
+const dbStatusText = document.getElementById('dbStatusText');
+const syncStatus = document.getElementById('syncStatus');
+const toastEl = document.getElementById('toast');
+
+function showToast(msg, isError=false){
+  toastEl.textContent = msg;
+  toastEl.className = isError ? 'show error' : 'show';
+  setTimeout(()=>{ toastEl.className = ''; }, 2600);
+}
+
+// Check PostgreSQL Health
+async function checkHealth(){
+  try{
+    const res = await fetch('/api/health');
+    const data = await res.json();
+    if(data.db === 'connected'){
+      dbDot.className = 'dot';
+      dbStatusText.textContent = `Connected: PostgreSQL (${data.database}) &bull; ${data.latencyMs}ms ping`;
+    }else{
+      dbDot.className = 'dot error';
+      dbStatusText.textContent = `PostgreSQL Disconnected: ${data.error || 'Server error'}`;
+    }
+  }catch(e){
+    dbDot.className = 'dot error';
+    dbStatusText.textContent = `Server Connection Failed`;
+  }
+}
+
+// Load Clusters from PostgreSQL
+async function loadDataFromDb(){
+  syncStatus.textContent = 'Loading from database...';
+  try{
+    const res = await fetch('/api/clusters');
+    const data = await res.json();
+    if(data.success && data.clusters && data.clusters.length){
+      state.clusters = data.clusters;
+      if(!state.clusters.find(c=>c.code === state.activeClusterCode)){
+        state.activeClusterCode = state.clusters[0].code;
+      }
+      syncStatus.textContent = 'PostgreSQL: Synchronized';
+      renderClusterPicker();
+      refreshHeader();
+      populateEntrySelect();
+      renderSchoolsTable();
+      renderEntryPanel();
+      renderDashboard();
+    }
+  }catch(e){
+    syncStatus.textContent = 'Sync Error';
+    showToast('Failed to load data from server', true);
+  }
+}
+
+function activeCluster(){
+  return state.clusters.find(c=>c.code===state.activeClusterCode) || state.clusters[0];
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function classList(school){
+  const a=[];
+  for(let i=school.classMin;i<=school.classMax;i++) a.push(i);
+  return a;
+}
+function classTotals(cd){
+  const totalGender = (Number(cd.boys)||0)+(Number(cd.girls)||0);
+  const totalReligion = (Number(cd.muslim)||0)+(Number(cd.nonMuslim)||0);
+  const totalMedium = (Number(cd.sindhi)||0)+(Number(cd.urdu)||0)+(Number(cd.english)||0);
+  return {totalGender, totalReligion, totalMedium, match: totalGender===totalReligion && totalReligion===totalMedium};
+}
+function schoolTotals(school){
+  const sum = {boys:0,girls:0,muslim:0,nonMuslim:0,sindhi:0,urdu:0,english:0,sections:0};
+  let allMatch = true;
+  classList(school).forEach(cls=>{
+    const cd = school.classes[cls] || {};
+    sum.boys += Number(cd.boys)||0;
+    sum.girls += Number(cd.girls)||0;
+    sum.muslim += Number(cd.muslim)||0;
+    sum.nonMuslim += Number(cd.nonMuslim)||0;
+    sum.sindhi += Number(cd.sindhi)||0;
+    sum.urdu += Number(cd.urdu)||0;
+    sum.english += Number(cd.english)||0;
+    sum.sections += Number(cd.sections)||0;
+    if(!classTotals(cd).match) allMatch=false;
+  });
+  sum.total = sum.boys + sum.girls;
+  sum.match = allMatch;
+  return sum;
+}
+function furnitureCounts(school){
+  const counts = {available:0, shortage:0, not_available:0};
+  classList(school).forEach(cls=>{
+    const f = (school.classes[cls] && school.classes[cls].furniture) || 'available';
+    counts[f] = (counts[f]||0) + 1;
+  });
+  return counts;
+}
+function globalTotals(cluster){
+  const g = {boys:0,girls:0,muslim:0,nonMuslim:0,sindhi:0,urdu:0,english:0,sections:0,total:0};
+  if(!cluster || !cluster.schools) return g;
+  cluster.schools.forEach(s=>{
+    const t = schoolTotals(s);
+    g.boys += t.boys; g.girls += t.girls;
+    g.muslim += t.muslim; g.nonMuslim += t.nonMuslim;
+    g.sindhi += t.sindhi; g.urdu += t.urdu; g.english += t.english;
+    g.sections += t.sections; g.total += t.total;
+  });
+  return g;
+}
+function sectionLabel(n){
+  n = Number(n)||0;
+  if(n===0) return 'No Section';
+  return n===1 ? '1 Section' : `${n} Sections`;
+}
+function cellTagHtml(cell){
+  if(cell==='HUB') return '<span class="tag hub">HUB</span>';
+  return `<span class="tag cell">Cell ${cell}</span>`;
+}
+function escapeHtml(str){
+  return String(str||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* ============================================================
+   DEBOUNCED AUTO-SAVER TO POSTGRESQL
+   ============================================================ */
+let saveTimeouts = {};
+
+function saveSchoolClassesDebounced(schoolId, classes){
+  syncStatus.textContent = 'Saving to PostgreSQL...';
+  dbDot.className = 'dot syncing';
+  if(saveTimeouts['classes_'+schoolId]) clearTimeout(saveTimeouts['classes_'+schoolId]);
+
+  saveTimeouts['classes_'+schoolId] = setTimeout(async ()=>{
+    try{
+      const res = await fetch(`/api/schools/${schoolId}/classes`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classes })
+      });
+      const data = await res.json();
+      if(data.success){
+        syncStatus.textContent = 'PostgreSQL: Saved';
+        dbDot.className = 'dot';
+        showToast('Enrolment saved to PostgreSQL');
+      }else{
+        throw new Error(data.error);
+      }
+    }catch(err){
+      syncStatus.textContent = 'Save Failed';
+      dbDot.className = 'dot error';
+      showToast('Error saving to PostgreSQL: ' + err.message, true);
+    }
+  }, 450);
+}
+
+function saveSchoolMetadataDebounced(school){
+  syncStatus.textContent = 'Saving school...';
+  dbDot.className = 'dot syncing';
+  if(saveTimeouts['school_'+school.id]) clearTimeout(saveTimeouts['school_'+school.id]);
+
+  saveTimeouts['school_'+school.id] = setTimeout(async ()=>{
+    try{
+      const res = await fetch(`/api/schools/${school.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(school)
+      });
+      const data = await res.json();
+      if(data.success){
+        syncStatus.textContent = 'PostgreSQL: Saved';
+        dbDot.className = 'dot';
+        showToast('School updated in PostgreSQL');
+      }else{
+        throw new Error(data.error);
+      }
+    }catch(err){
+      syncStatus.textContent = 'Save Failed';
+      dbDot.className = 'dot error';
+      showToast('Error updating school: ' + err.message, true);
+    }
+  }, 500);
+}
+
+/* ============================================================
+   CLUSTER PICKER
+   ============================================================ */
+function renderClusterPicker(){
+  const sel = document.getElementById('clusterSelect');
+  sel.innerHTML = state.clusters.map(c=>{
+    return `<option value="${c.code}">${c.code} &mdash; ${escapeHtml(c.district)} (${c.schools.length} schools)</option>`;
+  }).join('');
+  sel.value = state.activeClusterCode;
+}
+document.getElementById('clusterSelect').addEventListener('change', e=>{
+  state.activeClusterCode = e.target.value;
+  refreshHeader(); populateEntrySelect(); renderSchoolsTable(); renderEntryPanel(); renderDashboard();
+});
+
+document.getElementById('addClusterBtn').addEventListener('click', async ()=>{
+  const code = prompt('New cluster code (e.g. KX03100):');
+  if(!code) return;
+  if(state.clusters.find(c=>c.code===code.trim().toUpperCase())){
+    alert('A cluster with this code already exists.');
+    return;
+  }
+  const district = prompt('District name:', 'Khairpur Mirs') || 'Khairpur Mirs';
+  const hubName = prompt('Hub school name:', 'GBHS - ') || 'New Hub School';
+
+  try{
+    const res = await fetch('/api/clusters', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, district, hubName })
+    });
+    const data = await res.json();
+    if(data.success){
+      showToast(`Cluster ${code} created in PostgreSQL`);
+      state.activeClusterCode = code.trim().toUpperCase();
+      await loadDataFromDb();
+    }else{
+      alert('Error creating cluster: ' + data.error);
+    }
+  }catch(err){
+    alert('Failed to contact server: ' + err.message);
+  }
+});
+
+function refreshHeader(){
+  const cluster = activeCluster();
+  if(!cluster) return;
+  const hub = cluster.schools.find(s=>s.isHub);
+  if(hub) {
+    document.getElementById('hubTitle').textContent = hub.name
+      .replace(/^GBHS - /,'Govt. Boys High School, ')
+      .replace(/^GGHS - /,'Govt. Girls Higher Secondary School, ');
+  }
+  document.getElementById('hubSub').textContent = `Cluster ${cluster.code} &bull; ${cluster.district} District &mdash; Enrolment & Facilities Dashboard`;
+  document.getElementById('clusterCountBadge').textContent = cluster.schools.filter(s=>!s.isHub).length;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='dashboard') renderDashboard();
+    if(btn.dataset.tab==='schools') renderSchoolsTable();
+    if(btn.dataset.tab==='entry') renderEntryPanel();
+  });
+});
+
+/* ============================================================
+   SCHOOLS TAB
+   ============================================================ */
+function renderSchoolsTable(){
+  const cluster = activeCluster();
+  if(!cluster) return;
+  const tbody = document.querySelector('#schoolsTable tbody');
+  tbody.innerHTML = '';
+
+  cluster.schools.forEach((s, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${cellTagHtml(s.cell)}</td>
+      <td><input type="text" value="${escapeHtml(s.name)}" data-act="name"></td>
+      <td>
+        <select data-act="type">
+          ${Object.keys(TYPE_INFO).map(t=>`<option value="${t}" ${t===s.type?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </td>
+      <td style="white-space:nowrap;color:var(--slate);font-size:11.5px;">${s.classMin}&ndash;${s.classMax}</td>
+      <td><input type="text" value="${escapeHtml(s.semis)}" data-act="semis" style="width:110px"></td>
+      <td><input type="text" value="${escapeHtml(s.headTeacher)}" data-act="headTeacher" style="width:150px"></td>
+      <td><input type="text" value="${escapeHtml(s.contact)}" data-act="contact" style="width:110px"></td>
+      <td>${s.isHub? '' : '<button class="icon-btn" title="Remove School" data-act="remove">&times;</button>'}</td>
+    `;
+
+    tr.querySelector('[data-act=name]').addEventListener('input', e=>{
+      s.name = e.target.value;
+      refreshHeader();
+      saveSchoolMetadataDebounced(s);
+    });
+
+    tr.querySelector('[data-act=type]').addEventListener('change', async e=>{
+      s.type = e.target.value;
+      const info = TYPE_INFO[s.type];
+      s.classMin = info.classMin;
+      s.classMax = info.classMax;
+      // Rebuild local class mapping
+      const newClasses = {};
+      for(let i=s.classMin; i<=s.classMax; i++){
+        newClasses[i] = s.classes[i] || {boys:0, girls:0, muslim:0, nonMuslim:0, sindhi:0, urdu:0, english:0, furniture:'available', sections:0};
+      }
+      s.classes = newClasses;
+      await fetch(`/api/schools/${s.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: s.type, classMin: s.classMin, classMax: s.classMax })
+      });
+      showToast('School type and class range updated');
+      renderSchoolsTable();
+      populateEntrySelect();
+    });
+
+    tr.querySelector('[data-act=semis]').addEventListener('input', e=>{
+      s.semis = e.target.value;
+      saveSchoolMetadataDebounced(s);
+    });
+    tr.querySelector('[data-act=headTeacher]').addEventListener('input', e=>{
+      s.headTeacher = e.target.value;
+      saveSchoolMetadataDebounced(s);
+    });
+    tr.querySelector('[data-act=contact]').addEventListener('input', e=>{
+      s.contact = e.target.value;
+      saveSchoolMetadataDebounced(s);
+    });
+
+    const rm = tr.querySelector('[data-act=remove]');
+    if(rm) rm.addEventListener('click', async ()=>{
+      if(confirm(`Remove "${s.name}" from PostgreSQL? All its enrolment data will be deleted.`)){
+        try{
+          const res = await fetch(`/api/schools/${s.id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if(data.success){
+            showToast('School deleted from database');
+            await loadDataFromDb();
+          }else{
+            alert('Delete failed: ' + data.error);
+          }
+        }catch(err){
+          alert('Failed to delete: ' + err.message);
+        }
+      }
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('addCellBtn').addEventListener('click', async ()=>{
+  const cluster = activeCluster();
+  if(!cluster) return;
+  const name = prompt('School name (e.g. GBPS - NEW SCHOOL):');
+  if(!name) return;
+  const type = (prompt('Type: GBPS, GGPS, GBELS, GGELS, or GGHS?', 'GBPS') || 'GBPS').toUpperCase().trim();
+  if(!TYPE_INFO[type]){ alert('Unknown type &mdash; school not added.'); return; }
+  const cell = prompt('Which cell group? (e.g. C1, C2, C3)', 'C1') || 'C1';
+
+  try{
+    const res = await fetch(`/api/clusters/${cluster.code}/schools`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, type, cell })
+    });
+    const data = await res.json();
+    if(data.success){
+      showToast('Cell school added to PostgreSQL');
+      await loadDataFromDb();
+    }else{
+      alert('Error adding school: ' + data.error);
+    }
+  }catch(err){
+    alert('Server error: ' + err.message);
+  }
+});
+
+/* ============================================================
+   DATA ENTRY TAB
+   ============================================================ */
+function populateEntrySelect(){
+  const cluster = activeCluster();
+  if(!cluster) return;
+  const sel = document.getElementById('entrySchoolSelect');
+  const prev = sel.value;
+  const groups = {};
+  cluster.schools.forEach(s=>{ (groups[s.cell]=groups[s.cell]||[]).push(s); });
+
+  let html = '';
+  Object.keys(groups).sort((a,b)=> a==='HUB'?-1: b==='HUB'?1: a.localeCompare(b)).forEach(cellKey=>{
+    html += `<optgroup label="${cellKey==='HUB'?'Hub School':'Cell '+cellKey}">`;
+    groups[cellKey].forEach(s=>{
+      html += `<option value="${s.id}">${s.isHub?'&#9733; ':''}${escapeHtml(s.name)}</option>`;
+    });
+    html += `</optgroup>`;
+  });
+  sel.innerHTML = html;
+  if(cluster.schools.find(s=>s.id===prev)) sel.value = prev;
+}
+document.getElementById('entrySchoolSelect').addEventListener('change', renderEntryPanel);
+
+function renderEntryPanel(){
+  populateEntrySelect();
+  const cluster = activeCluster();
+  if(!cluster) return;
+  const sel = document.getElementById('entrySchoolSelect');
+  const school = cluster.schools.find(s=>s.id===sel.value) || cluster.schools[0];
+  if(!school) return;
+  sel.value = school.id;
+
+  document.getElementById('entrySchoolMeta').innerHTML =
+    `<b>${escapeHtml(school.name)}</b> ${cellTagHtml(school.cell)} &bull; ${TYPE_INFO[school.type].label} &bull; Classes ${school.classMin}&ndash;${school.classMax}<br>
+     SEMIS: <b>${escapeHtml(school.semis)||'&mdash;'}</b> &bull; Head/Teacher: <b>${escapeHtml(school.headTeacher)||'&mdash;'}</b> ${school.designation? '('+escapeHtml(school.designation)+')':''} &bull; Contact: <b>${escapeHtml(school.contact)||'&mdash;'}</b>`;
+
+  const tbody = document.querySelector('#entryTable tbody');
+  tbody.innerHTML = '';
+  classList(school).forEach(cls=>{
+    const cd = school.classes[cls] || {boys:0, girls:0, muslim:0, nonMuslim:0, sindhi:0, urdu:0, english:0, furniture:'available', sections:0};
+    const t = classTotals(cd);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>Class ${cls}</b></td>
+      <td class="num"><input type="number" min="0" value="${cd.boys}" data-f="boys"></td>
+      <td class="num"><input type="number" min="0" value="${cd.girls}" data-f="girls"></td>
+      <td class="num" data-role="totalGender"><b>${t.totalGender}</b></td>
+      <td class="num"><input type="number" min="0" value="${cd.muslim}" data-f="muslim"></td>
+      <td class="num"><input type="number" min="0" value="${cd.nonMuslim}" data-f="nonMuslim"></td>
+      <td class="num" data-role="totalReligion"><b>${t.totalReligion}</b></td>
+      <td class="num"><input type="number" min="0" value="${cd.sindhi}" data-f="sindhi"></td>
+      <td class="num"><input type="number" min="0" value="${cd.urdu}" data-f="urdu"></td>
+      <td class="num"><input type="number" min="0" value="${cd.english}" data-f="english"></td>
+      <td class="num" data-role="totalMedium"><b>${t.totalMedium}</b></td>
+      <td>
+        <select data-f="furniture">
+          ${FURNITURE_OPTIONS.map(o=>`<option value="${o.v}" ${o.v===cd.furniture?'selected':''}>${o.l}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select data-f="sections">
+          ${Array.from({length:13},(_,n)=>n).map(n=>`<option value="${n}" ${n===Number(cd.sections)?'selected':''}>${sectionLabel(n)}</option>`).join('')}
+        </select>
+      </td>
+      <td data-role="check">${rowCheckHtml(t)}</td>
+    `;
+
+    tr.querySelectorAll('input[data-f], select[data-f]').forEach(inp=>{
+      const evt = inp.tagName==='SELECT' ? 'change' : 'input';
+      inp.addEventListener(evt, ()=>{
+        const f = inp.dataset.f;
+        cd[f] = (inp.type==='number') ? Number(inp.value)||0 : inp.value;
+        const nt = classTotals(cd);
+        tr.querySelector('[data-role=totalGender]').innerHTML = `<b>${nt.totalGender}</b>`;
+        tr.querySelector('[data-role=totalReligion]').innerHTML = `<b>${nt.totalReligion}</b>`;
+        tr.querySelector('[data-role=totalMedium]').innerHTML = `<b>${nt.totalMedium}</b>`;
+        tr.querySelector('[data-role=check]').innerHTML = rowCheckHtml(nt);
+        renderSchoolValidationBanner(school);
+        saveSchoolClassesDebounced(school.id, school.classes);
+      });
+    });
+    tbody.appendChild(tr);
+  });
+  renderSchoolValidationBanner(school);
+}
+
+function rowCheckHtml(t){
+  return t.match ? '<span class="tag ok">&check; OK</span>' : '<span class="tag bad">&warning; Mismatch</span>';
+}
+
+function renderSchoolValidationBanner(school){
+  const t = schoolTotals(school);
+  const banner = document.getElementById('schoolValidationBanner');
+  if(t.match){
+    banner.className = 'validation-banner ok';
+    banner.innerHTML = `&check; <b>All totals match!</b> Total Enrolment: <b>${t.total}</b> &bull; Religious Total: <b>${t.muslim+t.nonMuslim}</b> &bull; Medium Total: <b>${t.sindhi+t.urdu+t.english}</b>`;
+  }else{
+    banner.className = 'validation-banner bad';
+    banner.innerHTML = `&warning; <b>Validation Mismatch:</b> Gender sum = ${t.boys+t.girls}, Religious sum = ${t.muslim+t.nonMuslim}, Medium sum = ${t.sindhi+t.urdu+t.english}. Verify the highlighted class rows above.`;
+  }
+}
+
+/* ============================================================
+   DASHBOARD TAB
+   ============================================================ */
+let charts = {};
+function destroyCharts(){ Object.values(charts).forEach(c=>c && c.destroy()); charts = {}; }
+
+function renderDashboard(){
+  const cluster = activeCluster();
+  if(!cluster) return;
+  const g = globalTotals(cluster);
+  document.getElementById('overviewSub').textContent = `Cluster ${cluster.code} &mdash; live totals across hub school and ${cluster.schools.length - 1} cell schools in PostgreSQL`;
+
+  const kpiRow = document.getElementById('kpiRow');
+  const totalSchools = cluster.schools.length;
+  const mismatchCount = cluster.schools.filter(s=>!schoolTotals(s).match).length;
+
+  kpiRow.innerHTML = `
+    <div class="kpi"><div class="n">${totalSchools}</div><div class="l">SCHOOLS IN CLUSTER</div></div>
+    <div class="kpi gold"><div class="n">${g.total}</div><div class="l">TOTAL ENROLMENT</div></div>
+    <div class="kpi"><div class="n">${g.boys} / ${g.girls}</div><div class="l">BOYS / GIRLS</div></div>
+    <div class="kpi"><div class="n">${g.muslim} / ${g.nonMuslim}</div><div class="l">MUSLIM / NON-MUSLIM</div></div>
+    <div class="kpi"><div class="n">${g.sections}</div><div class="l">TOTAL SECTIONS</div></div>
+    <div class="kpi ${mismatchCount? 'danger':''}"><div class="n">${mismatchCount}</div><div class="l">SCHOOLS WITH MISMATCH</div></div>
+  `;
+
+  destroyCharts();
+  const labels = cluster.schools.map(s=> (s.isHub? 'HUB &bull; ':'') + s.name);
+  const totals = cluster.schools.map(s=>schoolTotals(s).total);
+
+  charts.bySchool = new Chart(document.getElementById('chartBySchool'), {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Students', data: totals, backgroundColor: '#1B5E3A', borderRadius: 2 }] },
+    options: { plugins: { legend: { display: false } }, scales: { x: { ticks: { display: false } } } }
+  });
+
+  charts.gender = new Chart(document.getElementById('chartGender'), {
+    type: 'doughnut',
+    data: { labels: ['Boys', 'Girls'], datasets: [{ data: [g.boys, g.girls], backgroundColor: ['#1B5E3A', '#C9962C'] }] }
+  });
+
+  charts.religion = new Chart(document.getElementById('chartReligion'), {
+    type: 'doughnut',
+    data: { labels: ['Muslim', 'Non-Muslim'], datasets: [{ data: [g.muslim, g.nonMuslim], backgroundColor: ['#1B5E3A', '#A6402A'] }] }
+  });
+
+  charts.medium = new Chart(document.getElementById('chartMedium'), {
+    type: 'doughnut',
+    data: { labels: ['Sindhi', 'Urdu', 'English'], datasets: [{ data: [g.sindhi, g.urdu, g.english], backgroundColor: ['#1B5E3A', '#C9962C', '#5B6B63'] }] }
+  });
+
+  const furn = { available: 0, shortage: 0, not_available: 0 };
+  cluster.schools.forEach(s=>{
+    const f = furnitureCounts(s);
+    furn.available += f.available;
+    furn.shortage += f.shortage;
+    furn.not_available += f.not_available;
+  });
+  charts.furniture = new Chart(document.getElementById('chartFurniture'), {
+    type: 'bar',
+    data: { labels: ['Available', 'Shortage', 'Not Available'], datasets: [{ data: [furn.available, furn.shortage, furn.not_available], backgroundColor: ['#2F7D52', '#C9962C', '#A6402A'], borderRadius: 2 }] },
+    options: { plugins: { legend: { display: false } }, indexAxis: 'y' }
+  });
+
+  charts.sections = new Chart(document.getElementById('chartSections'), {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Sections', data: cluster.schools.map(s=>schoolTotals(s).sections), backgroundColor: '#5B6B63', borderRadius: 2 }] },
+    options: { plugins: { legend: { display: false } }, scales: { x: { ticks: { display: false } } } }
+  });
+
+  const tbody = document.querySelector('#summaryTable tbody');
+  tbody.innerHTML = '';
+  cluster.schools.forEach((s, idx)=>{
+    const t = schoolTotals(s);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${cellTagHtml(s.cell)}</td>
+      <td>${s.isHub? '&#9733; ' : ''}${escapeHtml(s.name)}</td>
+      <td><span class="tag type">${s.type}</span></td>
+      <td class="num">${t.boys}</td><td class="num">${t.girls}</td><td class="num"><b>${t.total}</b></td>
+      <td class="num">${t.muslim}</td><td class="num">${t.nonMuslim}</td>
+      <td class="num">${t.sindhi}</td><td class="num">${t.urdu}</td><td class="num">${t.english}</td>
+      <td class="num">${t.sections}</td>
+      <td>${t.match? '<span class="tag ok">&check; Match</span>' : '<span class="tag bad">&warning; Mismatch</span>'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============================================================
+   EXPORT & PRINT
+   ============================================================ */
+document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
+  const cluster = activeCluster();
+  if(!cluster) return;
+  const rows = [[
+    'Cluster','Cell','School','Type','SEMIS','Head/Teacher','Contact','Class','Boys','Girls','Total(Gender)',
+    'Muslim','NonMuslim','Total(Religion)','Sindhi','Urdu','English','Total(Medium)','Furniture','Sections','Match'
+  ]];
+  cluster.schools.forEach(s=>{
+    classList(s).forEach(cls=>{
+      const cd = s.classes[cls] || {};
+      const t = classTotals(cd);
+      rows.push([
+        cluster.code, s.cell, s.name, s.type, s.semis, s.headTeacher, s.contact, cls,
+        cd.boys||0, cd.girls||0, t.totalGender,
+        cd.muslim||0, cd.nonMuslim||0, t.totalReligion,
+        cd.sindhi||0, cd.urdu||0, cd.english||0, t.totalMedium,
+        cd.furniture||'available', sectionLabel(cd.sections), t.match?'YES':'NO'
+      ]);
+    });
+  });
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${cluster.code}_cluster_data_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV Export downloaded');
+});
+
+document.getElementById('printBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-dashboard').classList.add('active');
+  renderDashboard();
+  setTimeout(()=>window.print(), 150);
+});
+
+document.getElementById('resetBtn').addEventListener('click', async ()=>{
+  const cluster = activeCluster();
+  if(!cluster) return;
+  if(confirm(`Reset all class figures for Cluster ${cluster.code} in PostgreSQL to zero? This cannot be undone.`)){
+    try{
+      const res = await fetch(`/api/clusters/${cluster.code}/reset`, { method: 'POST' });
+      const data = await res.json();
+      if(data.success){
+        showToast('Enrolment figures reset in PostgreSQL');
+        await loadDataFromDb();
+      }else{
+        alert('Reset failed: ' + data.error);
+      }
+    }catch(err){
+      alert('Server error: ' + err.message);
+    }
+  }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+checkHealth();
+setInterval(checkHealth, 15000);
+loadDataFromDb();
+
+})();
+</script>
+</body>
+</html>

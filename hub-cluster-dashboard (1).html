@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hub Cluster Dashboard — GBHS Thari Mirwah</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#1C2420;
+    --paper:#F7F5EF;
+    --paper-raised:#FFFFFF;
+    --line:#D9D3C4;
+    --green:#1B5E3A;
+    --green-dk:#123F27;
+    --gold:#C9962C;
+    --slate:#5B6B63;
+    --danger:#A6402A;
+    --ok:#2F7D52;
+    --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body:'Inter', -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);}
+  body{font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+
+  /* ---------- Letterhead ---------- */
+  .letterhead{
+    background:linear-gradient(180deg,var(--green) 0%,var(--green-dk) 100%);
+    color:#F4EFDF;
+    padding:20px 28px 16px;
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    border-bottom:4px solid var(--gold);
+  }
+  .letterhead .crest{width:44px;height:44px;flex:none;}
+  .letterhead .titles{flex:1; min-width:220px;}
+  .letterhead h1{font-family:var(--font-display); font-weight:600; font-size:21px; margin:0 0 2px; letter-spacing:.2px;}
+  .letterhead p{margin:0; font-size:12.5px; color:#D9CFA9;}
+  .cluster-picker{display:flex; align-items:center; gap:8px; flex:none;}
+  .cluster-picker label{font-size:10px; letter-spacing:.4px; color:#D9CFA9; display:block; margin-bottom:3px;}
+  .cluster-picker select{
+    background:rgba(244,239,223,.1); border:1px solid rgba(244,239,223,.4); color:#F4EFDF;
+    padding:8px 10px; font-size:13px; font-family:var(--font-body); min-width:230px;
+  }
+  .cluster-picker select option{color:#111;}
+  .letterhead .badge{
+    background:rgba(244,239,223,.12); border:1px solid rgba(244,239,223,.35);
+    padding:8px 14px; border-radius:2px; text-align:center; flex:none;
+  }
+  .letterhead .badge b{display:block; font-size:20px; font-family:var(--font-display);}
+  .letterhead .badge span{font-size:10px; letter-spacing:.4px; color:#D9CFA9;}
+  .letterhead button.mini{
+    background:rgba(244,239,223,.12); border:1px solid rgba(244,239,223,.4); color:#F4EFDF;
+    font-size:12px; padding:9px 12px; cursor:pointer; font-family:var(--font-body);
+  }
+  .letterhead button.mini:hover{background:rgba(244,239,223,.22);}
+
+  /* ---------- Nav ---------- */
+  nav.tabs{display:flex; gap:2px; background:var(--paper-raised); border-bottom:1px solid var(--line); padding:0 28px; overflow-x:auto;}
+  nav.tabs button{appearance:none; border:none; background:none; cursor:pointer; font-family:var(--font-body); font-size:13.5px; color:var(--slate); padding:14px 16px; border-bottom:3px solid transparent; white-space:nowrap;}
+  nav.tabs button.active{color:var(--green-dk); border-bottom-color:var(--gold); font-weight:600;}
+  nav.tabs button:hover{color:var(--green-dk);}
+
+  main{padding:24px 28px 60px; max-width:1280px; margin:0 auto;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  h2.section-title{font-family:var(--font-display); font-size:19px; font-weight:600; margin:0 0 16px; color:var(--green-dk); display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  h2.section-title small{font-family:var(--font-body); font-weight:400; font-size:12.5px; color:var(--slate);}
+
+  .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:26px;}
+  .kpi{background:var(--paper-raised); border:1px solid var(--line); border-left:3px solid var(--green); padding:14px 16px;}
+  .kpi .n{font-family:var(--font-display); font-size:26px; font-weight:600; line-height:1.1;}
+  .kpi .l{font-size:11.5px; color:var(--slate); margin-top:4px;}
+  .kpi.gold{border-left-color:var(--gold);}
+  .kpi.danger .n{color:var(--danger);}
+
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:22px;}
+  .grid-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-bottom:22px;}
+  @media (max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+  .card{background:var(--paper-raised); border:1px solid var(--line); padding:16px;}
+  .card h3{margin:0 0 12px; font-size:13px; color:var(--green-dk); font-weight:600; border-bottom:1px solid var(--line); padding-bottom:8px;}
+  .card canvas{max-height:230px;}
+
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th,td{padding:8px 9px; border-bottom:1px solid var(--line); text-align:left;}
+  th{background:#EFEAD9; color:var(--green-dk); font-weight:600; font-size:11px; letter-spacing:.2px; position:sticky; top:0;}
+  tr:hover td{background:#FBFAF5;}
+  td.num, th.num{text-align:right; font-variant-numeric:tabular-nums;}
+  .table-wrap{overflow-x:auto; border:1px solid var(--line); background:var(--paper-raised);}
+
+  .tag{display:inline-block; padding:2px 7px; font-size:10.5px; border-radius:2px; font-weight:600;}
+  .tag.ok{background:#E4F1E9; color:var(--ok);}
+  .tag.bad{background:#F6E3DD; color:var(--danger);}
+  .tag.type{background:#EAE3F0; color:#5B4A7A;}
+  .tag.cell{background:#DDEAE1; color:var(--green-dk);}
+  .tag.hub{background:var(--gold); color:#3A2A05;}
+
+  input[type=text],input[type=number],select{font-family:var(--font-body); font-size:12.5px; padding:6px 7px; border:1px solid var(--line); background:#fff; color:var(--ink); width:100%;}
+  input[type=number]{text-align:right;}
+  button.btn{font-family:var(--font-body); font-size:12.5px; font-weight:600; cursor:pointer; background:var(--green); color:#fff; border:none; padding:9px 16px;}
+  button.btn:hover{background:var(--green-dk);}
+  button.btn.ghost{background:none; color:var(--green-dk); border:1px solid var(--green);}
+  button.btn.danger{background:var(--danger);}
+  button.btn.danger:hover{background:#7E301E;}
+  button.icon-btn{background:none;border:none;cursor:pointer;color:var(--danger);font-size:14px;padding:2px 6px;}
+
+  .toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:10px; flex-wrap:wrap;}
+  .toolbar-right{display:flex; gap:8px; flex-wrap:wrap;}
+
+  .entry-select-row{display:flex; gap:12px; align-items:flex-end; margin-bottom:18px; flex-wrap:wrap;}
+  .field{display:flex; flex-direction:column; gap:4px; min-width:260px;}
+  .field label{font-size:11px; color:var(--slate); font-weight:600;}
+  .school-meta{font-size:12px; color:var(--slate); margin-bottom:14px; line-height:1.7;}
+  .school-meta b{color:var(--green-dk);}
+  .validation-banner{padding:9px 12px; font-size:12.5px; margin-bottom:14px; border:1px solid; display:none;}
+  .validation-banner.ok{display:block; background:#E4F1E9; border-color:#BFE0CC; color:var(--ok);}
+  .validation-banner.bad{display:block; background:#F6E3DD; border-color:#E7BEAF; color:var(--danger);}
+
+  footer.app-foot{text-align:center; padding:20px; font-size:11px; color:var(--slate);}
+
+  @media print{
+    nav.tabs, .toolbar-right, .no-print, .cluster-picker button{display:none !important;}
+    .panel{display:block !important;}
+    main{padding:0;}
+    .letterhead{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+
+<div class="letterhead">
+  <svg class="crest" viewBox="0 0 48 48" fill="none">
+    <path d="M24 3 L42 10 V22 C42 33 34 41 24 45 C14 41 6 33 6 22 V10 Z" fill="#F4EFDF" opacity="0.15" stroke="#F4EFDF" stroke-width="1.5"/>
+    <path d="M24 12 L24 30 M16 20 L32 20" stroke="#F4EFDF" stroke-width="1.5"/>
+    <circle cx="24" cy="12" r="2.4" fill="#C9962C"/>
+  </svg>
+  <div class="titles">
+    <h1 id="hubTitle">Govt. Boys High School, Thari Mirwah</h1>
+    <p id="hubSub">Hub Cluster Enrolment &amp; Facilities Dashboard — Sindh School Education Department</p>
+  </div>
+  <div class="cluster-picker">
+    <div>
+      <label>SELECT YOUR CLUSTER</label>
+      <select id="clusterSelect"></select>
+    </div>
+    <button class="mini no-print" id="addClusterBtn" title="Add another cluster">+ New Cluster</button>
+  </div>
+  <div class="badge"><b id="clusterCountBadge">22</b><span>CELL SCHOOLS</span></div>
+</div>
+
+<nav class="tabs">
+  <button data-tab="dashboard" class="active">Dashboard</button>
+  <button data-tab="schools">Schools</button>
+  <button data-tab="entry">Data Entry</button>
+  <button data-tab="export">Export &amp; Print</button>
+</nav>
+
+<main>
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <section class="panel active" id="panel-dashboard">
+    <h2 class="section-title">Cluster Overview <small id="overviewSub">Live totals across the hub school and all cell schools</small></h2>
+
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <div class="grid-3">
+      <div class="card"><h3>Enrolment by School</h3><canvas id="chartBySchool"></canvas></div>
+      <div class="card"><h3>Boys / Girls</h3><canvas id="chartGender"></canvas></div>
+      <div class="card"><h3>Muslim / Non-Muslim</h3><canvas id="chartReligion"></canvas></div>
+    </div>
+    <div class="grid-3">
+      <div class="card"><h3>Medium of Instruction</h3><canvas id="chartMedium"></canvas></div>
+      <div class="card"><h3>Furniture Status</h3><canvas id="chartFurniture"></canvas></div>
+      <div class="card"><h3>Sections per School</h3><canvas id="chartSections"></canvas></div>
+    </div>
+
+    <h2 class="section-title" style="margin-top:8px;">School-wise Summary</h2>
+    <div class="table-wrap">
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>#</th><th>Cell</th><th>School</th><th>Type</th>
+            <th class="num">Boys</th><th class="num">Girls</th><th class="num">Total</th>
+            <th class="num">Muslim</th><th class="num">Non-Muslim</th>
+            <th class="num">Sindhi</th><th class="num">Urdu</th><th class="num">English</th>
+            <th class="num">Sections</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== SCHOOLS ===================== -->
+  <section class="panel" id="panel-schools">
+    <h2 class="section-title">Hub &amp; Cell Schools <small>Edit school records for the selected cluster</small></h2>
+    <div class="toolbar">
+      <div style="font-size:12.5px;color:var(--slate)">GBHS = Boys High · GBPS/GGPS = Boys/Girls Primary · GBELS/GGELS = Boys/Girls Elementary Lower (1–8) · GGHS = Girls Higher Secondary (6–12)</div>
+      <div class="toolbar-right">
+        <button class="btn ghost" id="addCellBtn">+ Add Cell School</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="schoolsTable">
+        <thead>
+          <tr><th>#</th><th>Cell</th><th>School Name</th><th>Type</th><th>Classes</th><th>SEMIS Code</th><th>Head / Teacher</th><th>Contact</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== DATA ENTRY ===================== -->
+  <section class="panel" id="panel-entry">
+    <h2 class="section-title">Class-wise Data Entry <small>Enter figures for each class; totals validate automatically</small></h2>
+    <div class="entry-select-row">
+      <div class="field">
+        <label>SELECT SCHOOL</label>
+        <select id="entrySchoolSelect"></select>
+      </div>
+    </div>
+    <div class="school-meta" id="entrySchoolMeta"></div>
+    <div class="validation-banner" id="schoolValidationBanner"></div>
+    <div class="table-wrap">
+      <table id="entryTable">
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th class="num">Boys</th><th class="num">Girls</th><th class="num">Total</th>
+            <th class="num">Muslim</th><th class="num">Non-Muslim</th><th class="num">Total</th>
+            <th class="num">Sindhi</th><th class="num">Urdu</th><th class="num">English</th><th class="num">Total</th>
+            <th>Furniture</th><th>Section(s)</th><th>Check</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== EXPORT ===================== -->
+  <section class="panel" id="panel-export">
+    <h2 class="section-title">Export &amp; Print <small>Save the full dataset or print a hard copy for the record</small></h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Export CSV</h3>
+        <p style="font-size:12.5px;color:var(--slate)">Downloads one row per class, per school, for the selected cluster — ready for Excel or a future database import.</p>
+        <button class="btn" id="exportCsvBtn">Download CSV</button>
+      </div>
+      <div class="card">
+        <h3>Print Report</h3>
+        <p style="font-size:12.5px;color:var(--slate)">Opens the browser print dialog with the dashboard formatted for an A4 page.</p>
+        <button class="btn ghost" id="printBtn">Print Dashboard</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Reset This Cluster's Data</h3>
+      <p style="font-size:12.5px;color:var(--slate)">Clears all entered class figures for the selected cluster (school records, names and contacts are kept). This cannot be undone.</p>
+      <button class="btn danger" id="resetBtn">Reset Class Figures</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-foot">Prototype — data stored locally in this browser only. Not yet connected to a shared database.</footer>
+
+<script>
+(function(){
+
+/* ============================================================
+   DATA MODEL
+   ============================================================ */
+const TYPE_INFO = {
+  GBHS:  {label:'Boys High School',              classMin:1, classMax:10},
+  GBPS:  {label:'Boys Primary School',           classMin:1, classMax:5},
+  GGPS:  {label:'Girls Primary School',          classMin:1, classMax:5},
+  GBELS: {label:'Boys Elementary Lower School',  classMin:1, classMax:8},
+  GGELS: {label:'Girls Elementary Lower School', classMin:1, classMax:8},
+  GGHS:  {label:'Girls Higher Secondary School', classMin:6, classMax:12},
+};
+const FURNITURE_OPTIONS = [
+  {v:'available', l:'Available'},
+  {v:'shortage', l:'Shortage'},
+  {v:'not_available', l:'Not Available'},
+];
+const STORAGE_KEY = 'hubClusterDashboard_v2';
+
+function emptyClassData(){
+  return {boys:0, girls:0, muslim:0, nonMuslim:0, sindhi:0, urdu:0, english:0, furniture:'available', sections:0};
+}
+function makeClasses(min,max){
+  const c = {};
+  for(let i=min;i<=max;i++) c[i] = emptyClassData();
+  return c;
+}
+function makeSchool({id,name,type,cell,semis,pid,headTeacher,headGender,contact,designation,isHub}){
+  const info = TYPE_INFO[type];
+  return {
+    id, name, type, cell: cell||'HUB', isHub: !!isHub,
+    classMin: info.classMin, classMax: info.classMax,
+    semis: semis||'', pid: pid||'', headTeacher: headTeacher||'', headGender: headGender||'',
+    contact: contact||'', designation: designation||'',
+    classes: makeClasses(info.classMin, info.classMax)
+  };
+}
+
+/* ---- Real cluster data from School_Cluster_Report_KX03099.pdf ---- */
+function buildKX03099Cluster(){
+  const schools = [];
+  schools.push(makeSchool({id:'hub', name:'GBHS - THARI MIRWAH', type:'GBHS', cell:'HUB', isHub:true,
+    semis:'415060805', pid:'10469301', headTeacher:'Muammad Ansar Banb', headGender:'Male', contact:'0303-3217216', designation:'HM (BPS-17)'}));
+
+  const c1 = [
+    ['GBPS - AIJAZ HUSSAIN','415060444','10469547','Ghulam Hyder','Male','0302-3283466','PST'],
+    ['GBPS - GHULAM AKBAR JOGI','415060838','11016859','Weenjhar Ali','Male','0322-3932939','PST'],
+    ['GBPS - GHAZI JOGI','415060724','10308599','Manzoor Ahmed','Male','0303-3249458','PST'],
+    ['GBPS - JUMO BURDI AT OFFI','415060656','10308770','Zulfiqar Ali','Male','0302-3660258','PST'],
+    ['GBELS - THARI MIRWAH','415060726','10293591','Ameer Ahmed','Male','0302-3606914','PST'],
+    ['GBPS - KHABAR JOGI','415060291','11015828','Israr Hussain','Male','0303-3358402','PST'],
+    ['GBPS - GHULAM SHABIR LAGH','415060666','92037042','Allah Bux','Male','0307-5080980','PST'],
+    ['GBPS - HAJI FAIZ MUHAMMAD','415060382','10294191','Mahmood Hussain','Male','0301-3401351','PST'],
+    ['GBPS - ALI DAD JOGI','415060042','10469922','Hasnain Sardar Ali','Male','0303-9655601','PST'],
+    ['GBPS - NANDHI THARI','415060290','','','','',''],
+    ['GBPS - HASSAN SHAH','415060725','','','','',''],
+  ];
+  c1.forEach((r,i)=>{
+    const type = r[0].startsWith('GBELS') ? 'GBELS' : 'GBPS';
+    schools.push(makeSchool({id:'c1_'+(i+1), name:r[0], type, cell:'C1',
+      semis:r[1], pid:r[2], headTeacher:r[3], headGender:r[4], contact:r[5], designation:r[6]}));
+  });
+
+  const c2 = [
+    ['GGHS - THARI','415060812','10301370','Waheed Laghari','Female','0306-6719929','Principal','GGHS'],
+    ['GGPS - HAJI KHAN','415060640','10463921','Latifa Bibi','Female','0302-2415461','PST','GGPS'],
+    ['GGELS - ALI DAD JOGI','415060557','','','','','','GGELS'],
+    ['GGPS - RUKHSANA LUQMAN SO','415060635','10821828','Ghazala','Male','0305-3969021','PST','GGPS'],
+    ['GGPS - KHABAR JOGI','415060592','11113571','Kiran Bhatti','Female','0348-2076481','PST','GGPS'],
+    ['GGPS - THARI MIRWAH','415060520','11038937','Rabel','Female','0312-2004026','PST','GGPS'],
+    ['GGPS - LAL MUHAMMAD (BRAN','415060584','10326598','Sajida','Female','0328-8440348','PST','GGPS'],
+    ['GGPS - MALLAH COLONY','415060642','10455390','Mubina','Female','0302-2069051','PST','GGPS'],
+    ['GGPS - NAWAZ ALI','415060583','10497200','Samina Begum','Female','0333-7135475','PST','GGPS'],
+    ['GGPS - FAIZ MUHAMMAD KHAS','415060505','','','','','','GGPS'],
+    ['GGPS - NANDHI THARI','415060597','11041527','Fahmida','Female','0308-8323066','PST','GGPS'],
+  ];
+  c2.forEach((r,i)=>{
+    schools.push(makeSchool({id:'c2_'+(i+1), name:r[0], type:r[7], cell:'C2',
+      semis:r[1], pid:r[2], headTeacher:r[3], headGender:r[4], contact:r[5], designation:r[6]}));
+  });
+
+  return {code:'KX03099', district:'Khairpur Mirs', schools};
+}
+
+function blankCluster(code, district, hubName){
+  return {code, district, schools:[ makeSchool({id:'hub_'+Date.now(), name:hubName, type:'GBHS', cell:'HUB', isHub:true}) ]};
+}
+
+function defaultState(){
+  const cluster = buildKX03099Cluster();
+  return {activeClusterCode: cluster.code, clusters:[cluster]};
+}
+
+let state = loadState() || defaultState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    if(!parsed.clusters || !parsed.clusters.length) return null;
+    return parsed;
+  }catch(e){ return null; }
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function activeCluster(){ return state.clusters.find(c=>c.code===state.activeClusterCode) || state.clusters[0]; }
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function classList(school){ const a=[]; for(let i=school.classMin;i<=school.classMax;i++) a.push(i); return a; }
+function classTotals(cd){
+  const totalGender = (cd.boys||0)+(cd.girls||0);
+  const totalReligion = (cd.muslim||0)+(cd.nonMuslim||0);
+  const totalMedium = (cd.sindhi||0)+(cd.urdu||0)+(cd.english||0);
+  return {totalGender, totalReligion, totalMedium, match: totalGender===totalReligion && totalReligion===totalMedium};
+}
+function schoolTotals(school){
+  const sum = {boys:0,girls:0,muslim:0,nonMuslim:0,sindhi:0,urdu:0,english:0,sections:0};
+  let allMatch = true;
+  classList(school).forEach(cls=>{
+    const cd = school.classes[cls];
+    sum.boys+=cd.boys||0; sum.girls+=cd.girls||0;
+    sum.muslim+=cd.muslim||0; sum.nonMuslim+=cd.nonMuslim||0;
+    sum.sindhi+=cd.sindhi||0; sum.urdu+=cd.urdu||0; sum.english+=cd.english||0;
+    sum.sections += cd.sections||0;
+    if(!classTotals(cd).match) allMatch=false;
+  });
+  sum.total = sum.boys+sum.girls;
+  sum.match = allMatch;
+  return sum;
+}
+function furnitureCounts(school){
+  const counts = {available:0, shortage:0, not_available:0};
+  classList(school).forEach(cls=>{ const f = school.classes[cls].furniture || 'available'; counts[f]=(counts[f]||0)+1; });
+  return counts;
+}
+function globalTotals(cluster){
+  const g = {boys:0,girls:0,muslim:0,nonMuslim:0,sindhi:0,urdu:0,english:0,sections:0,total:0};
+  cluster.schools.forEach(s=>{
+    const t = schoolTotals(s);
+    g.boys+=t.boys; g.girls+=t.girls; g.muslim+=t.muslim; g.nonMuslim+=t.nonMuslim;
+    g.sindhi+=t.sindhi; g.urdu+=t.urdu; g.english+=t.english; g.sections+=t.sections; g.total+=t.total;
+  });
+  return g;
+}
+function sectionLabel(n){ n = Number(n)||0; if(n===0) return 'No Section'; return n===1 ? '1 Section' : `${n} Sections`; }
+function cellTagHtml(cell){
+  if(cell==='HUB') return '<span class="tag hub">HUB</span>';
+  return `<span class="tag cell">Cell ${cell}</span>`;
+}
+function escapeHtml(str){ return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+/* ============================================================
+   CLUSTER PICKER
+   ============================================================ */
+function renderClusterPicker(){
+  const sel = document.getElementById('clusterSelect');
+  sel.innerHTML = state.clusters.map(c=>{
+    const hub = c.schools.find(s=>s.isHub);
+    return `<option value="${c.code}">${c.code} — ${escapeHtml(c.district)} (${c.schools.length} schools)</option>`;
+  }).join('');
+  sel.value = state.activeClusterCode;
+}
+document.getElementById('clusterSelect').addEventListener('change', e=>{
+  state.activeClusterCode = e.target.value;
+  saveState();
+  refreshHeader(); populateEntrySelect(); renderSchoolsTable(); renderEntryPanel(); renderDashboard();
+});
+document.getElementById('addClusterBtn').addEventListener('click', ()=>{
+  const code = prompt('New cluster code (e.g. KX03100):');
+  if(!code) return;
+  if(state.clusters.find(c=>c.code===code.trim())){ alert('A cluster with this code already exists.'); return; }
+  const district = prompt('District name:', 'Khairpur Mirs') || 'Khairpur Mirs';
+  const hubName = prompt('Hub school name:', 'GBHS - ') || 'New Hub School';
+  const cluster = blankCluster(code.trim(), district.trim(), hubName.trim());
+  state.clusters.push(cluster);
+  state.activeClusterCode = cluster.code;
+  saveState();
+  renderClusterPicker(); refreshHeader(); populateEntrySelect(); renderSchoolsTable(); renderEntryPanel(); renderDashboard();
+});
+
+function refreshHeader(){
+  const cluster = activeCluster();
+  const hub = cluster.schools.find(s=>s.isHub);
+  if(hub) document.getElementById('hubTitle').textContent = hub.name.replace(/^GBHS - /,'Govt. Boys High School, ').replace(/^GGHS - /,'Govt. Girls Higher Secondary School, ');
+  document.getElementById('hubSub').textContent = `Cluster ${cluster.code} · ${cluster.district} District — Enrolment & Facilities Dashboard`;
+  document.getElementById('clusterCountBadge').textContent = cluster.schools.filter(s=>!s.isHub).length;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='dashboard') renderDashboard();
+    if(btn.dataset.tab==='schools') renderSchoolsTable();
+    if(btn.dataset.tab==='entry') renderEntryPanel();
+  });
+});
+
+/* ============================================================
+   SCHOOLS TAB
+   ============================================================ */
+function renderSchoolsTable(){
+  const cluster = activeCluster();
+  const tbody = document.querySelector('#schoolsTable tbody');
+  tbody.innerHTML = '';
+  cluster.schools.forEach((s,idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${cellTagHtml(s.cell)}</td>
+      <td><input type="text" value="${escapeHtml(s.name)}" data-act="name"></td>
+      <td>
+        <select data-act="type">
+          ${Object.keys(TYPE_INFO).map(t=>`<option value="${t}" ${t===s.type?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </td>
+      <td style="white-space:nowrap;color:var(--slate);font-size:11.5px;">${s.classMin}–${s.classMax}</td>
+      <td><input type="text" value="${escapeHtml(s.semis)}" data-act="semis" style="width:110px"></td>
+      <td><input type="text" value="${escapeHtml(s.headTeacher)}" data-act="headTeacher" style="width:150px"></td>
+      <td><input type="text" value="${escapeHtml(s.contact)}" data-act="contact" style="width:110px"></td>
+      <td>${s.isHub? '' : '<button class="icon-btn" title="Remove" data-act="remove">✕</button>'}</td>
+    `;
+    tr.querySelector('[data-act=name]').addEventListener('input', e=>{ s.name=e.target.value; saveState(); refreshHeader(); renderClusterPicker(); });
+    tr.querySelector('[data-act=type]').addEventListener('change', e=>{
+      s.type = e.target.value;
+      const info = TYPE_INFO[s.type];
+      s.classMin = info.classMin; s.classMax = info.classMax;
+      s.classes = makeClasses(s.classMin, s.classMax);
+      saveState(); renderSchoolsTable(); populateEntrySelect();
+    });
+    tr.querySelector('[data-act=semis]').addEventListener('input', e=>{ s.semis=e.target.value; saveState(); });
+    tr.querySelector('[data-act=headTeacher]').addEventListener('input', e=>{ s.headTeacher=e.target.value; saveState(); });
+    tr.querySelector('[data-act=contact]').addEventListener('input', e=>{ s.contact=e.target.value; saveState(); });
+    const rm = tr.querySelector('[data-act=remove]');
+    if(rm) rm.addEventListener('click', ()=>{
+      if(confirm(`Remove "${s.name}" and all its data?`)){
+        cluster.schools = cluster.schools.filter(x=>x.id!==s.id);
+        saveState(); renderSchoolsTable(); populateEntrySelect(); refreshHeader(); renderClusterPicker();
+      }
+    });
+    tbody.appendChild(tr);
+  });
+}
+document.getElementById('addCellBtn').addEventListener('click', ()=>{
+  const cluster = activeCluster();
+  const name = prompt('School name (e.g. GBPS - NEW SCHOOL):');
+  if(!name) return;
+  const type = (prompt('Type: GBPS, GGPS, GBELS, GGELS, or GGHS?', 'GBPS') || 'GBPS').toUpperCase().trim();
+  if(!TYPE_INFO[type]){ alert('Unknown type — school not added.'); return; }
+  const cellLabel = prompt('Which cell group? (e.g. C1, C2, C3)', 'C1') || 'C1';
+  cluster.schools.push(makeSchool({id:'cell_'+Date.now(), name, type, cell:cellLabel.toUpperCase().trim()}));
+  saveState(); renderSchoolsTable(); populateEntrySelect(); refreshHeader(); renderClusterPicker();
+});
+
+/* ============================================================
+   DATA ENTRY TAB
+   ============================================================ */
+function populateEntrySelect(){
+  const cluster = activeCluster();
+  const sel = document.getElementById('entrySchoolSelect');
+  const prev = sel.value;
+  const groups = {};
+  cluster.schools.forEach(s=>{ (groups[s.cell]=groups[s.cell]||[]).push(s); });
+  let html = '';
+  Object.keys(groups).sort((a,b)=> a==='HUB'?-1: b==='HUB'?1: a.localeCompare(b)).forEach(cellKey=>{
+    html += `<optgroup label="${cellKey==='HUB'?'Hub School':'Cell '+cellKey}">`;
+    groups[cellKey].forEach(s=>{
+      html += `<option value="${s.id}">${s.isHub?'★ ':''}${escapeHtml(s.name)}</option>`;
+    });
+    html += `</optgroup>`;
+  });
+  sel.innerHTML = html;
+  if(cluster.schools.find(s=>s.id===prev)) sel.value = prev;
+}
+document.getElementById('entrySchoolSelect').addEventListener('change', renderEntryPanel);
+
+function renderEntryPanel(){
+  populateEntrySelect();
+  const cluster = activeCluster();
+  const sel = document.getElementById('entrySchoolSelect');
+  const school = cluster.schools.find(s=>s.id===sel.value) || cluster.schools[0];
+  if(!school) return;
+  sel.value = school.id;
+
+  document.getElementById('entrySchoolMeta').innerHTML =
+    `<b>${escapeHtml(school.name)}</b> ${cellTagHtml(school.cell)} &nbsp;·&nbsp; ${TYPE_INFO[school.type].label} &nbsp;·&nbsp; Classes ${school.classMin}–${school.classMax}<br>
+     SEMIS: ${escapeHtml(school.semis)||'—'} &nbsp;·&nbsp; Head/Teacher: ${escapeHtml(school.headTeacher)||'—'} ${school.designation? '('+escapeHtml(school.designation)+')':''} &nbsp;·&nbsp; Contact: ${escapeHtml(school.contact)||'—'}`;
+
+  const tbody = document.querySelector('#entryTable tbody');
+  tbody.innerHTML = '';
+  classList(school).forEach(cls=>{
+    const cd = school.classes[cls];
+    const t = classTotals(cd);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>Class ${cls}</b></td>
+      <td class="num"><input type="number" min="0" value="${cd.boys}" data-f="boys"></td>
+      <td class="num"><input type="number" min="0" value="${cd.girls}" data-f="girls"></td>
+      <td class="num" data-role="totalGender"><b>${t.totalGender}</b></td>
+      <td class="num"><input type="number" min="0" value="${cd.muslim}" data-f="muslim"></td>
+      <td class="num"><input type="number" min="0" value="${cd.nonMuslim}" data-f="nonMuslim"></td>
+      <td class="num" data-role="totalReligion"><b>${t.totalReligion}</b></td>
+      <td class="num"><input type="number" min="0" value="${cd.sindhi}" data-f="sindhi"></td>
+      <td class="num"><input type="number" min="0" value="${cd.urdu}" data-f="urdu"></td>
+      <td class="num"><input type="number" min="0" value="${cd.english}" data-f="english"></td>
+      <td class="num" data-role="totalMedium"><b>${t.totalMedium}</b></td>
+      <td>
+        <select data-f="furniture">
+          ${FURNITURE_OPTIONS.map(o=>`<option value="${o.v}" ${o.v===cd.furniture?'selected':''}>${o.l}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select data-f="sections">
+          ${Array.from({length:13},(_,n)=>n).map(n=>`<option value="${n}" ${n===Number(cd.sections)?'selected':''}>${sectionLabel(n)}</option>`).join('')}
+        </select>
+      </td>
+      <td data-role="check">${rowCheckHtml(t)}</td>
+    `;
+    tr.querySelectorAll('input[data-f], select[data-f]').forEach(inp=>{
+      const evt = inp.tagName==='SELECT' ? 'change' : 'input';
+      inp.addEventListener(evt, ()=>{
+        const f = inp.dataset.f;
+        cd[f] = (inp.type==='number') ? Number(inp.value)||0 : inp.value;
+        const nt = classTotals(cd);
+        tr.querySelector('[data-role=totalGender]').innerHTML = `<b>${nt.totalGender}</b>`;
+        tr.querySelector('[data-role=totalReligion]').innerHTML = `<b>${nt.totalReligion}</b>`;
+        tr.querySelector('[data-role=totalMedium]').innerHTML = `<b>${nt.totalMedium}</b>`;
+        tr.querySelector('[data-role=check]').innerHTML = rowCheckHtml(nt);
+        saveState();
+        renderSchoolValidationBanner(school);
+      });
+    });
+    tbody.appendChild(tr);
+  });
+  renderSchoolValidationBanner(school);
+}
+function rowCheckHtml(t){ return t.match ? '<span class="tag ok">✓ OK</span>' : '<span class="tag bad">⚠ Mismatch</span>'; }
+function renderSchoolValidationBanner(school){
+  const t = schoolTotals(school);
+  const banner = document.getElementById('schoolValidationBanner');
+  if(t.match){
+    banner.className = 'validation-banner ok';
+    banner.textContent = `✓ All totals match! Total: ${t.total} | Religious: ${t.muslim+t.nonMuslim} | Medium: ${t.sindhi+t.urdu+t.english}`;
+  }else{
+    banner.className = 'validation-banner bad';
+    banner.textContent = `⚠ Totals do not match for one or more classes — Gender total: ${t.boys+t.girls}, Religious total: ${t.muslim+t.nonMuslim}, Medium total: ${t.sindhi+t.urdu+t.english}. Check the rows marked "Mismatch" above.`;
+  }
+}
+
+/* ============================================================
+   DASHBOARD TAB
+   ============================================================ */
+let charts = {};
+function destroyCharts(){ Object.values(charts).forEach(c=>c && c.destroy()); charts = {}; }
+
+function renderDashboard(){
+  const cluster = activeCluster();
+  const g = globalTotals(cluster);
+  document.getElementById('overviewSub').textContent = `Cluster ${cluster.code} — live totals across the hub school and all cell schools`;
+  const kpiRow = document.getElementById('kpiRow');
+  const totalSchools = cluster.schools.length;
+  const mismatchCount = cluster.schools.filter(s=>!schoolTotals(s).match).length;
+  kpiRow.innerHTML = `
+    <div class="kpi"><div class="n">${totalSchools}</div><div class="l">SCHOOLS IN CLUSTER</div></div>
+    <div class="kpi gold"><div class="n">${g.total}</div><div class="l">TOTAL STUDENTS</div></div>
+    <div class="kpi"><div class="n">${g.boys} / ${g.girls}</div><div class="l">BOYS / GIRLS</div></div>
+    <div class="kpi"><div class="n">${g.muslim} / ${g.nonMuslim}</div><div class="l">MUSLIM / NON-MUSLIM</div></div>
+    <div class="kpi"><div class="n">${g.sections}</div><div class="l">TOTAL SECTIONS</div></div>
+    <div class="kpi ${mismatchCount? 'danger':''}"><div class="n">${mismatchCount}</div><div class="l">SCHOOLS WITH MISMATCH</div></div>
+  `;
+
+  destroyCharts();
+  const labels = cluster.schools.map(s=> (s.isHub? 'HUB · ':'') + s.name);
+  const totals = cluster.schools.map(s=>schoolTotals(s).total);
+
+  charts.bySchool = new Chart(document.getElementById('chartBySchool'), {
+    type:'bar', data:{labels, datasets:[{label:'Students', data:totals, backgroundColor:'#1B5E3A'}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{ticks:{display:false}}}}
+  });
+  charts.gender = new Chart(document.getElementById('chartGender'), {
+    type:'doughnut', data:{labels:['Boys','Girls'], datasets:[{data:[g.boys,g.girls], backgroundColor:['#1B5E3A','#C9962C']}]},
+  });
+  charts.religion = new Chart(document.getElementById('chartReligion'), {
+    type:'doughnut', data:{labels:['Muslim','Non-Muslim'], datasets:[{data:[g.muslim,g.nonMuslim], backgroundColor:['#1B5E3A','#A6402A']}]},
+  });
+  charts.medium = new Chart(document.getElementById('chartMedium'), {
+    type:'doughnut', data:{labels:['Sindhi','Urdu','English'], datasets:[{data:[g.sindhi,g.urdu,g.english], backgroundColor:['#1B5E3A','#C9962C','#5B6B63']}]},
+  });
+  const furn = {available:0, shortage:0, not_available:0};
+  cluster.schools.forEach(s=>{ const f = furnitureCounts(s); furn.available+=f.available; furn.shortage+=f.shortage; furn.not_available+=f.not_available; });
+  charts.furniture = new Chart(document.getElementById('chartFurniture'), {
+    type:'bar', data:{labels:['Available','Shortage','Not Available'], datasets:[{data:[furn.available, furn.shortage, furn.not_available], backgroundColor:['#2F7D52','#C9962C','#A6402A']}]},
+    options:{plugins:{legend:{display:false}}, indexAxis:'y'}
+  });
+  charts.sections = new Chart(document.getElementById('chartSections'), {
+    type:'bar', data:{labels, datasets:[{label:'Sections', data:cluster.schools.map(s=>schoolTotals(s).sections), backgroundColor:'#5B6B63'}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{ticks:{display:false}}}}
+  });
+
+  const tbody = document.querySelector('#summaryTable tbody');
+  tbody.innerHTML = '';
+  cluster.schools.forEach((s,idx)=>{
+    const t = schoolTotals(s);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${cellTagHtml(s.cell)}</td>
+      <td>${s.isHub? '★ ' : ''}${escapeHtml(s.name)}</td>
+      <td><span class="tag type">${s.type}</span></td>
+      <td class="num">${t.boys}</td><td class="num">${t.girls}</td><td class="num"><b>${t.total}</b></td>
+      <td class="num">${t.muslim}</td><td class="num">${t.nonMuslim}</td>
+      <td class="num">${t.sindhi}</td><td class="num">${t.urdu}</td><td class="num">${t.english}</td>
+      <td class="num">${t.sections}</td>
+      <td>${t.match? '<span class="tag ok">✓ Match</span>' : '<span class="tag bad">⚠ Mismatch</span>'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============================================================
+   EXPORT
+   ============================================================ */
+document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
+  const cluster = activeCluster();
+  const rows = [[
+    'Cluster','Cell','School','Type','SEMIS','Head/Teacher','Contact','Class','Boys','Girls','Total(Gender)',
+    'Muslim','NonMuslim','Total(Religion)','Sindhi','Urdu','English','Total(Medium)','Furniture','Sections','Match'
+  ]];
+  cluster.schools.forEach(s=>{
+    classList(s).forEach(cls=>{
+      const cd = s.classes[cls];
+      const t = classTotals(cd);
+      rows.push([
+        cluster.code, s.cell, s.name, s.type, s.semis, s.headTeacher, s.contact, cls, cd.boys, cd.girls, t.totalGender,
+        cd.muslim, cd.nonMuslim, t.totalReligion, cd.sindhi, cd.urdu, cd.english, t.totalMedium, cd.furniture, sectionLabel(cd.sections), t.match?'YES':'NO'
+      ]);
+    });
+  });
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${cluster.code}_cluster_data.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+document.getElementById('printBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-dashboard').classList.add('active');
+  renderDashboard();
+  setTimeout(()=>window.print(), 150);
+});
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(confirm('This will erase all entered class figures for this cluster (school names and contacts are kept). Continue?')){
+    const cluster = activeCluster();
+    cluster.schools.forEach(s=>{ s.classes = makeClasses(s.classMin, s.classMax); });
+    saveState();
+    renderEntryPanel(); renderDashboard();
+  }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderClusterPicker();
+populateEntrySelect();
+renderSchoolsTable();
+renderEntryPanel();
+renderDashboard();
+refreshHeader();
+
+})();
+</script>
+</body>
+</html>

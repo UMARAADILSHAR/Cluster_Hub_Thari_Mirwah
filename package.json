@@ -1,0 +1,20 @@
+{
+  "name": "hub-cluster-data",
+  "version": "1.0.0",
+  "description": "Hub Cluster Enrolment & Facilities Data Collection System with PostgreSQL and Railway support",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test-db": "node -e \"require('./db.js').pool.query('SELECT NOW()').then(r=>console.log('DB Connected:', r.rows[0])).catch(console.error)\""
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
