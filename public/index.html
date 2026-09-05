@@ -413,8 +413,200 @@
     margin-top: 40px;
   }
 
+  /* Layout with Sidebar */
+  .app-layout {
+    display: flex;
+    min-height: calc(100vh - 31px);
+  }
+  .app-sidebar {
+    width: 270px;
+    flex: none;
+    background: linear-gradient(180deg, #102d1c 0%, #091a10 100%);
+    color: #F4EFDF;
+    border-right: 1px solid rgba(201, 150, 44, 0.3);
+    display: flex;
+    flex-direction: column;
+    padding: 22px 16px;
+    gap: 22px;
+  }
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(244, 239, 223, 0.15);
+  }
+  .sidebar-brand img {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    background: #FAF7F0;
+    object-fit: cover;
+    flex: none;
+  }
+  .sidebar-brand-text h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #FAF6E8;
+    line-height: 1.25;
+  }
+  .sidebar-brand-text span {
+    font-size: 11px;
+    color: #D9CFA9;
+    display: block;
+    margin-top: 3px;
+  }
+  .sidebar-section-title {
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    font-weight: 700;
+    color: #C9962C;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding-left: 6px;
+  }
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #E6E1D1;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item .item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sidebar-icon {
+    width: 17px;
+    height: 17px;
+    flex: none;
+    opacity: 0.9;
+  }
+  .sidebar-item.active {
+    background: rgba(201, 150, 44, 0.18);
+    border-left-color: var(--gold);
+    color: #FFFFFF;
+    font-weight: 600;
+  }
+  .sidebar-item.disabled {
+    background: rgba(255, 255, 255, 0.02);
+    color: rgba(244, 239, 223, 0.4);
+    cursor: not-allowed;
+    pointer-events: none;
+    border-left-color: transparent;
+  }
+  .lock-pill {
+    font-size: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    color: #9ea49f;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  /* Urgent Action Blinking Tag */
+  .urgent-pulse-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #FFFFFF;
+    background: #c53030;
+    padding: 3px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.4px;
+    box-shadow: 0 0 10px rgba(197, 48, 48, 0.7);
+    animation: urgentBlink 1.2s infinite ease-in-out;
+  }
+  .pulse-beacon {
+    width: 6px;
+    height: 6px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8);
+    animation: beaconRadar 1.2s infinite;
+  }
+
+  @keyframes urgentBlink {
+    0%, 100% {
+      background-color: #c53030;
+      box-shadow: 0 0 6px rgba(197, 48, 48, 0.6);
+      transform: scale(1);
+    }
+    50% {
+      background-color: #e53e3e;
+      box-shadow: 0 0 14px rgba(229, 62, 62, 0.95);
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes beaconRadar {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.9);
+    }
+    70% {
+      box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+  }
+
+  /* Sidebar info card */
+  .sidebar-info-card {
+    margin-top: auto;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(244, 239, 223, 0.12);
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 11.5px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sidebar-info-card .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .sidebar-info-card .lbl {
+    font-size: 9.5px;
+    color: #C9962C;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .app-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (max-width: 1024px) {
+    .app-layout { flex-direction: column; }
+    .app-sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--gold); }
+  }
+
   @media print {
-    .system-banner, nav.tabs, .toolbar-right, .no-print, .cluster-picker button { display: none !important; }
+    .app-sidebar, .system-banner, nav.tabs, .toolbar-right, .no-print, .cluster-picker button { display: none !important; }
     .panel { display: block !important; }
     main { padding: 0; }
     .letterhead { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -429,14 +621,76 @@
     <span class="dot" id="dbDot"></span>
     <span id="dbStatusText">Checking PostgreSQL connection...</span>
   </div>
-  <div class="sync-indicator" id="syncStatus">Connected &bull; Auto-save ready</div>
+  <div class="sync-indicator" id="syncStatus">Connected • Auto-save ready</div>
 </div>
 
+<div class="app-layout">
+  <!-- Sidebar with Enrollment Data active & others disabled -->
+  <aside class="app-sidebar no-print">
+    <div class="sidebar-brand">
+      <img src="/logo.jpg" alt="GBHS Thari Mirwah Seal">
+      <div class="sidebar-brand-text">
+        <h3>GBHS THARI MIRWAH</h3>
+        <span>Hub Cluster Control</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav-group">
+      <div class="sidebar-section-title">Data Collection Modules</div>
+      <nav class="sidebar-nav">
+        <!-- 1. Enrollment Data (Active with Urgent Action Blinking) -->
+        <a href="#enrollment" class="sidebar-item active">
+          <div class="item-left">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span>Enrollment Data</span>
+          </div>
+          <span class="urgent-pulse-badge"><span class="pulse-beacon"></span>URGENT ACTION</span>
+        </a>
+
+        <!-- 2. Staff Data (Disabled / Locked) -->
+        <div class="sidebar-item disabled" title="Staff Data module is disabled for current phase">
+          <div class="item-left">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Staff Data</span>
+          </div>
+          <span class="lock-pill">🔒 Locked</span>
+        </div>
+
+        <!-- 3. Vacancy (Disabled / Locked) -->
+        <div class="sidebar-item disabled" title="Vacancy module is disabled for current phase">
+          <div class="item-left">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <span>Vacancy</span>
+          </div>
+          <span class="lock-pill">🔒 Locked</span>
+        </div>
+
+        <!-- 4. Facilities (Disabled / Locked) -->
+        <div class="sidebar-item disabled" title="Facilities module is disabled for current phase">
+          <div class="item-left">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>Facilities</span>
+          </div>
+          <span class="lock-pill">🔒 Locked</span>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Sidebar Cluster Card -->
+    <div class="sidebar-info-card">
+      <div class="info-row"><span class="lbl">CLUSTER</span><b id="sidebarClusterCode">KX03099</b></div>
+      <div class="info-row"><span class="lbl">DISTRICT</span><span id="sidebarDistrict">Khairpur Mirs</span></div>
+      <div class="info-row"><span class="lbl">MODULE</span><span style="color:#2ecc71;font-weight:600;">● Enrollment Active</span></div>
+      <div class="info-row"><span class="lbl">PRIORITY</span><span style="color:#ff6b6b;font-weight:700;">Urgent Action</span></div>
+    </div>
+  </aside>
+
+  <div class="app-content">
 <div class="letterhead">
   <img src="/logo.jpg" alt="Cluster Hub GBHS Thari Mirwah Seal" class="crest-logo">
   <div class="titles">
     <h1 id="hubTitle">Govt. Boys High School, Thari Mirwah</h1>
-    <p id="hubSub">Hub Cluster Enrolment &amp; Facilities Dashboard &mdash; Sindh School Education Department</p>
+    <p id="hubSub">Hub Cluster Enrolment &amp; Facilities Dashboard — Sindh School Education Department</p>
   </div>
   <div class="cluster-picker">
     <div>
@@ -495,7 +749,7 @@
   <section class="panel" id="panel-schools">
     <h2 class="section-title">Hub &amp; Cell Schools <small>Edit school records; changes save directly to PostgreSQL</small></h2>
     <div class="toolbar">
-      <div style="font-size:12.5px;color:var(--slate)">GBHS = Boys High &bull; GBPS/GGPS = Boys/Girls Primary &bull; GBELS/GGELS = Elementary Lower (1–8) &bull; GGHS = Higher Secondary (6–12)</div>
+      <div style="font-size:12.5px;color:var(--slate)">GBHS = Boys High • GBPS/GGPS = Boys/Girls Primary • GBELS/GGELS = Elementary Lower (1–8) • GGHS = Higher Secondary (6–12)</div>
       <div class="toolbar-right">
         <button class="btn ghost" id="addCellBtn">+ Add Cell School</button>
       </div>
@@ -543,7 +797,7 @@
     <div class="grid-2">
       <div class="card">
         <h3>Export CSV</h3>
-        <p style="font-size:12.5px;color:var(--slate)">Downloads one row per class, per school, for the active cluster &mdash; formatted for official reporting or Excel analysis.</p>
+        <p style="font-size:12.5px;color:var(--slate)">Downloads one row per class, per school, for the active cluster — formatted for official reporting or Excel analysis.</p>
         <button class="btn" id="exportCsvBtn">Download CSV</button>
       </div>
       <div class="card">
@@ -564,8 +818,10 @@
 <div id="toast"></div>
 
 <footer class="app-foot">
-  Hub Cluster Enrolment & Facilities Management System &bull; Powered by PostgreSQL &bull; Sindh School Education Department
+  Hub Cluster Enrolment & Facilities Management System • Powered by PostgreSQL • Sindh School Education Department
 </footer>
+  </div><!-- /.app-content -->
+</div><!-- /.app-layout -->
 
 <script>
 (function(){
@@ -608,7 +864,7 @@ async function checkHealth(){
     const data = await res.json();
     if(data.db === 'connected'){
       dbDot.className = 'dot';
-      dbStatusText.textContent = `Connected: PostgreSQL (${data.database}) &bull; ${data.latencyMs}ms ping`;
+      dbStatusText.textContent = `Connected: PostgreSQL (${data.database}) • ${data.latencyMs}ms ping`;
     }else{
       dbDot.className = 'dot error';
       dbStatusText.textContent = `PostgreSQL Disconnected: ${data.error || 'Server error'}`;
@@ -781,7 +1037,7 @@ function saveSchoolMetadataDebounced(school){
 function renderClusterPicker(){
   const sel = document.getElementById('clusterSelect');
   sel.innerHTML = state.clusters.map(c=>{
-    return `<option value="${c.code}">${c.code} &mdash; ${escapeHtml(c.district)} (${c.schools.length} schools)</option>`;
+    return `<option value="${c.code}">${c.code} — ${escapeHtml(c.district)} (${c.schools.length} schools)</option>`;
   }).join('');
   sel.value = state.activeClusterCode;
 }
@@ -828,8 +1084,10 @@ function refreshHeader(){
       .replace(/^GBHS - /,'Govt. Boys High School, ')
       .replace(/^GGHS - /,'Govt. Girls Higher Secondary School, ');
   }
-  document.getElementById('hubSub').textContent = `Cluster ${cluster.code} &bull; ${cluster.district} District &mdash; Enrolment & Facilities Dashboard`;
+  document.getElementById('hubSub').textContent = `Cluster ${cluster.code} • ${cluster.district} District — Enrolment & Facilities Dashboard`;
   document.getElementById('clusterCountBadge').textContent = cluster.schools.filter(s=>!s.isHub).length;
+  if(document.getElementById('sidebarClusterCode')) document.getElementById('sidebarClusterCode').textContent = cluster.code;
+  if(document.getElementById('sidebarDistrict')) document.getElementById('sidebarDistrict').textContent = cluster.district;
 }
 
 /* ============================================================
@@ -871,7 +1129,7 @@ function renderSchoolsTable(){
       <td><input type="text" value="${escapeHtml(s.semis)}" data-act="semis" style="width:110px"></td>
       <td><input type="text" value="${escapeHtml(s.headTeacher)}" data-act="headTeacher" style="width:150px"></td>
       <td><input type="text" value="${escapeHtml(s.contact)}" data-act="contact" style="width:110px"></td>
-      <td>${s.isHub? '' : '<button class="icon-btn" title="Remove School" data-act="remove">&times;</button>'}</td>
+      <td>${s.isHub? '' : '<button class="icon-btn" title="Remove School" data-act="remove">✕</button>'}</td>
     `;
 
     tr.querySelector('[data-act=name]').addEventListener('input', e=>{
@@ -942,7 +1200,7 @@ document.getElementById('addCellBtn').addEventListener('click', async ()=>{
   const name = prompt('School name (e.g. GBPS - NEW SCHOOL):');
   if(!name) return;
   const type = (prompt('Type: GBPS, GGPS, GBELS, GGELS, or GGHS?', 'GBPS') || 'GBPS').toUpperCase().trim();
-  if(!TYPE_INFO[type]){ alert('Unknown type &mdash; school not added.'); return; }
+  if(!TYPE_INFO[type]){ alert('Unknown type — school not added.'); return; }
   const cell = prompt('Which cell group? (e.g. C1, C2, C3)', 'C1') || 'C1';
 
   try{
@@ -997,8 +1255,8 @@ function renderEntryPanel(){
   sel.value = school.id;
 
   document.getElementById('entrySchoolMeta').innerHTML =
-    `<b>${escapeHtml(school.name)}</b> ${cellTagHtml(school.cell)} &bull; ${TYPE_INFO[school.type].label} &bull; Classes ${school.classMin}&ndash;${school.classMax}<br>
-     SEMIS: <b>${escapeHtml(school.semis)||'&mdash;'}</b> &bull; Head/Teacher: <b>${escapeHtml(school.headTeacher)||'&mdash;'}</b> ${school.designation? '('+escapeHtml(school.designation)+')':''} &bull; Contact: <b>${escapeHtml(school.contact)||'&mdash;'}</b>`;
+    `<b>${escapeHtml(school.name)}</b> ${cellTagHtml(school.cell)} • ${TYPE_INFO[school.type].label} • Classes ${school.classMin}–${school.classMax}<br>
+     SEMIS: <b>${escapeHtml(school.semis)||'—'}</b> • Head/Teacher: <b>${escapeHtml(school.headTeacher)||'—'}</b> ${school.designation? '('+escapeHtml(school.designation)+')':''} • Contact: <b>${escapeHtml(school.contact)||'—'}</b>`;
 
   const tbody = document.querySelector('#entryTable tbody');
   tbody.innerHTML = '';
@@ -1051,7 +1309,7 @@ function renderEntryPanel(){
 }
 
 function rowCheckHtml(t){
-  return t.match ? '<span class="tag ok">&check; OK</span>' : '<span class="tag bad">&warning; Mismatch</span>';
+  return t.match ? '<span class="tag ok">✓ OK</span>' : '<span class="tag bad">⚠️ Mismatch</span>';
 }
 
 function renderSchoolValidationBanner(school){
@@ -1059,10 +1317,10 @@ function renderSchoolValidationBanner(school){
   const banner = document.getElementById('schoolValidationBanner');
   if(t.match){
     banner.className = 'validation-banner ok';
-    banner.innerHTML = `&check; <b>All totals match!</b> Total Enrolment: <b>${t.total}</b> &bull; Religious Total: <b>${t.muslim+t.nonMuslim}</b> &bull; Medium Total: <b>${t.sindhi+t.urdu+t.english}</b>`;
+    banner.innerHTML = `✓ <b>All totals match!</b> Total Enrolment: <b>${t.total}</b> • Religious Total: <b>${t.muslim+t.nonMuslim}</b> • Medium Total: <b>${t.sindhi+t.urdu+t.english}</b>`;
   }else{
     banner.className = 'validation-banner bad';
-    banner.innerHTML = `&warning; <b>Validation Mismatch:</b> Gender sum = ${t.boys+t.girls}, Religious sum = ${t.muslim+t.nonMuslim}, Medium sum = ${t.sindhi+t.urdu+t.english}. Verify the highlighted class rows above.`;
+    banner.innerHTML = `⚠️ <b>Validation Mismatch:</b> Gender sum = ${t.boys+t.girls}, Religious sum = ${t.muslim+t.nonMuslim}, Medium sum = ${t.sindhi+t.urdu+t.english}. Verify the highlighted class rows above.`;
   }
 }
 
@@ -1076,7 +1334,7 @@ function renderDashboard(){
   const cluster = activeCluster();
   if(!cluster) return;
   const g = globalTotals(cluster);
-  document.getElementById('overviewSub').textContent = `Cluster ${cluster.code} &mdash; live totals across hub school and ${cluster.schools.length - 1} cell schools in PostgreSQL`;
+  document.getElementById('overviewSub').textContent = `Cluster ${cluster.code} — live totals across hub school and ${cluster.schools.length - 1} cell schools in PostgreSQL`;
 
   const kpiRow = document.getElementById('kpiRow');
   const totalSchools = cluster.schools.length;
@@ -1092,7 +1350,7 @@ function renderDashboard(){
   `;
 
   destroyCharts();
-  const labels = cluster.schools.map(s=> (s.isHub? 'HUB &bull; ':'') + s.name);
+  const labels = cluster.schools.map(s=> (s.isHub? 'HUB • ':'') + s.name);
   const totals = cluster.schools.map(s=>schoolTotals(s).total);
 
   charts.bySchool = new Chart(document.getElementById('chartBySchool'), {
@@ -1149,7 +1407,7 @@ function renderDashboard(){
       <td class="num">${t.muslim}</td><td class="num">${t.nonMuslim}</td>
       <td class="num">${t.sindhi}</td><td class="num">${t.urdu}</td><td class="num">${t.english}</td>
       <td class="num">${t.sections}</td>
-      <td>${t.match? '<span class="tag ok">&check; Match</span>' : '<span class="tag bad">&warning; Mismatch</span>'}</td>
+      <td>${t.match? '<span class="tag ok">✓ Match</span>' : '<span class="tag bad">⚠️ Mismatch</span>'}</td>
     `;
     tbody.appendChild(tr);
   });
