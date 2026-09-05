@@ -646,6 +646,178 @@
     backdrop-filter: blur(8px);
   }
 
+  /* Save Button & Actions in Glass Header */
+  .entry-header-controls {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-save-enrollment {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #1B5E3A 0%, #123F27 100%);
+    color: #FFFFFF;
+    border: 1.5px solid rgba(201, 150, 44, 0.65);
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(18, 63, 39, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(14px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    height: 40px;
+  }
+  .btn-save-enrollment:hover {
+    background: linear-gradient(135deg, #247C4D 0%, #174E31 100%);
+    border-color: var(--gold);
+    box-shadow: 0 6px 24px rgba(201, 150, 44, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+  }
+  .btn-save-enrollment:active {
+    transform: translateY(1px);
+  }
+  .btn-save-enrollment.saving {
+    background: linear-gradient(135deg, #C9962C 0%, #A6781D 100%);
+    border-color: #F4EFDF;
+    cursor: wait;
+  }
+  .btn-save-enrollment.saved-success {
+    background: linear-gradient(135deg, #2F7D52 0%, #1B5E3A 100%);
+    border-color: #85e3b3;
+    box-shadow: 0 0 16px rgba(47, 125, 82, 0.6);
+  }
+  .save-status-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  .save-timestamp {
+    font-size: 11px;
+    color: var(--slate);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Mismatch Visual Highlights in Table */
+  tr.row-mismatch td {
+    background: rgba(254, 242, 242, 0.45);
+  }
+  .mismatch-cell.bad {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border: 1.5px solid rgba(220, 38, 38, 0.5) !important;
+    border-radius: 4px;
+    color: #991b1b !important;
+    box-shadow: inset 0 0 6px rgba(239, 68, 68, 0.2);
+  }
+  .mismatch-base-cell {
+    background: rgba(201, 150, 44, 0.1) !important;
+    border: 1px dashed rgba(201, 150, 44, 0.4) !important;
+    border-radius: 4px;
+  }
+  .mismatch-badge-micro {
+    display: inline-block;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: #dc2626;
+    color: #ffffff;
+    margin-left: 4px;
+    line-height: 1.2;
+    box-shadow: 0 1px 3px rgba(220, 38, 38, 0.35);
+  }
+  .mismatch-summary-pill {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    align-items: flex-start;
+  }
+  .mismatch-popover {
+    font-size: 10.5px;
+    background: rgba(254, 226, 226, 0.95);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 4px;
+    padding: 4px 6px;
+    color: #7f1d1d;
+    line-height: 1.35;
+    margin-top: 2px;
+    max-width: 220px;
+  }
+  .mismatch-pop-item {
+    white-space: normal;
+    font-weight: 600;
+  }
+
+  /* Validation Banner Detailed Breakdown */
+  .val-banner-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .val-banner-icon {
+    font-size: 20px;
+    line-height: 1;
+    flex: none;
+    margin-top: 2px;
+  }
+  .val-banner-sub {
+    font-size: 12px;
+    margin-top: 3px;
+    opacity: 0.9;
+  }
+  .val-mismatch-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .val-mismatch-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    flex-wrap: wrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  }
+  .val-class-badge {
+    background: #991b1b;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+  }
+  .val-stat {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .val-stat.alert {
+    color: #991b1b;
+    background: rgba(254, 202, 202, 0.65);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  .val-explain {
+    color: #7f1d1d;
+    font-size: 11.5px;
+    font-weight: 600;
+    margin-left: auto;
+  }
+
   /* Locked Tab Styling */
   nav.tabs button.locked-tab {
     opacity: 0.75;
@@ -977,7 +1149,7 @@
       <div class="sidebar-section-title">Data Collection Modules</div>
       <nav class="sidebar-nav">
         <!-- 1. Enrollment Data (Active with Urgent Action Blinking) -->
-        <a href="#enrollment" class="sidebar-item active">
+        <a href="#enrollment" class="sidebar-item active" id="sidebarEnrollmentLink">
           <div class="item-left">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
             <span>Enrollment Data</span>
@@ -1018,7 +1190,7 @@
     <div class="sidebar-info-card">
       <div class="info-row"><span class="lbl">CLUSTER</span><b id="sidebarClusterCode">KX03099</b></div>
       <div class="info-row"><span class="lbl">DISTRICT</span><span id="sidebarDistrict">Khairpur Mirs</span></div>
-      <div class="info-row"><span class="lbl">VIEW ACCESS</span><span id="sidebarAuthMode" style="color:#C9962C;font-weight:600;">🔒 Public (Entry Only)</span></div>
+      <div class="info-row"><span class="lbl">VIEW ACCESS</span><span id="sidebarAuthMode" style="color:#C9962C;font-weight:600;">🔒 Public (Enrollment Only)</span></div>
       <div class="info-row"><span class="lbl">PRIORITY</span><span style="color:#ff6b6b;font-weight:700;">Urgent Action</span></div>
       <button class="sidebar-login-trigger no-print" id="sidebarLoginTriggerBtn">🔑 Admin Login</button>
     </div>
@@ -1049,7 +1221,7 @@
 </div>
 
 <nav class="tabs" id="mainNavTabs">
-  <button data-tab="entry" class="active" id="tabBtnEntry">Data Entry</button>
+  <button data-tab="entry" class="active" id="tabBtnEntry">Enrollment Data</button>
   <button data-tab="dashboard" class="locked-tab" id="tabBtnDashboard">Dashboard <span class="tab-lock">🔒</span></button>
   <button data-tab="schools" class="locked-tab" id="tabBtnSchools">Schools <span class="tab-lock">🔒</span></button>
   <button data-tab="export" class="locked-tab" id="tabBtnExport">Export &amp; Print <span class="tab-lock">🔒</span></button>
@@ -1110,17 +1282,24 @@
     </div>
   </section>
 
-  <!-- ===================== DATA ENTRY (PUBLICLY ACCESSIBLE & LIQUID GLASS LOOK) ===================== -->
+  <!-- ===================== ENROLLMENT DATA (PUBLICLY ACCESSIBLE & LIQUID GLASS LOOK) ===================== -->
   <section class="panel active" id="panel-entry">
     <div class="glass-header-card">
       <div>
-        <h2 class="section-title" style="margin-bottom:4px;">Class-wise Data Entry <small>Live PostgreSQL Sync</small></h2>
-        <p class="glass-subtitle">Enter enrollment, medium of instruction, and facility status for each class. Figures auto-save and validate instantly.</p>
+        <h2 class="section-title" style="margin-bottom:4px;">Class-wise Enrollment Data <small>Live PostgreSQL Sync</small></h2>
+        <p class="glass-subtitle">Enter enrollment, medium of instruction, and facility status for each class. Figures validate instantly with automatic discrepancy detection.</p>
       </div>
-      <div class="entry-select-row" style="margin-bottom:0;">
-        <div class="field glass-select-field">
+      <div class="entry-header-controls">
+        <div class="field glass-select-field" style="min-width:280px;">
           <label>SELECT SCHOOL</label>
           <select id="entrySchoolSelect"></select>
+        </div>
+        <div class="save-status-wrap">
+          <button class="btn-save-enrollment" id="saveEnrollmentBtn" type="button" title="Save current school enrollment data to PostgreSQL (Ctrl+S)">
+            <span class="btn-save-icon">💾</span>
+            <span class="btn-save-label">Save Enrollment Data</span>
+          </button>
+          <div class="save-timestamp" id="saveTimestamp">All changes saved • Auto-sync ready</div>
         </div>
       </div>
     </div>
@@ -1299,7 +1478,35 @@ function classTotals(cd){
   const totalGender = (Number(cd.boys)||0)+(Number(cd.girls)||0);
   const totalReligion = (Number(cd.muslim)||0)+(Number(cd.nonMuslim)||0);
   const totalMedium = (Number(cd.sindhi)||0)+(Number(cd.urdu)||0)+(Number(cd.english)||0);
-  return {totalGender, totalReligion, totalMedium, match: totalGender===totalReligion && totalReligion===totalMedium};
+  
+  const diffReligion = totalReligion - totalGender;
+  const diffMedium = totalMedium - totalGender;
+  const match = totalGender===totalReligion && totalReligion===totalMedium;
+
+  const mismatches = [];
+  if(totalReligion !== totalGender){
+    const sign = diffReligion > 0 ? `+${diffReligion}` : `${diffReligion}`;
+    mismatches.push(`Religion (${totalReligion}) differs by ${sign} from Gender (${totalGender})`);
+  }
+  if(totalMedium !== totalGender){
+    const sign = diffMedium > 0 ? `+${diffMedium}` : `${diffMedium}`;
+    mismatches.push(`Medium (${totalMedium}) differs by ${sign} from Gender (${totalGender})`);
+  }
+  if(totalReligion !== totalMedium && totalGender === totalReligion){
+    const diff = totalMedium - totalReligion;
+    const sign = diff > 0 ? `+${diff}` : `${diff}`;
+    mismatches.push(`Medium (${totalMedium}) differs by ${sign} from Religion (${totalReligion})`);
+  }
+
+  return {
+    totalGender,
+    totalReligion,
+    totalMedium,
+    diffReligion,
+    diffMedium,
+    match,
+    mismatches
+  };
 }
 function schoolTotals(school){
   const sum = {boys:0,girls:0,muslim:0,nonMuslim:0,sindhi:0,urdu:0,english:0,sections:0};
@@ -1374,6 +1581,10 @@ function saveSchoolClassesDebounced(schoolId, classes){
       if(data.success){
         syncStatus.textContent = 'PostgreSQL: Saved';
         dbDot.className = 'dot';
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const ts = document.getElementById('saveTimestamp');
+        if(ts) ts.innerHTML = `Auto-saved: <b>${timeStr}</b>`;
         showToast('Enrolment saved to PostgreSQL');
       }else{
         throw new Error(data.error);
@@ -1384,6 +1595,77 @@ function saveSchoolClassesDebounced(schoolId, classes){
       showToast('Error saving to PostgreSQL: ' + err.message, true);
     }
   }, 450);
+}
+
+async function handleManualSave(){
+  const cluster = activeCluster();
+  if(!cluster) return;
+  const sel = document.getElementById('entrySchoolSelect');
+  const school = cluster.schools.find(s=>s.id===sel.value);
+  if(!school) return;
+
+  const saveBtn = document.getElementById('saveEnrollmentBtn');
+  const saveLabel = saveBtn ? saveBtn.querySelector('.btn-save-label') : null;
+  const saveIcon = saveBtn ? saveBtn.querySelector('.btn-save-icon') : null;
+  const timestampEl = document.getElementById('saveTimestamp');
+
+  if(saveTimeouts['classes_'+school.id]){
+    clearTimeout(saveTimeouts['classes_'+school.id]);
+    delete saveTimeouts['classes_'+school.id];
+  }
+
+  if(saveBtn){
+    saveBtn.classList.add('saving');
+    saveBtn.disabled = true;
+    if(saveIcon) saveIcon.textContent = '⏳';
+    if(saveLabel) saveLabel.textContent = 'Saving to Database...';
+  }
+  syncStatus.textContent = 'Saving to PostgreSQL...';
+  dbDot.className = 'dot syncing';
+
+  try {
+    const res = await fetch(`/api/schools/${school.id}/classes`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ classes: school.classes })
+    });
+    const data = await res.json();
+    if(data.success){
+      dbDot.className = 'dot';
+      syncStatus.textContent = 'PostgreSQL: Saved';
+      
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      if(timestampEl) timestampEl.innerHTML = `✓ Last saved: <b>${timeStr}</b>`;
+      showToast(`✓ Enrollment data for "${school.name}" saved to PostgreSQL!`);
+      
+      if(saveBtn){
+        saveBtn.classList.remove('saving');
+        saveBtn.classList.add('saved-success');
+        if(saveIcon) saveIcon.textContent = '✓';
+        if(saveLabel) saveLabel.textContent = 'Saved to Database!';
+        
+        setTimeout(()=>{
+          saveBtn.classList.remove('saved-success');
+          if(saveIcon) saveIcon.textContent = '💾';
+          if(saveLabel) saveLabel.textContent = 'Save Enrollment Data';
+          saveBtn.disabled = false;
+        }, 1500);
+      }
+    } else {
+      throw new Error(data.error || 'Save rejected by server');
+    }
+  } catch(err) {
+    if(saveBtn){
+      saveBtn.classList.remove('saving');
+      if(saveIcon) saveIcon.textContent = '⚠️';
+      if(saveLabel) saveLabel.textContent = 'Save Failed - Retry';
+      saveBtn.disabled = false;
+    }
+    dbDot.className = 'dot error';
+    syncStatus.textContent = 'Save Failed';
+    showToast('Save Error: ' + err.message, true);
+  }
 }
 
 function saveSchoolMetadataDebounced(school){
@@ -1802,6 +2084,42 @@ function populateEntrySelect(){
 }
 document.getElementById('entrySchoolSelect').addEventListener('change', renderEntryPanel);
 
+function formatGenderTotalCell(t){
+  return `<b>${t.totalGender}</b>`;
+}
+
+function formatReligionTotalCell(t){
+  if(t.totalReligion === t.totalGender){
+    return `<b>${t.totalReligion}</b>`;
+  }
+  const diff = t.diffReligion;
+  const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+  return `<b>${t.totalReligion}</b><span class="mismatch-badge-micro" title="Religion (${t.totalReligion}) differs by ${diffStr} from Gender (${t.totalGender})">${diffStr}</span>`;
+}
+
+function formatMediumTotalCell(t){
+  if(t.totalMedium === t.totalGender){
+    return `<b>${t.totalMedium}</b>`;
+  }
+  const diff = t.diffMedium;
+  const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+  return `<b>${t.totalMedium}</b><span class="mismatch-badge-micro" title="Medium (${t.totalMedium}) differs by ${diffStr} from Gender (${t.totalGender})">${diffStr}</span>`;
+}
+
+function rowCheckHtml(t){
+  if(t.match){
+    return `<span class="tag ok" title="All totals match (${t.totalGender})">✓ OK</span>`;
+  }
+  return `
+    <div class="mismatch-summary-pill">
+      <span class="tag bad">⚠️ Mismatch</span>
+      <div class="mismatch-popover">
+        ${t.mismatches.map(m => `<div class="mismatch-pop-item">• ${escapeHtml(m)}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
 function renderEntryPanel(){
   populateEntrySelect();
   const cluster = activeCluster();
@@ -1810,6 +2128,23 @@ function renderEntryPanel(){
   const school = cluster.schools.find(s=>s.id===sel.value) || cluster.schools[0];
   if(!school) return;
   sel.value = school.id;
+
+  // Wire Save Button
+  const saveBtn = document.getElementById('saveEnrollmentBtn');
+  if(saveBtn && !saveBtn._hasSaveListener){
+    saveBtn._hasSaveListener = true;
+    saveBtn.addEventListener('click', handleManualSave);
+  }
+
+  // Wire Sidebar Enrollment Link
+  const sideEnrollment = document.getElementById('sidebarEnrollmentLink');
+  if(sideEnrollment && !sideEnrollment._hasNavListener){
+    sideEnrollment._hasNavListener = true;
+    sideEnrollment.addEventListener('click', (e)=>{
+      e.preventDefault();
+      activateTab('entry');
+    });
+  }
 
   document.getElementById('entrySchoolMeta').innerHTML =
     `<b>${escapeHtml(school.name)}</b> ${cellTagHtml(school.cell)} • ${TYPE_INFO[school.type].label} • Classes ${school.classMin}–${school.classMax}<br>
@@ -1821,18 +2156,20 @@ function renderEntryPanel(){
     const cd = school.classes[cls] || {boys:0, girls:0, muslim:0, nonMuslim:0, sindhi:0, urdu:0, english:0, furniture:'available', sections:0};
     const t = classTotals(cd);
     const tr = document.createElement('tr');
+    if(!t.match) tr.classList.add('row-mismatch');
+
     tr.innerHTML = `
       <td><b>Class ${cls}</b></td>
       <td class="num"><input type="number" min="0" value="${cd.boys}" data-f="boys"></td>
       <td class="num"><input type="number" min="0" value="${cd.girls}" data-f="girls"></td>
-      <td class="num" data-role="totalGender"><b>${t.totalGender}</b></td>
+      <td class="num ${t.match ? '' : 'mismatch-base-cell'}" data-role="totalGender">${formatGenderTotalCell(t)}</td>
       <td class="num"><input type="number" min="0" value="${cd.muslim}" data-f="muslim"></td>
       <td class="num"><input type="number" min="0" value="${cd.nonMuslim}" data-f="nonMuslim"></td>
-      <td class="num" data-role="totalReligion"><b>${t.totalReligion}</b></td>
+      <td class="num ${t.totalReligion === t.totalGender ? '' : 'mismatch-cell bad'}" data-role="totalReligion">${formatReligionTotalCell(t)}</td>
       <td class="num"><input type="number" min="0" value="${cd.sindhi}" data-f="sindhi"></td>
       <td class="num"><input type="number" min="0" value="${cd.urdu}" data-f="urdu"></td>
       <td class="num"><input type="number" min="0" value="${cd.english}" data-f="english"></td>
-      <td class="num" data-role="totalMedium"><b>${t.totalMedium}</b></td>
+      <td class="num ${t.totalMedium === t.totalGender ? '' : 'mismatch-cell bad'}" data-role="totalMedium">${formatMediumTotalCell(t)}</td>
       <td>
         <select data-f="furniture">
           ${FURNITURE_OPTIONS.map(o=>`<option value="${o.v}" ${o.v===cd.furniture?'selected':''}>${o.l}</option>`).join('')}
@@ -1852,10 +2189,34 @@ function renderEntryPanel(){
         const f = inp.dataset.f;
         cd[f] = (inp.type==='number') ? Number(inp.value)||0 : inp.value;
         const nt = classTotals(cd);
-        tr.querySelector('[data-role=totalGender]').innerHTML = `<b>${nt.totalGender}</b>`;
-        tr.querySelector('[data-role=totalReligion]').innerHTML = `<b>${nt.totalReligion}</b>`;
-        tr.querySelector('[data-role=totalMedium]').innerHTML = `<b>${nt.totalMedium}</b>`;
-        tr.querySelector('[data-role=check]').innerHTML = rowCheckHtml(nt);
+
+        if(!nt.match){
+          tr.classList.add('row-mismatch');
+        } else {
+          tr.classList.remove('row-mismatch');
+        }
+
+        const tgCell = tr.querySelector('[data-role=totalGender]');
+        if(tgCell){
+          tgCell.className = 'num ' + (nt.match ? '' : 'mismatch-base-cell');
+          tgCell.innerHTML = formatGenderTotalCell(nt);
+        }
+
+        const trCell = tr.querySelector('[data-role=totalReligion]');
+        if(trCell){
+          trCell.className = 'num ' + (nt.totalReligion === nt.totalGender ? '' : 'mismatch-cell bad');
+          trCell.innerHTML = formatReligionTotalCell(nt);
+        }
+
+        const tmCell = tr.querySelector('[data-role=totalMedium]');
+        if(tmCell){
+          tmCell.className = 'num ' + (nt.totalMedium === nt.totalGender ? '' : 'mismatch-cell bad');
+          tmCell.innerHTML = formatMediumTotalCell(nt);
+        }
+
+        const checkCell = tr.querySelector('[data-role=check]');
+        if(checkCell) checkCell.innerHTML = rowCheckHtml(nt);
+
         renderSchoolValidationBanner(school);
         saveSchoolClassesDebounced(school.id, school.classes);
       });
@@ -1865,21 +2226,71 @@ function renderEntryPanel(){
   renderSchoolValidationBanner(school);
 }
 
-function rowCheckHtml(t){
-  return t.match ? '<span class="tag ok">✓ OK</span>' : '<span class="tag bad">⚠️ Mismatch</span>';
-}
-
 function renderSchoolValidationBanner(school){
   const t = schoolTotals(school);
   const banner = document.getElementById('schoolValidationBanner');
-  if(t.match){
+  if(!banner) return;
+
+  const mismatched = [];
+  classList(school).forEach(cls => {
+    const cd = school.classes[cls] || {};
+    const ct = classTotals(cd);
+    if(!ct.match){
+      mismatched.push({ cls, ct });
+    }
+  });
+
+  if(mismatched.length === 0){
     banner.className = 'validation-banner ok';
-    banner.innerHTML = `✓ <b>All totals match!</b> Total Enrolment: <b>${t.total}</b> • Religious Total: <b>${t.muslim+t.nonMuslim}</b> • Medium Total: <b>${t.sindhi+t.urdu+t.english}</b>`;
+    banner.innerHTML = `
+      <div class="val-banner-header">
+        <span class="val-banner-icon">✓</span>
+        <div>
+          <b>All Enrollment Figures Match!</b>
+          <div class="val-banner-sub">
+            Total Enrolment: <b>${t.total}</b> (Boys: ${t.boys}, Girls: ${t.girls}) • Religious Total: <b>${t.muslim+t.nonMuslim}</b> • Medium Total: <b>${t.sindhi+t.urdu+t.english}</b> • Sections: <b>${t.sections}</b>
+          </div>
+        </div>
+      </div>
+    `;
   }else{
     banner.className = 'validation-banner bad';
-    banner.innerHTML = `⚠️ <b>Validation Mismatch:</b> Gender sum = ${t.boys+t.girls}, Religious sum = ${t.muslim+t.nonMuslim}, Medium sum = ${t.sindhi+t.urdu+t.english}. Verify the highlighted class rows above.`;
+    banner.innerHTML = `
+      <div class="val-banner-header">
+        <span class="val-banner-icon">⚠️</span>
+        <div style="flex:1;">
+          <div style="font-size:13.5px; font-weight:700;">Validation Discrepancies Detected in ${mismatched.length} Class${mismatched.length > 1 ? 'es' : ''}</div>
+          <div class="val-banner-sub">The breakdown below highlights exactly which totals do not balance so you can correct them quickly:</div>
+          <div class="val-mismatch-cards">
+            ${mismatched.map(m => `
+              <div class="val-mismatch-row">
+                <span class="val-class-badge">Class ${m.cls}</span>
+                <span class="val-stat">Gender Total (Boys+Girls): <b>${m.ct.totalGender}</b></span>
+                <span class="val-stat ${m.ct.totalReligion !== m.ct.totalGender ? 'alert' : ''}">Religion: <b>${m.ct.totalReligion}</b> ${m.ct.diffReligion !== 0 ? `(${m.ct.diffReligion > 0 ? '+'+m.ct.diffReligion : m.ct.diffReligion})` : '✓'}</span>
+                <span class="val-stat ${m.ct.totalMedium !== m.ct.totalGender ? 'alert' : ''}">Medium: <b>${m.ct.totalMedium}</b> ${m.ct.diffMedium !== 0 ? `(${m.ct.diffMedium > 0 ? '+'+m.ct.diffMedium : m.ct.diffMedium})` : '✓'}</span>
+                <span class="val-explain">${m.ct.mismatches.join(' • ')}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div style="font-size:11px; margin-top:8px; opacity:0.85;">
+            💡 <i>Tip: Gender total (Boys + Girls) must equal Religion (Muslim + Non-Muslim) and Medium (Sindhi + Urdu + English).</i>
+          </div>
+        </div>
+      </div>
+    `;
   }
 }
+
+// Global Ctrl+S / Cmd+S Keyboard Shortcut
+window.addEventListener('keydown', (e)=>{
+  if((e.ctrlKey || e.metaKey) && (e.key==='s' || e.key==='S')){
+    e.preventDefault();
+    const entryPanel = document.getElementById('panel-entry');
+    if(entryPanel && entryPanel.classList.contains('active')){
+      handleManualSave();
+    }
+  }
+});
 
 /* ============================================================
    DASHBOARD TAB
