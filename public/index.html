@@ -34,16 +34,39 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css?v=2.2">
 <style>
-  /* ─── LETTERHEAD BAND ─── */
+  /* ─── DESKTOP SPECIFIC FIXED LAYOUT (Only on screens > 768px) ─── */
+  @media (min-width: 769px) {
+    #statusBar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    }
+    #letterhead {
+      position: fixed; top: 30px; left: 0; right: 0; z-index: 95;
+      min-height: 80px;
+    }
+    #utilBar {
+      position: fixed; top: calc(30px + 80px); left: 0; right: 0; z-index: 90;
+      height: 40px; padding: 0 20px 0 calc(var(--sidebar-w) + 16px);
+    }
+    #sidebar {
+      top: calc(30px + 80px + 40px) !important;
+      position: fixed; left: 0; width: var(--sidebar-w); bottom: 0; z-index: 80;
+    }
+    #main {
+      margin-left: var(--sidebar-w);
+      padding-top: calc(30px + 80px + 40px + 24px) !important;
+      padding-left: 28px; padding-right: 28px;
+    }
+  }
+
+  /* ─── BASE LETTERHEAD STYLES (Both Desktop & Mobile) ─── */
   #letterhead {
-    position: fixed; top: 30px; left: 0; right: 0; z-index: 95;
     background: #fff;
     border-bottom: 3px solid var(--accent);
     display: flex; align-items: center; justify-content: space-between;
     gap: 16px;
     padding: 8px 24px;
     box-shadow: 0 2px 10px rgba(0,0,0,.07);
-    min-height: 80px;
+    transition: all .2s ease;
   }
   .lh-left { display: flex; align-items: center; gap: 12px; }
   .lh-logo {
@@ -106,11 +129,8 @@
 
   /* ─── UTILITY BAR (breadcrumb + auth) ─── */
   #utilBar {
-    position: fixed; top: calc(30px + 80px); left: 0; right: 0; z-index: 90;
     background: var(--bg); border-bottom: 1px solid var(--border);
-    height: 40px; display: flex; align-items: center;
-    padding: 0 20px 0 calc(var(--sidebar-w) + 16px);
-    gap: 10px;
+    display: flex; align-items: center; gap: 10px;
   }
   .util-breadcrumb { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-lt); }
   .util-breadcrumb .sep { opacity: .4; }
@@ -130,14 +150,40 @@
   .nav-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
   .btn-nav-logout { font-size: 11px; color: var(--danger); font-weight: 600; padding: 2px 5px; border-radius: 4px; }
   .btn-nav-logout:hover { background: var(--danger-lt); }
-
-  /* ─── Adjust sidebar & main for new heights ─── */
-  #sidebar  { top: calc(30px + 80px + 40px) !important; }
-  #main     { padding-top: calc(30px + 80px + 40px + 24px) !important; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
+
+<!-- ══════════════════════════════════════
+     MOBILE TOP BAR (Visible <= 768px)
+══════════════════════════════════════ -->
+<header id="mobileTopBar" class="mobile-only">
+  <button class="btn-mobile-icon" onclick="toggleSidebar(true)" aria-label="Open Navigation Menu">
+    <span style="font-size:22px;line-height:1">☰</span>
+  </button>
+  <div class="mobile-brand">
+    <img src="/logo.jpg" alt="Seal" class="mobile-logo">
+    <div>
+      <div class="mobile-title">GBHS Thari Mirwah</div>
+      <div class="mobile-sub">Cluster Hub KX03099</div>
+    </div>
+  </div>
+  <div class="mobile-actions">
+    <button class="btn-mobile-toggle" id="btnToggleHeader" onclick="toggleLetterhead()" title="Show/hide top header information">
+      <span id="bannerToggleIcon">🔽</span> <span id="bannerToggleLabel">Info</span>
+    </button>
+    <button class="btn-mobile-icon" onclick="sharePortalOnWhatsApp()" title="Share on WhatsApp" style="color:#25d366">
+      <span style="font-size:17px">📲</span>
+    </button>
+    <button class="btn-mobile-icon" id="mobileLoginBtn" onclick="openModal()" title="Admin Login">
+      <span style="font-size:15px">🔒</span>
+    </button>
+  </div>
+</header>
+
+<!-- Backdrop overlay for mobile drawer -->
+<div id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
 
 <!-- ══════════════════════════════════════
      STATUS BAR
@@ -148,13 +194,13 @@
     <span id="dbStatusText">Connecting to PostgreSQL…</span>
   </div>
   <div class="sb-right">
-    <span class="sb-creator-chip">💻 Website created by <b>Asif Ali Shar</b>, JEST, GBHS Thari Mirwah</span>
+    <span class="sb-creator-chip desktop-only">💻 Website created by <b>Asif Ali Shar</b>, JEST, GBHS Thari Mirwah</span>
     <span id="syncStatus">Ready</span>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════
-     LETTERHEAD BAND (centered with Creator box at top right)
+     LETTERHEAD BAND
 ══════════════════════════════════════ -->
 <header id="letterhead">
   <div class="lh-left">
@@ -164,6 +210,7 @@
     <div class="lh-office">Office of the Headmaster</div>
     <div class="lh-name">Cluster Hub &mdash; GBHS Thari Mirwah</div>
     <div class="lh-sub">Khairpur Mirs District &bull; Sindh Education Department &bull; Cluster KX03099</div>
+    <button class="btn-hide-banner mobile-only" onclick="toggleLetterhead()">✕ Hide Header Banner</button>
   </div>
   <div class="lh-creator-box">
     <span class="lh-creator-lbl">Website created by</span>
@@ -182,7 +229,7 @@
     <span class="crumb-active" id="navCrumb">Enrollment Data</span>
   </div>
   <div class="util-right" id="navAuthArea">
-    <button class="btn-whatsapp-share" onclick="sharePortalOnWhatsApp()" title="Share school submission instructions to WhatsApp Group">
+    <button class="btn-whatsapp-share desktop-only" onclick="sharePortalOnWhatsApp()" title="Share school submission instructions to WhatsApp Group">
       <span>📲 Share on WhatsApp</span>
     </button>
     <button class="btn-nav-login" id="openLoginBtn" onclick="openModal()">🔒 Admin Login</button>
@@ -195,7 +242,7 @@
 </div>
 
 <!-- ══════════════════════════════════════
-     SIDEBAR
+     SIDEBAR (Drawer on Mobile)
 ══════════════════════════════════════ -->
 <aside id="sidebar">
   <div class="sb-head">
@@ -204,6 +251,7 @@
       <h2>GBHS Thari Mirwah</h2>
       <p>Cluster Hub · KX03099</p>
     </div>
+    <button class="btn-sb-close mobile-only" onclick="toggleSidebar(false)" aria-label="Close Menu">✕</button>
   </div>
 
   <div class="sb-label">Data Collection</div>

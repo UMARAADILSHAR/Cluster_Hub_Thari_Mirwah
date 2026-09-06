@@ -273,6 +273,18 @@ function updateAuthUI() {
       document.getElementById('navUsername').textContent = state.authUser.username;
     }
   }
+  const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+  if (mobileLoginBtn) {
+    if (admin) {
+      mobileLoginBtn.title = `Admin: ${state.authUser.username} (Tap to logout)`;
+      mobileLoginBtn.innerHTML = `<span style="font-size:11px;font-weight:700;color:var(--success);background:#dcfce7;padding:3px 6px;border-radius:4px">👤 Admin</span>`;
+      mobileLoginBtn.onclick = doLogout;
+    } else {
+      mobileLoginBtn.title = 'Admin Login';
+      mobileLoginBtn.innerHTML = `<span style="font-size:15px">🔒</span>`;
+      mobileLoginBtn.onclick = openModal;
+    }
+  }
   ['sbDashLock','sbSchoolsLock','sbExportLock','sbSubLock'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = admin ? 'none' : 'inline-flex';
@@ -285,9 +297,54 @@ function updateAuthUI() {
 }
 
 /* ─────────────────────────────────────
+   MOBILE DRAWER & COLLAPSIBLE BANNER
+───────────────────────────────────── */
+function toggleSidebar(forceState) {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebarBackdrop');
+  if (!sb) return;
+  const shouldOpen = (typeof forceState === 'boolean') ? forceState : !sb.classList.contains('sb-open');
+  if (shouldOpen) {
+    sb.classList.add('sb-open');
+    if (bd) bd.classList.add('active');
+    document.body.classList.add('sb-noscroll');
+  } else {
+    sb.classList.remove('sb-open');
+    if (bd) bd.classList.remove('active');
+    document.body.classList.remove('sb-noscroll');
+  }
+}
+
+function toggleLetterhead(forceState) {
+  const lh = document.getElementById('letterhead');
+  const sb = document.getElementById('statusBar');
+  const icon = document.getElementById('bannerToggleIcon');
+  const label = document.getElementById('bannerToggleLabel');
+  if (!lh) return;
+  const isHidden = (typeof forceState === 'boolean') ? forceState : !lh.classList.contains('banner-hidden');
+  if (isHidden) {
+    lh.classList.add('banner-hidden');
+    if (sb) sb.classList.add('banner-hidden');
+    if (icon) icon.textContent = 'ℹ️';
+    if (label) label.textContent = 'Info';
+  } else {
+    lh.classList.remove('banner-hidden');
+    if (sb) sb.classList.remove('banner-hidden');
+    if (icon) icon.textContent = '✕';
+    if (label) label.textContent = 'Hide';
+  }
+}
+
+window.toggleSidebar = toggleSidebar;
+window.toggleLetterhead = toggleLetterhead;
+
+/* ─────────────────────────────────────
    PANEL NAVIGATION
 ───────────────────────────────────── */
 function switchPanel(name) {
+  if (window.innerWidth <= 768) {
+    toggleSidebar(false);
+  }
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.sb-item[id^="sb"]').forEach(i => i.classList.remove('active'));
   const panel = document.getElementById(`panel-${name}`);
