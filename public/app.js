@@ -246,16 +246,12 @@ async function loadData() {
       renderSchoolsGrid();
       updateAuthUI();
       if (isAdmin()) loadSubmissionsReport(false);
-      // auto-load first school
+      // Set default school ID without auto-navigating away from directory grid
       const sel = document.getElementById('entrySchoolSelect');
-      if (sel && !sel.value) {
-        const cluster = activeCluster();
-        if (cluster && cluster.schools.length) {
-          sel.value = cluster.schools[0].id;
-          loadSchoolForm();
-        }
-      } else if (sel && sel.value) {
-        loadSchoolForm();
+      const cluster = activeCluster();
+      if (cluster && cluster.schools.length) {
+        if (!state.currentSchoolId) state.currentSchoolId = cluster.schools[0].id;
+        if (sel && !sel.value) sel.value = state.currentSchoolId;
       }
     }
   } catch (e) {
@@ -427,15 +423,22 @@ function switchPanel(name) {
   if (panel) panel.classList.add('active');
   const sb = document.getElementById(`sb${name.charAt(0).toUpperCase() + name.slice(1)}`);
   if (sb) sb.classList.add('active');
+
+  const cluster = activeCluster();
+  const currentSchool = cluster?.schools.find(s => s.id === state.currentSchoolId);
+
   document.getElementById('navCrumb').textContent = {
-    enrollment:  'Enrollment Data',
+    enrollment:  'Schools Directory',
+    entry:       currentSchool ? `Data Entry: ${currentSchool.name}` : 'School Enrollment Entry',
     submissions: 'Submissions Tracker',
     dashboard:   'Dashboard',
     schools:     'Schools Register',
     export:      'Export & Print',
   }[name] || name;
 
-  if (name === 'enrollment') document.getElementById('sbEnrollment')?.classList.add('active');
+  if (name === 'enrollment' || name === 'entry') {
+    document.getElementById('sbEnrollment')?.classList.add('active');
+  }
   if (name === 'submissions') {
     const ok = isAdmin();
     const lockedEl = document.getElementById('submissionsLocked');
@@ -583,7 +586,7 @@ function renderSchoolsGrid() {
         </div>
 
         <div class="sg-cards-grid">
-          ${schoolsInCell.map(school => (school.id === state.expandedSchoolId) ? renderExpandedSchoolCard(school) : renderSingleSchoolCard(school)).join('')}
+          ${schoolsInCell.map(school => renderSingleSchoolCard(school)).join('')}
         </div>
       </div>
     `;
@@ -601,15 +604,6 @@ function renderSchoolsGrid() {
   }
 
   container.innerHTML = html;
-
-  // If a school is expanded, populate its inline class forms and validation banner
-  if (state.expandedSchoolId) {
-    const expSchool = cluster.schools.find(s => s.id === state.expandedSchoolId);
-    if (expSchool) {
-      populateInlineClasses(expSchool);
-      renderInlineValBanner(expSchool);
-    }
-  }
 }
 
 function renderSingleSchoolCard(school) {
@@ -634,8 +628,8 @@ function renderSingleSchoolCard(school) {
     <div class="sg-card ${isHub ? 'is-hub-card' : ''}"
          id="schoolCard-${school.id}"
          data-school-id="${school.id}"
-         onclick="toggleSchoolEnrollment('${school.id}')"
-         title="Click to open enrollment data form for ${esc(school.name)}">
+         onclick="openSchoolEntryPage('${school.id}')"
+         title="Click to open dedicated enrollment data entry form for ${esc(school.name)}">
       
       <div class="sg-card-top">
         <div class="sg-avatar ${avatarClass}">
@@ -653,7 +647,7 @@ function renderSingleSchoolCard(school) {
             <span style="font-size:9.5px;color:var(--text-xlt)">• ${esc(school.type)}</span>
           </div>
         </div>
-        <div class="sg-chevron" title="Click to open enrollment form">▼</div>
+        <div class="sg-chevron" title="Click to open entry form">➔</div>
       </div>
 
       <!-- Enrollment Data inside the card -->
@@ -669,7 +663,7 @@ function renderSingleSchoolCard(school) {
             <span>📚 Classes: <b>${filledClasses}/${expectedClasses}</b></span>
           ` : `
             <span>Classes: <b>${formatClassRange(school.classMin, school.classMax)}</b></span>
-            <span style="color:#0284c7;font-weight:700">👉 Click to enter data</span>
+            <span style="color:#0284c7;font-weight:700">👉 Click to open entry form</span>
           `}
         </div>
       </div>
@@ -677,8 +671,8 @@ function renderSingleSchoolCard(school) {
       <!-- Action buttons matching official portal -->
       <div class="sg-actions-row">
         <button class="sg-btn-action btn-enrollment"
-                onclick="event.stopPropagation(); toggleSchoolEnrollment('${school.id}')"
-                title="Open enrollment data entry form">
+                onclick="event.stopPropagation(); openSchoolEntryPage('${school.id}')"
+                title="Open dedicated enrollment entry page">
           <span>📊 Enrollment</span>
         </button>
         <button class="sg-btn-action btn-staff"
@@ -701,218 +695,54 @@ function renderSingleSchoolCard(school) {
   `;
 }
 
-function renderExpandedSchoolCard(school) {
-  const isHub = Boolean(school.isHub);
-  const isGirls = school.type.startsWith('GG');
-  const avatarClass = isHub ? 'hub' : (isGirls ? 'girls' : 'boys');
-  const avatarIcon = isHub ? '🏛️' : (school.type.includes('HS') ? '🏛️' : (isGirls ? '👧' : '👦'));
-  const isHead = school.cell === 'C2' && school.name.includes('THARI');
-  const ti = TYPE_INFO[school.type] || { label: school.type };
-
-  return `
-    <div class="sg-card is-expanded is-selected-school ${isHub ? 'is-hub-card' : ''}"
-         id="schoolCard-${school.id}"
-         data-school-id="${school.id}">
-      
-      <!-- Header of Expanded School Card -->
-      <div class="sg-expanded-header">
-        <div class="sg-card-top" style="cursor:pointer;flex:1" onclick="toggleSchoolEnrollment('${school.id}')" title="Click to collapse form">
-          <div class="sg-avatar ${avatarClass}">
-            <span>${avatarIcon}</span>
-          </div>
-          <div class="sg-card-header-text">
-            <div class="sg-school-name" style="font-size:15px">
-              ${esc(school.name)}
-              ${isHub ? '<span class="sg-tag-hub">★ Hub Head</span>' : ''}
-              ${isHead ? '<span class="sg-tag-head">Head</span>' : ''}
-              <span class="sg-badge-open">✏️ ENROLLMENT FORM OPEN</span>
-            </div>
-            <div class="sg-card-meta" style="font-size:11.5px;margin-top:4px">
-              <span class="sg-semis-chip">🪪 SEMIS: <b>${esc(school.semis || 'N/A')}</b></span>
-              <span class="sg-cell-tag">Cell ${esc(school.cell)}</span>
-              <span>• ${esc(ti.label)} (${esc(school.type)})</span>
-              <span>• Classes: <b>${formatClassRange(school.classMin, school.classMax)}</b></span>
-              ${school.headTeacher ? `<span>• Head: <b>${esc(school.headTeacher)}</b></span>` : ''}
-            </div>
-          </div>
-        </div>
-
-        <!-- Top Action Buttons inside Card -->
-        <div class="sg-expanded-top-actions">
-          <button class="btn btn-save btn-sm" id="cardSaveBtnTop-${school.id}" onclick="handleSaveSchool('${school.id}')" title="Save this school (Ctrl+S)">
-            <span id="saveIconTop-${school.id}">💾</span> <span id="saveLblTop-${school.id}">Save Data</span>
-          </button>
-          <button class="btn btn-outline btn-sm" onclick="printSingleSchoolById('${school.id}')" title="Export or print this school as official A4 PDF">
-            <span>🖨️ Print PDF</span>
-          </button>
-          <button class="btn-close-form" onclick="toggleSchoolEnrollment('${school.id}')" title="Close this school's form">
-            <span>✕ Close Form</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Inline Validation Banner -->
-      <div class="val-banner inline-val-banner" id="inlineValBanner-${school.id}"></div>
-
-      <!-- Class Cards Grid for this school -->
-      <div class="sg-inline-classes-grid" id="inlineClassCards-${school.id}"></div>
-
-      <!-- Bottom Save Bar inside Card -->
-      <div class="sg-form-footer-bar">
-        <div class="sg-ff-left">
-          <div class="save-hint">All class fields auto-validate. Press <b>Ctrl+S</b> or click Save to persist to PostgreSQL.</div>
-          <div class="save-ts" id="inlineSaveTs-${school.id}">${school.submittedAt ? `✓ Saved: ${new Date(school.submittedAt).toLocaleTimeString()}` : 'Not saved yet'}</div>
-        </div>
-        <div class="sg-ff-right">
-          <button class="btn btn-outline btn-sm" onclick="printSingleSchoolById('${school.id}')">
-            <span>🖨️ Print School PDF</span>
-          </button>
-          <button class="btn btn-save" id="cardSaveBtnBtm-${school.id}" onclick="handleSaveSchool('${school.id}')">
-            <span id="saveIconBtm-${school.id}">💾</span> <span id="saveLblBtm-${school.id}">Save School Data</span>
-          </button>
-          <button class="btn btn-outline btn-sm" onclick="toggleSchoolEnrollment('${school.id}')">
-            <span>✕ Close Form</span>
-          </button>
-        </div>
-      </div>
-
-    </div>
-  `;
-}
-
-function toggleSchoolEnrollment(schoolId) {
-  if (state.expandedSchoolId === schoolId) {
-    state.expandedSchoolId = null;
-  } else {
-    state.expandedSchoolId = schoolId;
-    state.currentSchoolId = schoolId;
-    const hidden = document.getElementById('entrySchoolSelect');
-    if (hidden) hidden.value = schoolId;
-  }
-  renderSchoolsGrid();
-  if (state.expandedSchoolId) {
-    setTimeout(() => {
-      const card = document.getElementById(`schoolCard-${schoolId}`);
-      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 60);
-  }
-}
-
-function populateInlineClasses(school) {
-  const container = document.getElementById(`inlineClassCards-${school.id}`);
-  if (!container) return;
-  container.innerHTML = '';
-
-  classNums(school).forEach(cls => {
-    const cd = school.classes[cls] || { boys: 0, girls: 0, muslim: 0, nonMuslim: 0, medium: 'sindhi', furniture: 'available', sections: 0 };
-    const t = classTotals(cd);
-    const card = document.createElement('div');
-    card.className = 'card enrollment-card';
-    card.id = `classCard-${cls}`;
-    const badge = badgeHtml(t);
-    card.innerHTML = `
-      <div class="class-card-hdr" id="hdr-${cls}" onclick="toggleCard(${cls})">
-        <div class="class-lbl">
-          <span class="class-badge-pill">${classTag(cls)}</span>
-          <span class="class-title-text">${classLabel(cls)}</span>
-        </div>
-        <div class="class-hdr-right">
-          <span id="badge-${cls}">${badge}</span>
-          <span id="clsTotal-${cls}" class="class-total-chip">${t.g > 0 ? t.g + ' students' : ''}</span>
-          <svg class="class-chev open" id="chev-${cls}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
-      <div class="class-card-body open" id="body-${cls}">
-        ${classFormHtml(cls, cd, t)}
-      </div>
-    `;
-    container.appendChild(card);
-    attachClassListeners(card, cls, school);
-  });
-}
-
-function renderInlineValBanner(school) {
-  const banner = document.getElementById(`inlineValBanner-${school.id}`);
-  if (!banner) return;
-  const errors = [];
-  classNums(school).forEach(cls => {
-    const cd = school.classes[cls] || {};
-    const t = classTotals(cd);
-    if (!t.match && t.g > 0) errors.push({ cls, t });
-  });
-
-  if (errors.length === 0) {
-    const st = schoolTotals(school);
-    if (st.total > 0) {
-      banner.className = 'val-banner inline-val-banner ok';
-      banner.innerHTML = `<span style="font-size:16px">✓</span>
-        <div><b>All figures balance!</b> Total: ${st.total} students (${st.boys} boys, ${st.girls} girls) · ${st.sections} sections</div>`;
-    } else {
-      banner.className = 'val-banner inline-val-banner';
-      banner.innerHTML = '';
-    }
-    return;
-  }
-
-  banner.className = 'val-banner inline-val-banner bad';
-  banner.innerHTML = `<b>⚠ Validation error in ${errors.length} class${errors.length > 1 ? 'es' : ''}:</b>
-    <div style="font-size:11.5px;margin-top:4px">
-      ${errors.map(e => `Class ${classLabel(e.cls)}: Religion total (${e.t.r}) does not equal Gender total (${e.t.g})`).join(' • ')}
-    </div>`;
-}
-
-async function handleSaveSchool(schoolId) {
+function openSchoolEntryPage(schoolId) {
   const cluster = activeCluster();
   if (!cluster) return;
   const school = cluster.schools.find(s => s.id === schoolId);
   if (!school) return;
 
-  clearTimeout(autoSaveTimeout);
-  const btnTop = document.getElementById(`cardSaveBtnTop-${school.id}`);
-  const btnBtm = document.getElementById(`cardSaveBtnBtm-${school.id}`);
-  const lblTop = document.getElementById(`saveLblTop-${school.id}`);
-  const lblBtm = document.getElementById(`saveLblBtm-${school.id}`);
-  const iconTop = document.getElementById(`saveIconTop-${school.id}`);
-  const iconBtm = document.getElementById(`saveIconBtm-${school.id}`);
-  const tsEl = document.getElementById(`inlineSaveTs-${school.id}`);
+  state.currentSchoolId = school.id;
+  const hiddenSel = document.getElementById('entrySchoolSelect');
+  if (hiddenSel) hiddenSel.value = school.id;
 
-  if (btnTop) btnTop.className = 'btn btn-save btn-sm saving';
-  if (btnBtm) btnBtm.className = 'btn btn-save saving';
-  if (lblTop) lblTop.textContent = 'Saving…';
-  if (lblBtm) lblBtm.textContent = 'Saving…';
+  const titleEl = document.getElementById('entrySchoolTitle');
+  const badgeEl = document.getElementById('entrySchoolBadge');
+  const subEl   = document.getElementById('entrySchoolSub');
+  const metaStrip = document.getElementById('schoolMetaStrip');
+  const ti = TYPE_INFO[school.type] || { label: school.type };
 
-  try {
-    await saveClasses(school.id, school.classes);
-    school.isSubmitted = true;
-    school.submittedAt = new Date().toISOString();
-    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    
-    updateProgressKPIs();
-    toast(`✓ Saved enrollment for ${school.name}`, 'ok');
-
-    if (btnTop) btnTop.className = 'btn btn-save btn-sm saved';
-    if (btnBtm) btnBtm.className = 'btn btn-save saved';
-    if (lblTop) lblTop.textContent = 'Saved!';
-    if (lblBtm) lblBtm.textContent = 'Saved!';
-    if (iconTop) iconTop.textContent = '✓';
-    if (iconBtm) iconBtm.textContent = '✓';
-    if (tsEl) tsEl.innerHTML = `✓ Last saved at <b>${now}</b>`;
-
-    setTimeout(() => {
-      if (btnTop) btnTop.className = 'btn btn-save btn-sm';
-      if (btnBtm) btnBtm.className = 'btn btn-save';
-      if (lblTop) lblTop.textContent = 'Save Data';
-      if (lblBtm) lblBtm.textContent = 'Save School Data';
-      if (iconTop) iconTop.textContent = '💾';
-      if (iconBtm) iconBtm.textContent = '💾';
-    }, 1800);
-  } catch (e) {
-    toast('Save error: ' + e.message, 'err');
-    if (btnTop) btnTop.className = 'btn btn-save btn-sm';
-    if (btnBtm) btnBtm.className = 'btn btn-save';
-    if (lblTop) lblTop.textContent = 'Retry Save';
-    if (lblBtm) lblBtm.textContent = 'Retry Save';
+  if (titleEl) titleEl.textContent = school.name;
+  if (badgeEl) {
+    badgeEl.className = `chip-tag ${school.isHub ? 'chip-hub' : 'chip-cell'}`;
+    badgeEl.textContent = school.isHub ? 'HUB SCHOOL' : `CELL ${school.cell}`;
   }
+  if (subEl) {
+    subEl.textContent = `SEMIS: ${school.semis || 'N/A'} · Cell ${school.cell} · Type: ${school.type} · Classes: ${formatClassRange(school.classMin, school.classMax)}`;
+  }
+
+  if (metaStrip) {
+    metaStrip.innerHTML = `
+      <div class="meta-chip"><b>${esc(school.name)}</b></div>
+      <div class="meta-chip"><span class="chip-tag ${school.isHub ? 'chip-hub' : 'chip-cell'}">${school.isHub ? 'HUB' : 'Cell ' + school.cell}</span></div>
+      <div class="meta-chip"><span class="chip-tag chip-type">${school.type}</span> ${esc(ti.label)}</div>
+      <div class="meta-chip">Classes: <b>${formatClassRange(school.classMin, school.classMax)}</b></div>
+      ${school.semis ? `<div class="meta-chip">SEMIS: <b>${esc(school.semis)}</b></div>` : ''}
+      ${school.headTeacher ? `<div class="meta-chip">Head: <b>${esc(school.headTeacher)}</b></div>` : ''}
+    `;
+  }
+
+  renderClassCards(school);
+  renderValBanner(school);
+
+  switchPanel('entry');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToSchoolsDirectory() {
+  updateProgressKPIs();
+  renderSchoolsGrid();
+  switchPanel('enrollment');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function setSchoolGridFilter(cellKey) {
@@ -938,12 +768,12 @@ function clearSchoolSearch() {
 
 function loadSchoolForm(schoolId) {
   const sId = schoolId || document.getElementById('entrySchoolSelect')?.value || state.currentSchoolId;
-  if (sId) toggleSchoolEnrollment(sId);
+  if (sId) openSchoolEntryPage(sId);
 }
 
 window.renderSchoolsGrid = renderSchoolsGrid;
-window.toggleSchoolEnrollment = toggleSchoolEnrollment;
-window.handleSaveSchool = handleSaveSchool;
+window.openSchoolEntryPage = openSchoolEntryPage;
+window.backToSchoolsDirectory = backToSchoolsDirectory;
 window.loadSchoolForm = loadSchoolForm;
 window.setSchoolGridFilter = setSchoolGridFilter;
 window.onSchoolSearchInput = onSchoolSearchInput;

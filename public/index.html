@@ -322,12 +322,12 @@
 ══════════════════════════════════════ -->
 <main id="main">
 
-  <!-- ── ENROLLMENT PANEL ── -->
+  <!-- ── ENROLLMENT DIRECTORY PANEL (ONLY CELLS GRID) ── -->
   <section class="panel active" id="panel-enrollment">
     <div class="page-header">
       <div class="page-header-left">
-        <h1>Class-wise Enrollment Data</h1>
-        <p>Cluster KX03099 · Khairpur Mirs District — click any school card or <b>📊 Enrollment</b> below to open and enter data</p>
+        <h1>Cluster Schools Directory</h1>
+        <p>Cluster KX03099 · Khairpur Mirs District — click any school card or <b>📊 Enrollment</b> to open its data entry page</p>
       </div>
     </div>
 
@@ -345,7 +345,7 @@
         <div class="sg-toolbar-left">
           <div class="sg-title-wrap">
             <span class="sg-main-badge">🏛️ Cluster Schools Directory</span>
-            <span class="sg-sub-text">Click any school name or <b>📊 Enrollment</b> to open its enrollment form inside the cell</span>
+            <span class="sg-sub-text">Click any school card or <b>📊 Enrollment</b> to open its dedicated data entry page</span>
           </div>
         </div>
         <div class="sg-toolbar-right">
@@ -363,9 +363,70 @@
         </div>
       </div>
 
-      <!-- Container where schools grid by cell is dynamically rendered with inline forms -->
+      <!-- Container where schools grid by cell is dynamically rendered (ONLY CELLS) -->
       <div id="schoolsCardsWrapper"></div>
     </section>
+  </section>
+
+  <!-- ── DEDICATED SCHOOL ENROLLMENT ENTRY PANEL (SEPARATE PAGE) ── -->
+  <section class="panel" id="panel-entry">
+    <div class="page-header" style="margin-bottom:16px">
+      <div class="page-header-left">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <button class="btn btn-outline btn-sm" onclick="backToSchoolsDirectory()" style="font-weight:700;display:inline-flex;align-items:center;gap:6px">
+            <span>←</span> <span>Back to Schools Directory</span>
+          </button>
+          <span class="chip-tag chip-hub" id="entrySchoolBadge">HUB</span>
+        </div>
+        <h1 id="entrySchoolTitle" style="font-size:22px;margin:0">GBHS - THARI MIRWAH</h1>
+        <p id="entrySchoolSub" style="margin-top:4px;font-size:13px;color:var(--text-lt)">SEMIS: 415050361 · Cell C1 · Classes: 6 to 10</p>
+      </div>
+      <div class="page-header-right no-print">
+        <button class="btn btn-outline" onclick="backToSchoolsDirectory()" title="Return to schools grid">
+          <span>⊞</span> <span>All Schools Grid</span>
+        </button>
+        <button class="btn btn-outline" onclick="printCurrentSchoolReport()" title="Export or Print this school as an official A4 PDF">
+          <span>🖨️</span> <span>Print School PDF</span>
+        </button>
+        <button class="btn-save" id="mainSaveBtn" onclick="handleSave()" title="Save (Ctrl+S)">
+          <span id="saveBtnIcon">💾</span>
+          <span id="saveBtnLbl">Save Data</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Selected School Details Meta Strip -->
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-body" style="padding:14px 20px">
+        <div class="meta-strip" id="schoolMetaStrip"></div>
+      </div>
+    </div>
+
+    <!-- Validation Banner -->
+    <div class="val-banner" id="valBanner"></div>
+
+    <!-- Class Cards Container -->
+    <div id="classCardsContainer"></div>
+
+    <!-- Sticky Save Footer Area -->
+    <div class="save-footer" id="saveFooterArea">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn btn-outline btn-sm" onclick="backToSchoolsDirectory()">
+          ← Back to Directory
+        </button>
+        <div>
+          <div class="save-hint">All fields auto-validate. Press <b>Ctrl+S</b> or click Save to persist.</div>
+          <div class="save-ts" id="saveTs">Not saved yet</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="footerSaveStatus" style="font-size:12px;color:var(--text-lt)"></span>
+        <button class="btn btn-outline btn-sm" onclick="printCurrentSchoolReport()" style="display:inline-flex;align-items:center;gap:6px">
+          🖨️ Print School PDF
+        </button>
+        <button class="btn-save" onclick="handleSave()">💾 Save Enrollment Data</button>
+      </div>
+    </div>
   </section>
 
   <!-- ── SUBMISSIONS TRACKER PANEL (Admin Only) ── -->
