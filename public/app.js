@@ -394,12 +394,12 @@ function renderClassCards(school) {
     card.innerHTML = `
       <div class="class-card-hdr" id="hdr-${cls}" onclick="toggleCard(${cls})">
         <div class="class-lbl">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          Class ${cls}
+          <span class="class-badge-pill">CLASS ${cls}</span>
+          <span class="class-title-text">Class ${cls}</span>
         </div>
         <div class="class-hdr-right">
           <span id="badge-${cls}">${badge}</span>
-          <span id="clsTotal-${cls}" style="font-size:12px;color:var(--text-lt)">${t.g > 0 ? t.g + ' students' : ''}</span>
+          <span id="clsTotal-${cls}" class="class-total-chip">${t.g > 0 ? t.g + ' students' : ''}</span>
           <svg class="class-chev" id="chev-${cls}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
@@ -428,78 +428,77 @@ function classFormHtml(cls, cd, t) {
   const rOk  = t.g > 0 && t.r === t.g;
   const rBad = t.g > 0 && t.r !== t.g;
   return `
-    <!-- STEP 1: GENDER -->
-    <div class="enroll-sec">
-      <div class="enroll-title">① Student Count by Gender</div>
-      <div class="g3">
-        <div class="form-group">
-          <label class="form-label">👦 Boys</label>
-          <input type="number" class="form-input num" min="0" value="${cd.boys||0}" data-f="boys" id="f-${cls}-boys" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">👧 Girls</label>
-          <input type="number" class="form-input num" min="0" value="${cd.girls||0}" data-f="girls" id="f-${cls}-girls" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Total Students</label>
-          <div class="total-cell" id="tc-g-${cls}">
-            <span class="tn">${t.g}</span><span class="tl">AUTO TOTAL</span>
+    <div class="enroll-grid-2x2">
+      <!-- STEP 1: GENDER -->
+      <div class="enroll-sec">
+        <div class="enroll-title">① Gender Count</div>
+        <div class="g3 compact-g3">
+          <div class="form-group">
+            <label class="form-label">👦 Boys</label>
+            <input type="number" class="form-input num compact" min="0" value="${cd.boys||0}" data-f="boys" id="f-${cls}-boys" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">👧 Girls</label>
+            <input type="number" class="form-input num compact" min="0" value="${cd.girls||0}" data-f="girls" id="f-${cls}-girls" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total</label>
+            <div class="total-cell compact-cell" id="tc-g-${cls}">
+              <span class="tn">${t.g}</span><span class="tl">AUTO TOTAL</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- STEP 2: RELIGION -->
-    <div class="enroll-sec">
-      <div class="enroll-title">② Religion Breakdown <span style="font-size:10px;color:var(--text-xlt);font-weight:400;text-transform:none;letter-spacing:0">(must equal Gender Total)</span></div>
-      <div class="g3">
-        <div class="form-group">
-          <label class="form-label">☪ Muslim</label>
-          <input type="number" class="form-input num" min="0" value="${cd.muslim||0}" data-f="muslim" id="f-${cls}-muslim" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">✝ Non-Muslim</label>
-          <input type="number" class="form-input num" min="0" value="${cd.nonMuslim||0}" data-f="nonMuslim" id="f-${cls}-nonMuslim" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Religion Total</label>
-          <div class="total-cell ${rOk ? 'ok' : rBad ? 'bad' : ''}" id="tc-r-${cls}">
-            <span class="tn">${t.r}</span>
-            <span class="tl">${rBad ? '⚠ MISMATCH' : rOk ? '✓ MATCH' : 'AUTO TOTAL'}</span>
+      <!-- STEP 2: RELIGION -->
+      <div class="enroll-sec">
+        <div class="enroll-title">② Religion <span class="enroll-subtitle">(must match Gender)</span></div>
+        <div class="g3 compact-g3">
+          <div class="form-group">
+            <label class="form-label">☪ Muslim</label>
+            <input type="number" class="form-input num compact" min="0" value="${cd.muslim||0}" data-f="muslim" id="f-${cls}-muslim" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">✝ Non-Muslim</label>
+            <input type="number" class="form-input num compact" min="0" value="${cd.nonMuslim||0}" data-f="nonMuslim" id="f-${cls}-nonMuslim" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Religion Total</label>
+            <div class="total-cell compact-cell ${rOk ? 'ok' : rBad ? 'bad' : ''}" id="tc-r-${cls}">
+              <span class="tn">${t.r}</span>
+              <span class="tl">${rBad ? '⚠ MISMATCH' : rOk ? '✓ MATCH' : 'AUTO TOTAL'}</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- STEP 3: MEDIUM -->
-    <div class="enroll-sec">
-      <div class="enroll-title">③ Medium of Instruction</div>
-      <div class="g2">
-        <div class="form-group" style="grid-column:1/-1">
-          <label class="form-label">Select Medium used in this class</label>
-          <select class="form-select" data-f="medium" id="f-${cls}-medium" style="max-width:320px">
+      <!-- STEP 3: MEDIUM -->
+      <div class="enroll-sec">
+        <div class="enroll-title">③ Medium of Instruction</div>
+        <div class="form-group">
+          <label class="form-label">Language of Teaching</label>
+          <select class="form-select compact" data-f="medium" id="f-${cls}-medium">
             ${MEDIUM_OPTS.map(o => `<option value="${o.v}" ${(cd.medium||'sindhi')===o.v?'selected':''}>${o.l}</option>`).join('')}
           </select>
-          <span class="form-hint" style="margin-top:4px;display:block">Choose the primary language of instruction used for this class</span>
         </div>
       </div>
-    </div>
 
-    <!-- STEP 4: FACILITIES -->
-    <div class="enroll-sec">
-      <div class="enroll-title">④ Facilities</div>
-      <div class="g2">
-        <div class="form-group">
-          <label class="form-label">Furniture Status</label>
-          <select class="form-select" data-f="furniture" id="f-${cls}-furniture">
-            ${FURNITURE_OPTS.map(o => `<option value="${o.v}" ${o.v===cd.furniture?'selected':''}>${o.l}</option>`).join('')}
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Number of Sections</label>
-          <select class="form-select" data-f="sections" id="f-${cls}-sections">
-            ${[...Array(13).keys()].map(n => `<option value="${n}" ${n===Number(cd.sections)?'selected':''}>${sectionLabel(n)}</option>`).join('')}
-          </select>
+      <!-- STEP 4: FACILITIES -->
+      <div class="enroll-sec">
+        <div class="enroll-title">④ Facilities & Sections</div>
+        <div class="g2 compact-g2">
+          <div class="form-group">
+            <label class="form-label">Furniture Status</label>
+            <select class="form-select compact" data-f="furniture" id="f-${cls}-furniture">
+              ${FURNITURE_OPTS.map(o => `<option value="${o.v}" ${o.v===cd.furniture?'selected':''}>${o.l}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sections</label>
+            <select class="form-select compact" data-f="sections" id="f-${cls}-sections">
+              ${[...Array(13).keys()].map(n => `<option value="${n}" ${n===Number(cd.sections)?'selected':''}>${sectionLabel(n)}</option>`).join('')}
+            </select>
+          </div>
         </div>
       </div>
     </div>
