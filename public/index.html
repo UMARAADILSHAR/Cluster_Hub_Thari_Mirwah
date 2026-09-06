@@ -3,2454 +3,377 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hub Cluster Dashboard — Sindh School Education Department</title>
+<title>Hub Cluster KX03099 — Enrollment Management System</title>
+<meta name="description" content="Cluster KX03099 Khairpur Mirs District — Class-wise Enrollment & Facilities Data Collection">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
 <style>
-  :root {
-    --ink: #1C2420;
-    --paper: #F7F5EF;
-    --paper-raised: #FFFFFF;
-    --line: #D9D3C4;
-    --green: #1B5E3A;
-    --green-dk: #123F27;
-    --gold: #C9962C;
-    --slate: #5B6B63;
-    --danger: #A6402A;
-    --ok: #2F7D52;
-    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
-  }
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--font-body);
-    -webkit-font-smoothing: antialiased;
-  }
-  body { font-variant-numeric: tabular-nums; }
-  a { color: inherit; }
-
-  /* Top Connection Bar */
-  .system-banner {
-    background: #0d2819;
-    color: #e2f0e6;
-    padding: 6px 28px;
-    font-size: 11.5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-  }
-  .system-banner .status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 500;
-  }
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #28a745;
-    box-shadow: 0 0 6px #28a745;
-  }
-  .dot.syncing { background: #ffc107; box-shadow: 0 0 6px #ffc107; }
-  .dot.error { background: #dc3545; box-shadow: 0 0 6px #dc3545; }
-  .sync-indicator { font-size: 11px; opacity: 0.85; }
-
-  /* Letterhead */
-  .letterhead {
-    background: linear-gradient(180deg, var(--green) 0%, var(--green-dk) 100%);
-    color: #F4EFDF;
-    padding: 22px 28px 18px;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    flex-wrap: wrap;
-    border-bottom: 4px solid var(--gold);
-  }
-  .letterhead .crest-logo {
-    width: 62px;
-    height: 62px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2.5px solid var(--gold);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-    background: #FAF7F0;
-    flex: none;
-  }
-  .letterhead .titles { flex: 1; min-width: 240px; }
-  .letterhead h1 {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 22px;
-    margin: 0 0 3px;
-    letter-spacing: 0.2px;
-  }
-  .letterhead p { margin: 0; font-size: 13px; color: #D9CFA9; }
-  .cluster-picker { display: flex; align-items: center; gap: 8px; flex: none; }
-  .cluster-picker label {
-    font-size: 10px;
-    letter-spacing: 0.5px;
-    color: #D9CFA9;
-    display: block;
-    margin-bottom: 3px;
-    font-weight: 600;
-  }
-  .cluster-picker select {
-    background: rgba(244,239,223, 0.12);
-    border: 1px solid rgba(244,239,223, 0.4);
-    color: #F4EFDF;
-    padding: 8px 12px;
-    font-size: 13px;
-    font-family: var(--font-body);
-    min-width: 250px;
-    border-radius: 4px;
-  }
-  .cluster-picker select option { color: #111; }
-  .letterhead .badge {
-    background: rgba(244,239,223, 0.12);
-    border: 1px solid rgba(244,239,223, 0.35);
-    padding: 8px 16px;
-    border-radius: 4px;
-    text-align: center;
-    flex: none;
-  }
-  .letterhead .badge b { display: block; font-size: 22px; font-family: var(--font-display); }
-  .letterhead .badge span { font-size: 10px; letter-spacing: 0.5px; color: #D9CFA9; }
-  .letterhead button.mini {
-    background: rgba(244,239,223, 0.15);
-    border: 1px solid rgba(244,239,223, 0.4);
-    color: #F4EFDF;
-    font-size: 12px;
-    padding: 9px 14px;
-    cursor: pointer;
-    font-family: var(--font-body);
-    font-weight: 500;
-    border-radius: 4px;
-    transition: background 0.15s ease;
-  }
-  .letterhead button.mini:hover { background: rgba(244,239,223, 0.28); }
-
-  /* Nav Tabs */
-  nav.tabs {
-    display: flex;
-    gap: 4px;
-    background: var(--paper-raised);
-    border-bottom: 1px solid var(--line);
-    padding: 0 28px;
-    overflow-x: auto;
-  }
-  nav.tabs button {
-    appearance: none;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-family: var(--font-body);
-    font-size: 13.5px;
-    color: var(--slate);
-    padding: 14px 18px;
-    border-bottom: 3px solid transparent;
-    white-space: nowrap;
-    transition: all 0.15s ease;
-  }
-  nav.tabs button.active {
-    color: var(--green-dk);
-    border-bottom-color: var(--gold);
-    font-weight: 600;
-  }
-  nav.tabs button:hover { color: var(--green-dk); }
-
-  /* Main Container */
-  main {
-    padding: 26px 28px 60px;
-    max-width: 1340px;
-    margin: 0 auto;
-  }
-  .panel { display: none; }
-  .panel.active { display: block; animation: fadeIn 0.2s ease; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(3px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  h2.section-title {
-    font-family: var(--font-display);
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0 0 16px;
-    color: var(--green-dk);
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  h2.section-title small {
-    font-family: var(--font-body);
-    font-weight: 400;
-    font-size: 13px;
-    color: var(--slate);
-  }
-
-  /* KPIs */
-  .kpi-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 14px;
-    margin-bottom: 26px;
-  }
-  .kpi {
-    background: var(--paper-raised);
-    border: 1px solid var(--line);
-    border-left: 4px solid var(--green);
-    padding: 16px 18px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-  }
-  .kpi .n {
-    font-family: var(--font-display);
-    font-size: 28px;
-    font-weight: 600;
-    line-height: 1.1;
-  }
-  .kpi .l { font-size: 11.5px; color: var(--slate); margin-top: 5px; font-weight: 500; }
-  .kpi.gold { border-left-color: var(--gold); }
-  .kpi.danger .n { color: var(--danger); }
-  .kpi.danger { border-left-color: var(--danger); }
-
-  /* Grids & Cards */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 24px; }
-  @media (max-width: 960px) {
-    .grid-2, .grid-3 { grid-template-columns: 1fr; }
-  }
-
-  .card {
-    background: var(--paper-raised);
-    border: 1px solid var(--line);
-    padding: 18px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-  }
-  .card h3 {
-    margin: 0 0 14px;
-    font-size: 13.5px;
-    color: var(--green-dk);
-    font-weight: 600;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .card canvas { max-height: 230px; }
-
-  /* Tables */
-  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; }
-  th {
-    background: #EFEAD9;
-    color: var(--green-dk);
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.3px;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-  }
-  tr:hover td { background: #FBFAF5; }
-  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-  .table-wrap {
-    overflow-x: auto;
-    border: 1px solid var(--line);
-    background: var(--paper-raised);
-    border-radius: 4px;
-  }
-
-  /* Badges & Tags */
-  .tag {
-    display: inline-block;
-    padding: 3px 8px;
-    font-size: 11px;
-    border-radius: 3px;
-    font-weight: 600;
-  }
-  .tag.ok { background: #E4F1E9; color: var(--ok); }
-  .tag.bad { background: #F6E3DD; color: var(--danger); }
-  .tag.type { background: #EAE3F0; color: #5B4A7A; }
-  .tag.cell { background: #DDEAE1; color: var(--green-dk); }
-  .tag.hub { background: var(--gold); color: #3A2A05; }
-
-  /* Form Elements */
-  input[type=text], input[type=number], select {
-    font-family: var(--font-body);
-    font-size: 12.5px;
-    padding: 7px 9px;
-    border: 1px solid var(--line);
+  /* ─── LETTERHEAD BAND ─── */
+  #letterhead {
+    position: fixed; top: 30px; left: 0; right: 0; z-index: 95;
     background: #fff;
-    color: var(--ink);
-    border-radius: 3px;
-    width: 100%;
-    transition: border-color 0.15s ease;
-  }
-  input[type=text]:focus, input[type=number]:focus, select:focus {
-    border-color: var(--green);
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(27,94,58,0.15);
-  }
-  input[type=number] { text-align: right; }
-
-  button.btn {
-    font-family: var(--font-body);
-    font-size: 12.5px;
-    font-weight: 600;
-    cursor: pointer;
-    background: var(--green);
-    color: #fff;
-    border: none;
-    padding: 9px 16px;
-    border-radius: 4px;
-    transition: background 0.15s ease;
-  }
-  button.btn:hover { background: var(--green-dk); }
-  button.btn.ghost {
-    background: none;
-    color: var(--green-dk);
-    border: 1px solid var(--green);
-  }
-  button.btn.ghost:hover {
-    background: rgba(27,94,58,0.06);
-  }
-  button.btn.danger { background: var(--danger); }
-  button.btn.danger:hover { background: #7E301E; }
-  button.icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--danger);
-    font-size: 15px;
-    padding: 3px 6px;
-    border-radius: 3px;
-  }
-  button.icon-btn:hover { background: #F6E3DD; }
-
-  /* Layout components */
-  .toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .toolbar-right { display: flex; gap: 8px; flex-wrap: wrap; }
-  .entry-select-row {
-    display: flex;
-    gap: 14px;
-    align-items: flex-end;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-  }
-  .field { display: flex; flex-direction: column; gap: 5px; min-width: 280px; }
-  .field label { font-size: 11px; color: var(--slate); font-weight: 600; }
-  .school-meta {
-    font-size: 12.5px;
-    color: var(--slate);
-    margin-bottom: 16px;
-    line-height: 1.7;
-    background: #fdfbf7;
-    padding: 10px 14px;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-  }
-  .school-meta b { color: var(--green-dk); }
-
-  .validation-banner {
-    padding: 10px 14px;
-    font-size: 12.5px;
-    margin-bottom: 16px;
-    border: 1px solid;
-    border-radius: 4px;
-    display: none;
-    font-weight: 500;
-  }
-  .validation-banner.ok { display: block; background: #E4F1E9; border-color: #BFE0CC; color: var(--ok); }
-  .validation-banner.bad { display: block; background: #F6E3DD; border-color: #E7BEAF; color: var(--danger); }
-
-  /* Toast Notification */
-  #toast {
-    position: fixed;
-    bottom: 24px;
-    right: 28px;
-    background: #1C2420;
-    color: #fff;
-    padding: 10px 18px;
-    font-size: 12.5px;
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.25s ease;
-    z-index: 9999;
-    pointer-events: none;
-  }
-  #toast.show { opacity: 1; transform: translateY(0); }
-  #toast.error { background: var(--danger); }
-
-  footer.app-foot {
-    text-align: center;
-    padding: 24px;
-    font-size: 12px;
-    color: var(--slate);
-    border-top: 1px solid var(--line);
-    margin-top: 40px;
-  }
-
-  /* Layout with Liquid Glass Sidebar */
-  .app-layout {
-    display: flex;
-    min-height: calc(100vh - 31px);
-    background: radial-gradient(circle at 10% 20%, rgba(27, 94, 58, 0.07) 0%, transparent 45%),
-                radial-gradient(circle at 90% 80%, rgba(201, 150, 44, 0.05) 0%, transparent 45%),
-                var(--paper);
-  }
-  .app-sidebar {
-    width: 280px;
-    flex: none;
-    background: linear-gradient(175deg, rgba(14, 38, 24, 0.88) 0%, rgba(7, 20, 12, 0.95) 100%);
-    color: #F4EFDF;
-    border-right: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 6px 0 32px rgba(0, 0, 0, 0.35), inset 1px 0 0 rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(28px) saturate(210%);
-    -webkit-backdrop-filter: blur(28px) saturate(210%);
-    display: flex;
-    flex-direction: column;
-    padding: 24px 18px;
-    gap: 22px;
-    position: relative;
-    z-index: 2;
-  }
-  .app-sidebar::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 160px;
-    background: radial-gradient(circle at 45% 0%, rgba(201, 150, 44, 0.16), transparent 70%);
-    pointer-events: none;
-  }
-  .sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid rgba(244, 239, 223, 0.15);
-  }
-  .sidebar-brand img {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    border: 2px solid var(--gold);
-    background: #FAF7F0;
-    object-fit: cover;
-    flex: none;
-  }
-  .sidebar-brand-text h3 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #FAF6E8;
-    line-height: 1.25;
-  }
-  .sidebar-brand-text span {
-    font-size: 11px;
-    color: #D9CFA9;
-    display: block;
-    margin-top: 3px;
-  }
-  .sidebar-section-title {
-    font-size: 10px;
-    letter-spacing: 0.8px;
-    font-weight: 700;
-    color: #C9962C;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    padding-left: 6px;
-  }
-  .sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .sidebar-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 11px 13px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #E6E1D1;
-    text-decoration: none;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(8px);
-  }
-  .sidebar-item .item-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .sidebar-icon {
-    width: 17px;
-    height: 17px;
-    flex: none;
-    opacity: 0.9;
-  }
-  .sidebar-item.active {
-    background: linear-gradient(135deg, rgba(201, 150, 44, 0.24) 0%, rgba(27, 94, 58, 0.38) 100%);
-    border: 1px solid rgba(201, 150, 44, 0.55);
-    color: #FFFFFF;
-    font-weight: 600;
-    box-shadow: 0 4px 18px rgba(201, 150, 44, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  }
-  .sidebar-item.disabled {
-    background: rgba(255, 255, 255, 0.015);
-    color: rgba(244, 239, 223, 0.38);
-    cursor: not-allowed;
-    pointer-events: none;
-    border-color: rgba(255, 255, 255, 0.03);
-  }
-  .lock-pill {
-    font-size: 10px;
-    background: rgba(0, 0, 0, 0.35);
-    color: #A0A5A2;
-    padding: 2.5px 7px;
-    border-radius: 10px;
-    font-weight: 600;
-  }
-
-  /* Liquid Glass Data Entry Styles */
-  .glass-header-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(247, 245, 239, 0.7) 100%);
-    backdrop-filter: blur(24px) saturate(190%);
-    -webkit-backdrop-filter: blur(24px) saturate(190%);
-    border: 1.5px solid rgba(255, 255, 255, 0.9);
-    border-radius: 14px;
-    padding: 22px 24px;
-    margin-bottom: 18px;
-    box-shadow: 0 10px 32px rgba(18, 63, 39, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    border-bottom: 3px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
     gap: 20px;
-    flex-wrap: wrap;
-    position: relative;
-    overflow: hidden;
+    padding: 10px 28px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    min-height: 80px;
   }
-  .glass-header-card::before {
-    content: '';
-    position: absolute;
-    top: -50px; right: -50px;
-    width: 180px; height: 180px;
-    background: radial-gradient(circle, rgba(201, 150, 44, 0.12) 0%, transparent 70%);
-    pointer-events: none;
+  .lh-logo {
+    width: 64px; height: 64px; border-radius: 50%;
+    border: 3px solid var(--accent);
+    object-fit: cover; flex: none;
+    box-shadow: 0 2px 8px rgba(212,144,10,.25);
   }
-  .glass-subtitle {
-    margin: 4px 0 0;
-    font-size: 12.5px;
-    color: var(--slate);
-    line-height: 1.5;
+  .lh-text { text-align: center; }
+  .lh-office {
+    font-size: 11px; font-weight: 700; color: var(--text-lt);
+    text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 2px;
   }
-  .glass-select-field select {
-    background: rgba(255, 255, 255, 0.95) !important;
-    border: 1.5px solid rgba(27, 94, 58, 0.3) !important;
-    border-radius: 8px !important;
-    padding: 9px 14px !important;
-    font-weight: 600;
-    font-size: 13.5px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.04), inset 0 1px 1px #ffffff;
-    backdrop-filter: blur(10px);
-    min-width: 320px;
+  .lh-name {
+    font-size: 19px; font-weight: 800; color: var(--primary);
+    text-transform: uppercase; letter-spacing: 1px;
+    line-height: 1.15;
   }
-  .glass-select-field select:focus {
-    border-color: var(--gold) !important;
-    box-shadow: 0 0 0 3px rgba(201, 150, 44, 0.25), 0 4px 14px rgba(0,0,0,0.08) !important;
+  .lh-sub {
+    font-size: 12px; font-weight: 500; color: var(--text-lt);
+    margin-top: 3px; letter-spacing: .3px;
   }
 
-  .school-meta.glass-meta {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.78) 0%, rgba(244, 240, 230, 0.65) 100%);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 12px;
-    box-shadow: 0 6px 24px rgba(18, 63, 39, 0.04), inset 0 1px 0 #ffffff;
-    padding: 14px 18px;
-    margin-bottom: 16px;
-  }
-
-  .table-wrap.glass-table-wrap {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(250, 248, 242, 0.78) 100%);
-    backdrop-filter: blur(22px) saturate(180%);
-    -webkit-backdrop-filter: blur(22px) saturate(180%);
-    border: 1.5px solid rgba(255, 255, 255, 0.9);
-    border-radius: 14px;
-    box-shadow: 0 12px 40px rgba(18, 63, 39, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-    overflow: hidden;
-  }
-  .glass-table th {
-    background: linear-gradient(180deg, rgba(239, 234, 217, 0.94) 0%, rgba(228, 222, 204, 0.9) 100%);
-    backdrop-filter: blur(14px);
-    color: var(--green-dk);
-    padding: 11px 10px;
-    font-size: 11px;
-    letter-spacing: 0.3px;
-    border-bottom: 2px solid rgba(201, 150, 44, 0.35);
-  }
-  .glass-table tr:hover td {
-    background: rgba(255, 255, 255, 0.55);
-  }
-  .glass-table input[type=number] {
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(217, 211, 196, 0.8);
-    border-radius: 6px;
-    padding: 7px 8px;
-    font-weight: 600;
-    backdrop-filter: blur(8px);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
-  }
-  .glass-table input[type=number]:focus {
-    background: #ffffff;
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(201, 150, 44, 0.25), 0 4px 12px rgba(0,0,0,0.05);
-    transform: scale(1.02);
-  }
-  .glass-table td[data-role] {
-    background: rgba(201, 150, 44, 0.06);
-    font-weight: 700;
-    color: var(--green-dk);
-  }
-  .glass-table select {
-    background: rgba(255, 255, 255, 0.88);
-    border: 1px solid rgba(217, 211, 196, 0.8);
-    border-radius: 6px;
-    padding: 6px 8px;
-    backdrop-filter: blur(8px);
-  }
-
-  /* Save Button & Actions in Glass Header */
-  .entry-header-controls {
-    display: flex;
-    align-items: flex-end;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .btn-save-enrollment {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, #1B5E3A 0%, #123F27 100%);
-    color: #FFFFFF;
-    border: 1.5px solid rgba(201, 150, 44, 0.65);
-    padding: 9px 20px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 18px rgba(18, 63, 39, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    backdrop-filter: blur(14px);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    white-space: nowrap;
-    height: 40px;
-  }
-  .btn-save-enrollment:hover {
-    background: linear-gradient(135deg, #247C4D 0%, #174E31 100%);
-    border-color: var(--gold);
-    box-shadow: 0 6px 24px rgba(201, 150, 44, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    transform: translateY(-1px);
-  }
-  .btn-save-enrollment:active {
-    transform: translateY(1px);
-  }
-  .btn-save-enrollment.saving {
-    background: linear-gradient(135deg, #C9962C 0%, #A6781D 100%);
-    border-color: #F4EFDF;
-    cursor: wait;
-  }
-  .btn-save-enrollment.saved-success {
-    background: linear-gradient(135deg, #2F7D52 0%, #1B5E3A 100%);
-    border-color: #85e3b3;
-    box-shadow: 0 0 16px rgba(47, 125, 82, 0.6);
-  }
-  .save-status-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: flex-start;
-  }
-  .save-timestamp {
-    font-size: 11px;
-    color: var(--slate);
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  /* Mismatch Visual Highlights in Table */
-  tr.row-mismatch td {
-    background: rgba(254, 242, 242, 0.45);
-  }
-  .mismatch-cell.bad {
-    background: rgba(239, 68, 68, 0.15) !important;
-    border: 1.5px solid rgba(220, 38, 38, 0.5) !important;
-    border-radius: 4px;
-    color: #991b1b !important;
-    box-shadow: inset 0 0 6px rgba(239, 68, 68, 0.2);
-  }
-  .mismatch-base-cell {
-    background: rgba(201, 150, 44, 0.1) !important;
-    border: 1px dashed rgba(201, 150, 44, 0.4) !important;
-    border-radius: 4px;
-  }
-  .mismatch-badge-micro {
-    display: inline-block;
-    font-size: 9.5px;
-    font-weight: 700;
-    padding: 1px 5px;
-    border-radius: 3px;
-    background: #dc2626;
-    color: #ffffff;
-    margin-left: 4px;
-    line-height: 1.2;
-    box-shadow: 0 1px 3px rgba(220, 38, 38, 0.35);
-  }
-  .mismatch-summary-pill {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    align-items: flex-start;
-  }
-  .mismatch-popover {
-    font-size: 10.5px;
-    background: rgba(254, 226, 226, 0.95);
-    border: 1px solid rgba(239, 68, 68, 0.35);
-    border-radius: 4px;
-    padding: 4px 6px;
-    color: #7f1d1d;
-    line-height: 1.35;
-    margin-top: 2px;
-    max-width: 220px;
-  }
-  .mismatch-pop-item {
-    white-space: normal;
-    font-weight: 600;
-  }
-
-  /* Validation Banner Detailed Breakdown */
-  .val-banner-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .val-banner-icon {
-    font-size: 20px;
-    line-height: 1;
-    flex: none;
-    margin-top: 2px;
-  }
-  .val-banner-sub {
-    font-size: 12px;
-    margin-top: 3px;
-    opacity: 0.9;
-  }
-  .val-mismatch-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 10px;
-  }
-  .val-mismatch-row {
-    display: flex;
-    align-items: center;
+  /* ─── UTILITY BAR (breadcrumb + auth) ─── */
+  #utilBar {
+    position: fixed; top: calc(30px + 80px); left: 0; right: 0; z-index: 90;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    height: 40px; display: flex; align-items: center;
+    padding: 0 20px 0 calc(var(--sidebar-w) + 16px);
     gap: 10px;
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    flex-wrap: wrap;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
   }
-  .val-class-badge {
-    background: #991b1b;
-    color: #ffffff;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 4px;
-    letter-spacing: 0.3px;
+  .util-breadcrumb { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-lt); }
+  .util-breadcrumb .sep { opacity: .4; }
+  .util-breadcrumb .crumb-active { color: var(--text); font-weight: 600; }
+  .util-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .btn-nav-login {
+    background: var(--primary); color: #fff;
+    padding: 5px 14px; border-radius: 5px; font-size: 12px; font-weight: 600;
+    transition: background .15s;
   }
-  .val-stat {
-    font-weight: 500;
-    color: var(--ink);
+  .btn-nav-login:hover { background: var(--primary-dk); }
+  .nav-user-chip {
+    display: flex; align-items: center; gap: 7px;
+    background: #fff; border: 1px solid var(--border);
+    padding: 4px 10px 4px 6px; border-radius: 20px; font-size: 12px;
   }
-  .val-stat.alert {
-    color: #991b1b;
-    background: rgba(254, 202, 202, 0.65);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: 700;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-  }
-  .val-explain {
-    color: #7f1d1d;
-    font-size: 11.5px;
-    font-weight: 600;
-    margin-left: auto;
-  }
+  .nav-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
+  .btn-nav-logout { font-size: 11px; color: var(--danger); font-weight: 600; padding: 2px 5px; border-radius: 4px; }
+  .btn-nav-logout:hover { background: var(--danger-lt); }
 
-  /* Locked Tab Styling */
-  nav.tabs button.locked-tab {
-    opacity: 0.75;
-    color: var(--slate);
-  }
-  nav.tabs button.locked-tab:hover {
-    color: var(--danger);
-  }
-  .tab-lock {
-    font-size: 11.5px;
-    margin-left: 4px;
-    opacity: 0.85;
-  }
-
-  /* Auth Pills in Header and Sidebar */
-  .auth-pill {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .admin-lock-btn {
-    background: rgba(201, 150, 44, 0.2) !important;
-    border: 1px solid var(--gold) !important;
-    color: #F4EFDF !important;
-    font-weight: 600;
-    border-radius: 4px;
-    padding: 7px 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .admin-lock-btn:hover {
-    background: rgba(201, 150, 44, 0.35) !important;
-  }
-  .logged-in-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-  }
-  .user-chip b {
-    color: var(--gold);
-  }
-  .logout-btn {
-    background: rgba(166, 64, 42, 0.35) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    color: #fff !important;
-    padding: 3px 8px !important;
-    border-radius: 3px;
-    cursor: pointer;
-  }
-  .logout-btn:hover {
-    background: var(--danger) !important;
-  }
-
-  .sidebar-login-trigger {
-    width: 100%;
-    background: linear-gradient(135deg, rgba(201, 150, 44, 0.25) 0%, rgba(27, 94, 58, 0.3) 100%);
-    border: 1px solid var(--gold);
-    color: #F4EFDF;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-top: 4px;
-  }
-  .sidebar-login-trigger:hover {
-    background: rgba(201, 150, 44, 0.4);
-  }
-  .sidebar-login-trigger.logout-mode {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(166, 64, 42, 0.25);
-  }
-
-  /* Liquid Glass Modal */
-  .glass-modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(10, 26, 17, 0.72);
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    padding: 20px;
-    animation: fadeIn 0.25s ease;
-  }
-  .glass-modal-card {
-    width: 100%;
-    max-width: 440px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94) 0%, rgba(247, 245, 239, 0.9) 100%);
-    backdrop-filter: blur(32px) saturate(200%);
-    -webkit-backdrop-filter: blur(32px) saturate(200%);
-    border: 1.5px solid rgba(255, 255, 255, 0.95);
-    border-radius: 18px;
-    padding: 30px 26px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35), inset 0 1px 0 #ffffff;
-    position: relative;
-    animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  @keyframes modalSlideUp {
-    from { opacity: 0; transform: translateY(16px) scale(0.97); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .glass-modal-card .close-btn {
-    position: absolute;
-    top: 14px; right: 16px;
-    background: none; border: none; font-size: 22px; cursor: pointer; color: var(--slate);
-  }
-  .glass-modal-card .modal-crest {
-    width: 62px; height: 62px;
-    border-radius: 50%;
-    border: 2.5px solid var(--gold);
-    object-fit: cover;
-    background: #FAF7F0;
-    margin: 0 auto 12px;
-    display: block;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-  }
-  .glass-modal-card h3 {
-    font-family: var(--font-display);
-    font-size: 19px;
-    margin: 0 0 6px;
-    text-align: center;
-    color: var(--green-dk);
-  }
-  .glass-modal-card p {
-    font-size: 12.5px;
-    color: var(--slate);
-    text-align: center;
-    margin: 0 0 20px;
-    line-height: 1.5;
-  }
-  .glass-input-group {
-    margin-bottom: 15px;
-  }
-  .glass-input-group label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: var(--slate);
-    display: block;
-    margin-bottom: 5px;
-  }
-  .glass-input-group input {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(27, 94, 58, 0.3);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 13.5px;
-    width: 100%;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
-  }
-  .glass-input-group input:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(201, 150, 44, 0.25);
-  }
-  .btn-glass-unlock {
-    width: 100%;
-    background: linear-gradient(180deg, var(--green) 0%, var(--green-dk) 100%);
-    color: #fff;
-    font-weight: 700;
-    font-size: 13.5px;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(27, 94, 58, 0.35);
-    transition: all 0.2s ease;
-    margin-top: 6px;
-  }
-  .btn-glass-unlock:hover {
-    box-shadow: 0 6px 20px rgba(27, 94, 58, 0.5);
-    transform: translateY(-1px);
-  }
-  .modal-error-alert {
-    background: #F6E3DD;
-    color: var(--danger);
-    border: 1px solid #E7BEAF;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    margin-bottom: 14px;
-    display: none;
-    text-align: center;
-  }
-  .modal-info-alert {
-    background: #E4F1E9;
-    color: var(--ok);
-    border: 1px solid #BFE0CC;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    margin-bottom: 14px;
-    display: block;
-    text-align: center;
-  }
-  .modal-hint {
-    font-size: 11px;
-    color: var(--slate);
-    text-align: center;
-    margin-top: 14px;
-  }
-
-  /* Urgent Action Blinking Tag */
-  .urgent-pulse-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 9px;
-    font-weight: 700;
-    color: #FFFFFF;
-    background: #c53030;
-    padding: 3px 7px;
-    border-radius: 10px;
-    letter-spacing: 0.4px;
-    box-shadow: 0 0 10px rgba(197, 48, 48, 0.7);
-    animation: urgentBlink 1.2s infinite ease-in-out;
-  }
-  .pulse-beacon {
-    width: 6px;
-    height: 6px;
-    background: #ffffff;
-    border-radius: 50%;
-    display: inline-block;
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8);
-    animation: beaconRadar 1.2s infinite;
-  }
-
-  @keyframes urgentBlink {
-    0%, 100% {
-      background-color: #c53030;
-      box-shadow: 0 0 6px rgba(197, 48, 48, 0.6);
-      transform: scale(1);
-    }
-    50% {
-      background-color: #e53e3e;
-      box-shadow: 0 0 14px rgba(229, 62, 62, 0.95);
-      transform: scale(1.05);
-    }
-  }
-
-  @keyframes beaconRadar {
-    0% {
-      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.9);
-    }
-    70% {
-      box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-    }
-  }
-
-  /* Sidebar info card */
-  .sidebar-info-card {
-    margin-top: auto;
-    background: rgba(0, 0, 0, 0.28);
-    border: 1px solid rgba(244, 239, 223, 0.12);
-    border-radius: 6px;
-    padding: 14px;
-    font-size: 11.5px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .sidebar-info-card .info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .sidebar-info-card .lbl {
-    font-size: 9.5px;
-    color: #C9962C;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-
-  .app-content {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  @media (max-width: 1024px) {
-    .app-layout { flex-direction: column; }
-    .app-sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--gold); }
-  }
-
-  @media print {
-    .app-sidebar, .system-banner, nav.tabs, .toolbar-right, .no-print, .cluster-picker button { display: none !important; }
-    .panel { display: block !important; }
-    main { padding: 0; }
-    .letterhead { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  }
+  /* ─── Adjust sidebar & main for new heights ─── */
+  #sidebar  { top: calc(30px + 80px + 40px) !important; }
+  #main     { padding-top: calc(30px + 80px + 40px + 24px) !important; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
-<!-- Live PostgreSQL Connectivity Header -->
-<div class="system-banner no-print">
-  <div class="status-pill">
+<!-- ══════════════════════════════════════
+     STATUS BAR
+══════════════════════════════════════ -->
+<div id="statusBar">
+  <div class="db-pill">
     <span class="dot" id="dbDot"></span>
-    <span id="dbStatusText">Checking PostgreSQL connection...</span>
+    <span id="dbStatusText">Connecting to PostgreSQL…</span>
   </div>
-  <div class="sync-indicator" id="syncStatus">Connected • Auto-save ready</div>
+  <div class="sb-right">
+    <span id="syncStatus">Ready</span>
+  </div>
 </div>
 
-<div class="app-layout">
-  <!-- Sidebar with Enrollment Data active & others disabled -->
-  <aside class="app-sidebar no-print">
-    <div class="sidebar-brand">
-      <img src="/logo.jpg" alt="GBHS Thari Mirwah Seal">
-      <div class="sidebar-brand-text">
-        <h3>GBHS THARI MIRWAH</h3>
-        <span>Hub Cluster Control</span>
-      </div>
-    </div>
-
-    <div class="sidebar-nav-group">
-      <div class="sidebar-section-title">Data Collection Modules</div>
-      <nav class="sidebar-nav">
-        <!-- 1. Enrollment Data (Active with Urgent Action Blinking) -->
-        <a href="#enrollment" class="sidebar-item active" id="sidebarEnrollmentLink">
-          <div class="item-left">
-            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            <span>Enrollment Data</span>
-          </div>
-          <span class="urgent-pulse-badge"><span class="pulse-beacon"></span>URGENT ACTION</span>
-        </a>
-
-        <!-- 2. Staff Data (Disabled / Locked) -->
-        <div class="sidebar-item disabled" title="Staff Data module is disabled for current phase">
-          <div class="item-left">
-            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span>Staff Data</span>
-          </div>
-          <span class="lock-pill">🔒 Locked</span>
-        </div>
-
-        <!-- 3. Vacancy (Disabled / Locked) -->
-        <div class="sidebar-item disabled" title="Vacancy module is disabled for current phase">
-          <div class="item-left">
-            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-            <span>Vacancy</span>
-          </div>
-          <span class="lock-pill">🔒 Locked</span>
-        </div>
-
-        <!-- 4. Facilities (Disabled / Locked) -->
-        <div class="sidebar-item disabled" title="Facilities module is disabled for current phase">
-          <div class="item-left">
-            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            <span>Facilities</span>
-          </div>
-          <span class="lock-pill">🔒 Locked</span>
-        </div>
-      </nav>
-    </div>
-
-    <!-- Sidebar Cluster Card & Auth Status -->
-    <div class="sidebar-info-card">
-      <div class="info-row"><span class="lbl">CLUSTER</span><b id="sidebarClusterCode">KX03099</b></div>
-      <div class="info-row"><span class="lbl">DISTRICT</span><span id="sidebarDistrict">Khairpur Mirs</span></div>
-      <div class="info-row"><span class="lbl">VIEW ACCESS</span><span id="sidebarAuthMode" style="color:#C9962C;font-weight:600;">🔒 Public (Enrollment Only)</span></div>
-      <div class="info-row"><span class="lbl">PRIORITY</span><span style="color:#ff6b6b;font-weight:700;">Urgent Action</span></div>
-      <button class="sidebar-login-trigger no-print" id="sidebarLoginTriggerBtn">🔑 Admin Login</button>
-    </div>
-  </aside>
-
-  <div class="app-content">
-<div class="letterhead">
-  <img src="/logo.jpg" alt="Cluster Hub GBHS Thari Mirwah Seal" class="crest-logo">
-  <div class="titles">
-    <h1 id="hubTitle">Govt. Boys High School, Thari Mirwah</h1>
-    <p id="hubSub">Hub Cluster Enrolment &amp; Facilities Dashboard — Sindh School Education Department</p>
+<!-- ══════════════════════════════════════
+     LETTERHEAD BAND (centered)
+══════════════════════════════════════ -->
+<header id="letterhead">
+  <img src="/logo.jpg" alt="GBHS Thari Mirwah Seal" class="lh-logo">
+  <div class="lh-text">
+    <div class="lh-office">Office of the Headmaster</div>
+    <div class="lh-name">Cluster Hub &mdash; GBHS Thari Mirwah</div>
+    <div class="lh-sub">Khairpur Mirs District &bull; Sindh Education Department &bull; Cluster KX03099</div>
   </div>
-  <div class="cluster-picker">
-    <div>
-      <label>SELECT YOUR CLUSTER</label>
-      <select id="clusterSelect"></select>
-    </div>
-    <button class="mini no-print" id="addClusterBtn" title="Add another cluster">+ New Cluster</button>
+  <img src="/logo.jpg" alt="Seal" class="lh-logo">
+</header>
+
+<!-- ══════════════════════════════════════
+     UTILITY BAR (breadcrumb + auth)
+══════════════════════════════════════ -->
+<div id="utilBar">
+  <div class="util-breadcrumb">
+    <span>KX03099</span>
+    <span class="sep">/</span>
+    <span class="crumb-active" id="navCrumb">Enrollment Data</span>
   </div>
-  <div class="badge"><b id="clusterCountBadge">22</b><span>CELL SCHOOLS</span></div>
-  <div class="auth-pill no-print" id="authPill">
-    <button class="mini admin-lock-btn" id="openAuthModalBtn">🔒 Admin Login</button>
-    <div class="logged-in-badge" id="loggedInBadge" style="display:none;">
-      <span class="user-chip">👤 <b id="displayUsername">admin</b></span>
-      <button class="mini logout-btn" id="logoutBtn" title="Sign out">Sign Out</button>
+  <div class="util-right" id="navAuthArea">
+    <button class="btn-nav-login" id="openLoginBtn" onclick="openModal()">🔒 Admin Login</button>
+    <div class="nav-user-chip" id="navUserChip" style="display:none">
+      <div class="nav-avatar" id="navAvatar">A</div>
+      <span id="navUsername">admin</span>
+      <button class="btn-nav-logout" onclick="doLogout()">Sign out</button>
     </div>
   </div>
 </div>
 
-<nav class="tabs" id="mainNavTabs">
-  <button data-tab="entry" class="active" id="tabBtnEntry">Enrollment Data</button>
-  <button data-tab="dashboard" class="locked-tab" id="tabBtnDashboard">Dashboard <span class="tab-lock">🔒</span></button>
-  <button data-tab="schools" class="locked-tab" id="tabBtnSchools">Schools <span class="tab-lock">🔒</span></button>
-  <button data-tab="export" class="locked-tab" id="tabBtnExport">Export &amp; Print <span class="tab-lock">🔒</span></button>
-</nav>
-
-<main>
-
-  <!-- ===================== DASHBOARD (LOCKED FOR PUBLIC) ===================== -->
-  <section class="panel" id="panel-dashboard">
-    <h2 class="section-title">Cluster Overview <small id="overviewSub">Live totals synced directly from PostgreSQL</small></h2>
-
-    <div class="kpi-row" id="kpiRow"></div>
-
-    <div class="grid-3">
-      <div class="card"><h3>Enrolment by School</h3><canvas id="chartBySchool"></canvas></div>
-      <div class="card"><h3>Boys / Girls</h3><canvas id="chartGender"></canvas></div>
-      <div class="card"><h3>Muslim / Non-Muslim</h3><canvas id="chartReligion"></canvas></div>
+<!-- ══════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════ -->
+<aside id="sidebar">
+  <div class="sb-head">
+    <img src="/logo.jpg" alt="Hub School Seal" class="sb-logo">
+    <div class="sb-brand">
+      <h2>GBHS Thari Mirwah</h2>
+      <p>Cluster Hub · KX03099</p>
     </div>
-    <div class="grid-3">
-      <div class="card"><h3>Medium of Instruction</h3><canvas id="chartMedium"></canvas></div>
-      <div class="card"><h3>Furniture Status</h3><canvas id="chartFurniture"></canvas></div>
-      <div class="card"><h3>Sections per School</h3><canvas id="chartSections"></canvas></div>
-    </div>
+  </div>
 
-    <h2 class="section-title" style="margin-top:12px;">School-wise Summary</h2>
-    <div class="table-wrap">
-      <table id="summaryTable">
-        <thead>
-          <tr>
-            <th>#</th><th>Cell</th><th>School</th><th>Type</th>
-            <th class="num">Boys</th><th class="num">Girls</th><th class="num">Total</th>
-            <th class="num">Muslim</th><th class="num">Non-Muslim</th>
-            <th class="num">Sindhi</th><th class="num">Urdu</th><th class="num">English</th>
-            <th class="num">Sections</th><th>Status</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+  <div class="sb-label">Data Collection</div>
+  <nav class="sb-nav">
+    <div class="sb-item active" id="sbEnrollment" onclick="switchPanel('enrollment')">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Enrollment Data
+      <span class="sb-badge urgent">URGENT</span>
     </div>
-  </section>
+    <div class="sb-item locked" title="Coming soon">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Staff Data
+      <span class="sb-badge lock">🔒</span>
+    </div>
+    <div class="sb-item locked" title="Coming soon">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Vacancy
+      <span class="sb-badge lock">🔒</span>
+    </div>
+    <div class="sb-item locked" title="Coming soon">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Facilities
+      <span class="sb-badge lock">🔒</span>
+    </div>
+  </nav>
 
-  <!-- ===================== SCHOOLS (LOCKED FOR PUBLIC) ===================== -->
-  <section class="panel" id="panel-schools">
-    <h2 class="section-title">Hub &amp; Cell Schools <small>Edit school records; changes save directly to PostgreSQL</small></h2>
-    <div class="toolbar">
-      <div style="font-size:12.5px;color:var(--slate)">GBHS = Boys High • GBPS/GGPS = Boys/Girls Primary • GBELS/GGELS = Elementary Lower (1–8) • GGHS = Higher Secondary (6–12)</div>
-      <div class="toolbar-right">
-        <button class="btn ghost" id="addCellBtn">+ Add Cell School</button>
+  <div class="sb-label">Admin Only</div>
+  <nav class="sb-nav">
+    <div class="sb-item" id="sbDashboard" onclick="requireAdmin('dashboard')">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+      <span class="sb-badge lock" id="sbDashLock">🔒</span>
+    </div>
+    <div class="sb-item" id="sbSchools" onclick="requireAdmin('schools')">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Schools Register
+      <span class="sb-badge lock" id="sbSchoolsLock">🔒</span>
+    </div>
+    <div class="sb-item" id="sbExport" onclick="requireAdmin('export')">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export &amp; Print
+      <span class="sb-badge lock" id="sbExportLock">🔒</span>
+    </div>
+  </nav>
+
+  <div class="sb-cluster-card" id="sbClusterCard">
+    <div class="cc-row"><span class="cc-label">Cluster</span><span class="cc-val" id="sbCode">KX03099</span></div>
+    <div class="cc-row"><span class="cc-label">District</span><span id="sbDistrict">Khairpur Mirs</span></div>
+    <div class="cc-row"><span class="cc-label">Access</span><span id="sbAccess" style="color:var(--primary);font-weight:600">Public Entry</span></div>
+    <div class="cc-status">⚡ Enrollment data collection is urgent</div>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════ -->
+<main id="main">
+
+  <!-- ── ENROLLMENT PANEL ── -->
+  <section class="panel active" id="panel-enrollment">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Class-wise Enrollment Data</h1>
+        <p>Cluster KX03099 · Khairpur Mirs District — enter enrollment, religion, medium of instruction &amp; facilities</p>
+      </div>
+      <div class="page-header-right no-print">
+        <div class="form-group" style="min-width:280px">
+          <label class="form-label">Select School</label>
+          <select class="form-select" id="entrySchoolSelect" onchange="loadSchoolForm()"></select>
+        </div>
+        <button class="btn-save" id="mainSaveBtn" onclick="handleSave()" title="Save (Ctrl+S)">
+          <span id="saveBtnIcon">💾</span>
+          <span id="saveBtnLbl">Save Data</span>
+        </button>
       </div>
     </div>
-    <div class="table-wrap">
-      <table id="schoolsTable">
-        <thead>
-          <tr><th>#</th><th>Cell</th><th>School Name</th><th>Type</th><th>Classes</th><th>SEMIS Code</th><th>Head / Teacher</th><th>Contact</th><th></th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
 
-  <!-- ===================== ENROLLMENT DATA (PUBLICLY ACCESSIBLE & LIQUID GLASS LOOK) ===================== -->
-  <section class="panel active" id="panel-entry">
-    <div class="glass-header-card">
+    <!-- KPI Row -->
+    <div class="progress-overview" id="enrollKPIs"></div>
+
+    <!-- Selected school info -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-body" style="padding:14px 20px">
+        <div class="meta-strip" id="schoolMetaStrip">
+          <span style="color:var(--text-xlt)">Select a school above to begin entering data</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Validation Banner -->
+    <div class="val-banner" id="valBanner"></div>
+
+    <!-- Class Cards -->
+    <div id="classCardsContainer"></div>
+
+    <!-- Sticky Save Footer -->
+    <div class="save-footer" id="saveFooterArea" style="display:none">
       <div>
-        <h2 class="section-title" style="margin-bottom:4px;">Class-wise Enrollment Data <small>Live PostgreSQL Sync</small></h2>
-        <p class="glass-subtitle">Enter enrollment, medium of instruction, and facility status for each class. Figures validate instantly with automatic discrepancy detection.</p>
+        <div class="save-hint">All fields auto-validate. Press <b>Ctrl+S</b> or click Save to persist to PostgreSQL.</div>
+        <div class="save-ts" id="saveTs">Not saved yet</div>
       </div>
-      <div class="entry-header-controls">
-        <div class="field glass-select-field" style="min-width:280px;">
-          <label>SELECT SCHOOL</label>
-          <select id="entrySchoolSelect"></select>
-        </div>
-        <div class="save-status-wrap">
-          <button class="btn-save-enrollment" id="saveEnrollmentBtn" type="button" title="Save current school enrollment data to PostgreSQL (Ctrl+S)">
-            <span class="btn-save-icon">💾</span>
-            <span class="btn-save-label">Save Enrollment Data</span>
-          </button>
-          <div class="save-timestamp" id="saveTimestamp">All changes saved • Auto-sync ready</div>
-        </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="footerSaveStatus" style="font-size:12px;color:var(--text-lt)"></span>
+        <button class="btn-save" onclick="handleSave()">💾 Save Enrollment Data</button>
       </div>
-    </div>
-
-    <div class="school-meta glass-meta" id="entrySchoolMeta"></div>
-    <div class="validation-banner" id="schoolValidationBanner"></div>
-
-    <div class="table-wrap glass-table-wrap">
-      <table id="entryTable" class="glass-table">
-        <thead>
-          <tr>
-            <th>Class</th>
-            <th class="num">Boys</th><th class="num">Girls</th><th class="num">Total</th>
-            <th class="num">Muslim</th><th class="num">Non-Muslim</th><th class="num">Total</th>
-            <th class="num">Sindhi</th><th class="num">Urdu</th><th class="num">English</th><th class="num">Total</th>
-            <th>Furniture</th><th>Section(s)</th><th>Check</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
     </div>
   </section>
 
-  <!-- ===================== EXPORT (LOCKED FOR PUBLIC) ===================== -->
-  <section class="panel" id="panel-export">
-    <h2 class="section-title">Export &amp; Print <small>Download live records or print administrative reports</small></h2>
-    <div class="grid-2">
-      <div class="card">
-        <h3>Export CSV</h3>
-        <p style="font-size:12.5px;color:var(--slate)">Downloads one row per class, per school, for the active cluster — formatted for official reporting or Excel analysis.</p>
-        <button class="btn" id="exportCsvBtn">Download CSV</button>
+  <!-- ── DASHBOARD PANEL ── -->
+  <section class="panel" id="panel-dashboard">
+    <div class="locked-panel" id="dashLocked">
+      <div class="locked-icon">📊</div>
+      <h2>Dashboard — Admin Access Required</h2>
+      <p>Sign in with your administrator username and password to view cluster-wide analytics.</p>
+      <button class="btn btn-primary" onclick="openModal()">Sign In to Unlock</button>
+    </div>
+    <div id="dashContent" style="display:none">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Cluster Overview</h1>
+          <p id="dashSubTitle">Live totals from PostgreSQL</p>
+        </div>
+        <div class="page-header-right">
+          <button class="btn btn-outline btn-sm" onclick="renderDashboard()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="charts-grid">
+        <div class="card"><div class="card-header"><h3>Gender Split</h3></div><div class="card-body"><canvas id="chartGender" style="max-height:200px"></canvas></div></div>
+        <div class="card"><div class="card-header"><h3>Religion</h3></div><div class="card-body"><canvas id="chartReligion" style="max-height:200px"></canvas></div></div>
+        <div class="card"><div class="card-header"><h3>Medium of Instruction</h3></div><div class="card-body"><canvas id="chartMedium" style="max-height:200px"></canvas></div></div>
       </div>
       <div class="card">
-        <h3>Print Report</h3>
-        <p style="font-size:12.5px;color:var(--slate)">Prepares clean, printer-friendly summary pages for official submission.</p>
-        <button class="btn ghost" id="printBtn">Print Dashboard</button>
+        <div class="card-header"><h3>School-wise Summary</h3></div>
+        <div class="table-wrap">
+          <table class="data-table" id="summaryTable">
+            <thead><tr><th>#</th><th>Cell</th><th>School</th><th>Type</th><th class="num">Boys</th><th class="num">Girls</th><th class="num">Total</th><th class="num">Sections</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
-    <div class="card">
-      <h3>Reset Cluster Enrolment Figures</h3>
-      <p style="font-size:12.5px;color:var(--slate)">Resets all class enrolment and facility figures in PostgreSQL to zero for the selected cluster (school records, SEMIS codes, and contacts remain preserved).</p>
-      <button class="btn danger" id="resetBtn">Reset Class Figures in Database</button>
+  </section>
+
+  <!-- ── SCHOOLS PANEL ── -->
+  <section class="panel" id="panel-schools">
+    <div class="locked-panel" id="schoolsLocked">
+      <div class="locked-icon">🏫</div>
+      <h2>Schools Register — Admin Access Required</h2>
+      <p>Administrator login required to manage the schools register.</p>
+      <button class="btn btn-primary" onclick="openModal()">Sign In to Unlock</button>
+    </div>
+    <div id="schoolsContent" style="display:none">
+      <div class="page-header">
+        <div class="page-header-left"><h1>Hub &amp; Cell Schools</h1><p>Edit records — changes auto-save to PostgreSQL</p></div>
+        <div class="page-header-right"><button class="btn btn-primary btn-sm" onclick="addCellSchool()">+ Add School</button></div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table schools-table" id="schoolsTable">
+            <thead><tr><th>#</th><th>Cell</th><th>School Name</th><th>Type</th><th>Classes</th><th>SEMIS</th><th>Head Teacher</th><th>Contact</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EXPORT PANEL ── -->
+  <section class="panel" id="panel-export">
+    <div class="locked-panel" id="exportLocked">
+      <div class="locked-icon">📥</div>
+      <h2>Export &amp; Print — Admin Access Required</h2>
+      <p>Administrator login required to export data and print reports.</p>
+      <button class="btn btn-primary" onclick="openModal()">Sign In to Unlock</button>
+    </div>
+    <div id="exportContent" style="display:none">
+      <div class="page-header"><div class="page-header-left"><h1>Export &amp; Print</h1><p>Download records or print official reports</p></div></div>
+      <div class="export-grid">
+        <div class="export-option">
+          <h4>📊 Export CSV</h4>
+          <p>Full class-level enrollment data, formatted for Excel and official reporting.</p>
+          <button class="btn btn-primary" onclick="exportCsv()">Download CSV</button>
+        </div>
+        <div class="export-option">
+          <h4>🖨️ Print Report</h4>
+          <p>Print a clean summary for official submission or record keeping.</p>
+          <button class="btn btn-outline" onclick="doPrint()">Print Dashboard</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 style="color:var(--danger)">⚠️ Reset Cluster Data</h3></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-lt);margin-bottom:14px">Resets all class enrollment figures to zero. School names and SEMIS codes are preserved.</p>
+          <button class="btn btn-danger" onclick="resetCluster()">Reset All Class Figures</button>
+        </div>
+      </div>
     </div>
   </section>
 
 </main>
 
-<div id="toast"></div>
-
-<!-- Liquid Glass Admin Login Modal (Username only) -->
-<div id="authModal" class="glass-modal-overlay" style="display:none;">
-  <div class="glass-modal-card">
-    <button class="close-btn" id="closeAuthModalBtn" aria-label="Close">&times;</button>
-    <img src="/logo.jpg" alt="GBHS Thari Mirwah Seal" class="modal-crest">
-    <h3>Admin Account Login</h3>
-    <p>Dashboard analytics, school registers, and official reports are restricted to authorized cluster administrators. Sign in with your <b>username</b>.</p>
-    
-    <div class="modal-error-alert" id="authErrorBanner"></div>
-
-    <form id="authLoginForm">
-      <div class="glass-input-group">
-        <label for="inputUsername">USERNAME (NOT EMAIL)</label>
-        <input type="text" id="inputUsername" name="username" placeholder="Enter username (e.g. admin or jawad)" autocomplete="username" required>
+<!-- ══════════════════════════════════════
+     AUTH MODAL
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal-card">
+    <button class="close-modal" onclick="closeModal()">✕</button>
+    <div class="modal-hdr">
+      <img src="/logo.jpg" alt="Hub Seal" class="modal-logo">
+      <div>
+        <h3>Administrator Login</h3>
+        <p>Dashboard, Schools Register, and Export require admin access.</p>
       </div>
-      <div class="glass-input-group">
-        <label for="inputPassword">PASSWORD</label>
-        <input type="password" id="inputPassword" name="password" placeholder="Enter password" autocomplete="current-password" required>
+    </div>
+    <form class="modal-body" id="loginForm" onsubmit="submitLogin(event)">
+      <div class="modal-err" id="loginErr"></div>
+      <div class="form-group">
+        <label class="form-label">Username <span class="req">*</span></label>
+        <input type="text" class="form-input" id="loginUser" placeholder="e.g. admin or jawad" autocomplete="username" required>
+        <span class="form-hint">Enter your username — not your email address</span>
       </div>
-      <button type="submit" class="btn-glass-unlock" id="submitLoginBtn">
-        <span>Unlock Admin Access</span>
-      </button>
+      <div class="form-group">
+        <label class="form-label">Password <span class="req">*</span></label>
+        <input type="password" class="form-input" id="loginPass" placeholder="Enter password" autocomplete="current-password" required>
+      </div>
     </form>
-    <div class="modal-hint">
-      Default administrator: <code>admin</code> or <code>jawad</code>
+    <div class="modal-foot">
+      <button class="btn btn-primary" id="loginBtn" onclick="submitLogin(event)" style="width:100%;justify-content:center;padding:11px">
+        <span id="loginBtnLbl">Unlock Admin Access</span>
+      </button>
+      <div class="modal-hint">Default accounts: <code>admin</code> or <code>jawad</code></div>
     </div>
   </div>
 </div>
 
-<footer class="app-foot">
-  Hub Cluster Enrolment & Facilities Management System • Powered by PostgreSQL • Sindh School Education Department
-</footer>
-  </div><!-- /.app-content -->
-</div><!-- /.app-layout -->
+<!-- Toast notification -->
+<div id="toast"></div>
 
-<script>
-(function(){
-
-const TYPE_INFO = {
-  GBHS:  {label:'Boys High School',              classMin:1, classMax:10},
-  GBPS:  {label:'Boys Primary School',           classMin:1, classMax:5},
-  GGPS:  {label:'Girls Primary School',          classMin:1, classMax:5},
-  GBELS: {label:'Boys Elementary Lower School',  classMin:1, classMax:8},
-  GGELS: {label:'Girls Elementary Lower School', classMin:1, classMax:8},
-  GGHS:  {label:'Girls Higher Secondary School', classMin:6, classMax:12},
-};
-const FURNITURE_OPTIONS = [
-  {v:'available', l:'Available'},
-  {v:'shortage', l:'Shortage'},
-  {v:'not_available', l:'Not Available'},
-];
-
-let state = {
-  activeClusterCode: 'KX03099',
-  clusters: []
-};
-
-// UI Elements
-const dbDot = document.getElementById('dbDot');
-const dbStatusText = document.getElementById('dbStatusText');
-const syncStatus = document.getElementById('syncStatus');
-const toastEl = document.getElementById('toast');
-
-function showToast(msg, isError=false){
-  toastEl.textContent = msg;
-  toastEl.className = isError ? 'show error' : 'show';
-  setTimeout(()=>{ toastEl.className = ''; }, 2600);
-}
-
-// Check PostgreSQL Health
-async function checkHealth(){
-  try{
-    const res = await fetch('/api/health');
-    const data = await res.json();
-    if(data.db === 'connected'){
-      dbDot.className = 'dot';
-      dbStatusText.textContent = `Connected: PostgreSQL (${data.database}) • ${data.latencyMs}ms ping`;
-    }else{
-      dbDot.className = 'dot error';
-      dbStatusText.textContent = `PostgreSQL Disconnected: ${data.error || 'Server error'}`;
-    }
-  }catch(e){
-    dbDot.className = 'dot error';
-    dbStatusText.textContent = `Server Connection Failed`;
-  }
-}
-
-// Load Clusters from PostgreSQL
-async function loadDataFromDb(){
-  syncStatus.textContent = 'Loading from database...';
-  try{
-    const res = await fetch('/api/clusters');
-    const data = await res.json();
-    if(data.success && data.clusters && data.clusters.length){
-      state.clusters = data.clusters;
-      if(!state.clusters.find(c=>c.code === state.activeClusterCode)){
-        state.activeClusterCode = state.clusters[0].code;
-      }
-      syncStatus.textContent = 'PostgreSQL: Synchronized';
-      renderClusterPicker();
-      refreshHeader();
-      populateEntrySelect();
-      renderSchoolsTable();
-      renderEntryPanel();
-      if(isUserAdmin()) renderDashboard();
-      updateAuthUI();
-    }
-  }catch(e){
-    syncStatus.textContent = 'Sync Error';
-    showToast('Failed to load data from server', true);
-  }
-}
-
-function activeCluster(){
-  return state.clusters.find(c=>c.code===state.activeClusterCode) || state.clusters[0];
-}
-
-/* ============================================================
-   HELPERS
-   ============================================================ */
-function classList(school){
-  const a=[];
-  for(let i=school.classMin;i<=school.classMax;i++) a.push(i);
-  return a;
-}
-function classTotals(cd){
-  const totalGender = (Number(cd.boys)||0)+(Number(cd.girls)||0);
-  const totalReligion = (Number(cd.muslim)||0)+(Number(cd.nonMuslim)||0);
-  const totalMedium = (Number(cd.sindhi)||0)+(Number(cd.urdu)||0)+(Number(cd.english)||0);
-  
-  const diffReligion = totalReligion - totalGender;
-  const diffMedium = totalMedium - totalGender;
-  const match = totalGender===totalReligion && totalReligion===totalMedium;
-
-  const mismatches = [];
-  if(totalReligion !== totalGender){
-    const sign = diffReligion > 0 ? `+${diffReligion}` : `${diffReligion}`;
-    mismatches.push(`Religion (${totalReligion}) differs by ${sign} from Gender (${totalGender})`);
-  }
-  if(totalMedium !== totalGender){
-    const sign = diffMedium > 0 ? `+${diffMedium}` : `${diffMedium}`;
-    mismatches.push(`Medium (${totalMedium}) differs by ${sign} from Gender (${totalGender})`);
-  }
-  if(totalReligion !== totalMedium && totalGender === totalReligion){
-    const diff = totalMedium - totalReligion;
-    const sign = diff > 0 ? `+${diff}` : `${diff}`;
-    mismatches.push(`Medium (${totalMedium}) differs by ${sign} from Religion (${totalReligion})`);
-  }
-
-  return {
-    totalGender,
-    totalReligion,
-    totalMedium,
-    diffReligion,
-    diffMedium,
-    match,
-    mismatches
-  };
-}
-function schoolTotals(school){
-  const sum = {boys:0,girls:0,muslim:0,nonMuslim:0,sindhi:0,urdu:0,english:0,sections:0};
-  let allMatch = true;
-  classList(school).forEach(cls=>{
-    const cd = school.classes[cls] || {};
-    sum.boys += Number(cd.boys)||0;
-    sum.girls += Number(cd.girls)||0;
-    sum.muslim += Number(cd.muslim)||0;
-    sum.nonMuslim += Number(cd.nonMuslim)||0;
-    sum.sindhi += Number(cd.sindhi)||0;
-    sum.urdu += Number(cd.urdu)||0;
-    sum.english += Number(cd.english)||0;
-    sum.sections += Number(cd.sections)||0;
-    if(!classTotals(cd).match) allMatch=false;
-  });
-  sum.total = sum.boys + sum.girls;
-  sum.match = allMatch;
-  return sum;
-}
-function furnitureCounts(school){
-  const counts = {available:0, shortage:0, not_available:0};
-  classList(school).forEach(cls=>{
-    const f = (school.classes[cls] && school.classes[cls].furniture) || 'available';
-    counts[f] = (counts[f]||0) + 1;
-  });
-  return counts;
-}
-function globalTotals(cluster){
-  const g = {boys:0,girls:0,muslim:0,nonMuslim:0,sindhi:0,urdu:0,english:0,sections:0,total:0};
-  if(!cluster || !cluster.schools) return g;
-  cluster.schools.forEach(s=>{
-    const t = schoolTotals(s);
-    g.boys += t.boys; g.girls += t.girls;
-    g.muslim += t.muslim; g.nonMuslim += t.nonMuslim;
-    g.sindhi += t.sindhi; g.urdu += t.urdu; g.english += t.english;
-    g.sections += t.sections; g.total += t.total;
-  });
-  return g;
-}
-function sectionLabel(n){
-  n = Number(n)||0;
-  if(n===0) return 'No Section';
-  return n===1 ? '1 Section' : `${n} Sections`;
-}
-function cellTagHtml(cell){
-  if(cell==='HUB') return '<span class="tag hub">HUB</span>';
-  return `<span class="tag cell">Cell ${cell}</span>`;
-}
-function escapeHtml(str){
-  return String(str||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-
-/* ============================================================
-   DEBOUNCED AUTO-SAVER TO POSTGRESQL
-   ============================================================ */
-let saveTimeouts = {};
-
-function saveSchoolClassesDebounced(schoolId, classes){
-  syncStatus.textContent = 'Saving to PostgreSQL...';
-  dbDot.className = 'dot syncing';
-  if(saveTimeouts['classes_'+schoolId]) clearTimeout(saveTimeouts['classes_'+schoolId]);
-
-  saveTimeouts['classes_'+schoolId] = setTimeout(async ()=>{
-    try{
-      const res = await fetch(`/api/schools/${schoolId}/classes`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ classes })
-      });
-      const data = await res.json();
-      if(data.success){
-        syncStatus.textContent = 'PostgreSQL: Saved';
-        dbDot.className = 'dot';
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const ts = document.getElementById('saveTimestamp');
-        if(ts) ts.innerHTML = `Auto-saved: <b>${timeStr}</b>`;
-        showToast('Enrolment saved to PostgreSQL');
-      }else{
-        throw new Error(data.error);
-      }
-    }catch(err){
-      syncStatus.textContent = 'Save Failed';
-      dbDot.className = 'dot error';
-      showToast('Error saving to PostgreSQL: ' + err.message, true);
-    }
-  }, 450);
-}
-
-async function handleManualSave(){
-  const cluster = activeCluster();
-  if(!cluster) return;
-  const sel = document.getElementById('entrySchoolSelect');
-  const school = cluster.schools.find(s=>s.id===sel.value);
-  if(!school) return;
-
-  const saveBtn = document.getElementById('saveEnrollmentBtn');
-  const saveLabel = saveBtn ? saveBtn.querySelector('.btn-save-label') : null;
-  const saveIcon = saveBtn ? saveBtn.querySelector('.btn-save-icon') : null;
-  const timestampEl = document.getElementById('saveTimestamp');
-
-  if(saveTimeouts['classes_'+school.id]){
-    clearTimeout(saveTimeouts['classes_'+school.id]);
-    delete saveTimeouts['classes_'+school.id];
-  }
-
-  if(saveBtn){
-    saveBtn.classList.add('saving');
-    saveBtn.disabled = true;
-    if(saveIcon) saveIcon.textContent = '⏳';
-    if(saveLabel) saveLabel.textContent = 'Saving to Database...';
-  }
-  syncStatus.textContent = 'Saving to PostgreSQL...';
-  dbDot.className = 'dot syncing';
-
-  try {
-    const res = await fetch(`/api/schools/${school.id}/classes`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ classes: school.classes })
-    });
-    const data = await res.json();
-    if(data.success){
-      dbDot.className = 'dot';
-      syncStatus.textContent = 'PostgreSQL: Saved';
-      
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      if(timestampEl) timestampEl.innerHTML = `✓ Last saved: <b>${timeStr}</b>`;
-      showToast(`✓ Enrollment data for "${school.name}" saved to PostgreSQL!`);
-      
-      if(saveBtn){
-        saveBtn.classList.remove('saving');
-        saveBtn.classList.add('saved-success');
-        if(saveIcon) saveIcon.textContent = '✓';
-        if(saveLabel) saveLabel.textContent = 'Saved to Database!';
-        
-        setTimeout(()=>{
-          saveBtn.classList.remove('saved-success');
-          if(saveIcon) saveIcon.textContent = '💾';
-          if(saveLabel) saveLabel.textContent = 'Save Enrollment Data';
-          saveBtn.disabled = false;
-        }, 1500);
-      }
-    } else {
-      throw new Error(data.error || 'Save rejected by server');
-    }
-  } catch(err) {
-    if(saveBtn){
-      saveBtn.classList.remove('saving');
-      if(saveIcon) saveIcon.textContent = '⚠️';
-      if(saveLabel) saveLabel.textContent = 'Save Failed - Retry';
-      saveBtn.disabled = false;
-    }
-    dbDot.className = 'dot error';
-    syncStatus.textContent = 'Save Failed';
-    showToast('Save Error: ' + err.message, true);
-  }
-}
-
-function saveSchoolMetadataDebounced(school){
-  syncStatus.textContent = 'Saving school...';
-  dbDot.className = 'dot syncing';
-  if(saveTimeouts['school_'+school.id]) clearTimeout(saveTimeouts['school_'+school.id]);
-
-  saveTimeouts['school_'+school.id] = setTimeout(async ()=>{
-    try{
-      const res = await fetch(`/api/schools/${school.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(school)
-      });
-      const data = await res.json();
-      if(data.success){
-        syncStatus.textContent = 'PostgreSQL: Saved';
-        dbDot.className = 'dot';
-        showToast('School updated in PostgreSQL');
-      }else{
-        throw new Error(data.error);
-      }
-    }catch(err){
-      syncStatus.textContent = 'Save Failed';
-      dbDot.className = 'dot error';
-      showToast('Error updating school: ' + err.message, true);
-    }
-  }, 500);
-}
-
-/* ============================================================
-   CLUSTER PICKER
-   ============================================================ */
-function renderClusterPicker(){
-  const sel = document.getElementById('clusterSelect');
-  sel.innerHTML = state.clusters.map(c=>{
-    return `<option value="${c.code}">${c.code} — ${escapeHtml(c.district)} (${c.schools.length} schools)</option>`;
-  }).join('');
-  sel.value = state.activeClusterCode;
-}
-document.getElementById('clusterSelect').addEventListener('change', e=>{
-  state.activeClusterCode = e.target.value;
-  refreshHeader(); populateEntrySelect(); renderSchoolsTable(); renderEntryPanel(); renderDashboard();
-});
-
-document.getElementById('addClusterBtn').addEventListener('click', async ()=>{
-  const code = prompt('New cluster code (e.g. KX03100):');
-  if(!code) return;
-  if(state.clusters.find(c=>c.code===code.trim().toUpperCase())){
-    alert('A cluster with this code already exists.');
-    return;
-  }
-  const district = prompt('District name:', 'Khairpur Mirs') || 'Khairpur Mirs';
-  const hubName = prompt('Hub school name:', 'GBHS - ') || 'New Hub School';
-
-  try{
-    const res = await fetch('/api/clusters', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, district, hubName })
-    });
-    const data = await res.json();
-    if(data.success){
-      showToast(`Cluster ${code} created in PostgreSQL`);
-      state.activeClusterCode = code.trim().toUpperCase();
-      await loadDataFromDb();
-    }else{
-      alert('Error creating cluster: ' + data.error);
-    }
-  }catch(err){
-    alert('Failed to contact server: ' + err.message);
-  }
-});
-
-function refreshHeader(){
-  const cluster = activeCluster();
-  if(!cluster) return;
-  const hub = cluster.schools.find(s=>s.isHub);
-  if(hub) {
-    document.getElementById('hubTitle').textContent = hub.name
-      .replace(/^GBHS - /,'Govt. Boys High School, ')
-      .replace(/^GGHS - /,'Govt. Girls Higher Secondary School, ');
-  }
-  document.getElementById('hubSub').textContent = `Cluster ${cluster.code} • ${cluster.district} District — Enrolment & Facilities Dashboard`;
-  document.getElementById('clusterCountBadge').textContent = cluster.schools.filter(s=>!s.isHub).length;
-  if(document.getElementById('sidebarClusterCode')) document.getElementById('sidebarClusterCode').textContent = cluster.code;
-  if(document.getElementById('sidebarDistrict')) document.getElementById('sidebarDistrict').textContent = cluster.district;
-}
-
-/* ============================================================
-   AUTHENTICATION & ACCESS CONTROL (USERNAME ONLY)
-   ============================================================ */
-let authUser = null;
-try {
-  const saved = localStorage.getItem('hubClusterAdminUser');
-  if (saved) authUser = JSON.parse(saved);
-} catch(e){}
-
-let pendingTabAfterAuth = null;
-
-function isUserAdmin(){
-  return !!authUser && !!authUser.username;
-}
-
-function updateAuthUI(){
-  const isAuth = isUserAdmin();
-  const lockedTabs = ['dashboard', 'schools', 'export'];
-
-  lockedTabs.forEach(tab=>{
-    const btn = document.querySelector(`nav.tabs button[data-tab="${tab}"]`);
-    if(btn){
-      const lockSpan = btn.querySelector('.tab-lock');
-      if(isAuth){
-        btn.classList.remove('locked-tab');
-        if(lockSpan) lockSpan.style.display = 'none';
-      }else{
-        btn.classList.add('locked-tab');
-        if(lockSpan) lockSpan.style.display = 'inline';
-      }
-    }
-  });
-
-  const openAuthBtn = document.getElementById('openAuthModalBtn');
-  const loggedInBadge = document.getElementById('loggedInBadge');
-  const displayUsername = document.getElementById('displayUsername');
-  const sidebarAuthMode = document.getElementById('sidebarAuthMode');
-  const sidebarLoginTriggerBtn = document.getElementById('sidebarLoginTriggerBtn');
-
-  if(isAuth){
-    if(openAuthBtn) openAuthBtn.style.display = 'none';
-    if(loggedInBadge) loggedInBadge.style.display = 'flex';
-    if(displayUsername) displayUsername.textContent = authUser.username;
-    if(sidebarAuthMode){
-      sidebarAuthMode.style.color = '#2ecc71';
-      sidebarAuthMode.innerHTML = `🟢 Admin (${escapeHtml(authUser.username)})`;
-    }
-    if(sidebarLoginTriggerBtn){
-      sidebarLoginTriggerBtn.textContent = '🚪 Sign Out';
-      sidebarLoginTriggerBtn.className = 'sidebar-login-trigger logout-mode';
-    }
-  }else{
-    if(openAuthBtn) openAuthBtn.style.display = 'inline-block';
-    if(loggedInBadge) loggedInBadge.style.display = 'none';
-    if(sidebarAuthMode){
-      sidebarAuthMode.style.color = '#C9962C';
-      sidebarAuthMode.innerHTML = '🔒 Public (Entry Only)';
-    }
-    if(sidebarLoginTriggerBtn){
-      sidebarLoginTriggerBtn.textContent = '🔑 Admin Login';
-      sidebarLoginTriggerBtn.className = 'sidebar-login-trigger';
-    }
-    // If public user is on a locked panel, bounce back to Entry
-    const activeBtn = document.querySelector('nav.tabs button.active');
-    if(activeBtn && activeBtn.dataset.tab !== 'entry'){
-      activateTab('entry');
-    }
-  }
-}
-
-function openAuthModal(hintText){
-  const modal = document.getElementById('authModal');
-  const banner = document.getElementById('authErrorBanner');
-  banner.style.display = 'none';
-  if(hintText){
-    banner.className = 'modal-info-alert';
-    banner.textContent = hintText;
-    banner.style.display = 'block';
-  }
-  document.getElementById('inputUsername').value = '';
-  document.getElementById('inputPassword').value = '';
-  modal.style.display = 'flex';
-  setTimeout(()=> document.getElementById('inputUsername').focus(), 50);
-}
-
-function closeAuthModal(){
-  document.getElementById('authModal').style.display = 'none';
-  pendingTabAfterAuth = null;
-}
-
-function handleLogout(){
-  if(confirm('Sign out of Administrator account? Dashboard, schools register, and export reports will be locked.')){
-    authUser = null;
-    localStorage.removeItem('hubClusterAdminUser');
-    updateAuthUI();
-    showToast('Signed out of Administrator account');
-    activateTab('entry');
-  }
-}
-
-// Modal & Auth event listeners
-document.getElementById('openAuthModalBtn').addEventListener('click', ()=> openAuthModal());
-document.getElementById('sidebarLoginTriggerBtn').addEventListener('click', ()=>{
-  if(isUserAdmin()){
-    handleLogout();
-  }else{
-    openAuthModal();
-  }
-});
-document.getElementById('closeAuthModalBtn').addEventListener('click', closeAuthModal);
-document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-
-// Close modal on click outside
-document.getElementById('authModal').addEventListener('click', (e)=>{
-  if(e.target === document.getElementById('authModal')) closeAuthModal();
-});
-
-document.getElementById('authLoginForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const username = document.getElementById('inputUsername').value.trim();
-  const password = document.getElementById('inputPassword').value;
-  const banner = document.getElementById('authErrorBanner');
-  const submitBtn = document.getElementById('submitLoginBtn');
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Verifying username...';
-
-  try{
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    const data = await res.json();
-    if(data.success && data.user){
-      authUser = data.user;
-      localStorage.setItem('hubClusterAdminUser', JSON.stringify(authUser));
-      closeAuthModal();
-      updateAuthUI();
-      showToast(`Welcome, ${authUser.username}! Admin access unlocked.`);
-      if(pendingTabAfterAuth){
-        activateTab(pendingTabAfterAuth);
-      }else{
-        activateTab('dashboard');
-      }
-    }else{
-      banner.className = 'modal-error-alert';
-      banner.textContent = data.error || 'Invalid username or password';
-      banner.style.display = 'block';
-    }
-  }catch(err){
-    banner.className = 'modal-error-alert';
-    banner.textContent = 'Server connection error: ' + err.message;
-    banner.style.display = 'block';
-  }finally{
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Unlock Admin Access';
-  }
-});
-
-/* ============================================================
-   TABS SWITCHING & LOCKING
-   ============================================================ */
-function activateTab(tabName){
-  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  
-  const btn = document.querySelector(`nav.tabs button[data-tab="${tabName}"]`);
-  const panel = document.getElementById('panel-'+tabName);
-  if(btn) btn.classList.add('active');
-  if(panel) panel.classList.add('active');
-
-  if(tabName==='dashboard' && isUserAdmin()) renderDashboard();
-  if(tabName==='schools' && isUserAdmin()) renderSchoolsTable();
-  if(tabName==='entry') renderEntryPanel();
-}
-
-document.querySelectorAll('nav.tabs button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const tabName = btn.dataset.tab;
-    if(tabName !== 'entry' && !isUserAdmin()){
-      pendingTabAfterAuth = tabName;
-      openAuthModal(`🔒 The ${btn.textContent.replace('🔒','').trim()} module is restricted to verified cluster administrators. Please authenticate with your username.`);
-      return;
-    }
-    activateTab(tabName);
-  });
-});
-
-/* ============================================================
-   SCHOOLS TAB
-   ============================================================ */
-function renderSchoolsTable(){
-  const cluster = activeCluster();
-  if(!cluster) return;
-  const tbody = document.querySelector('#schoolsTable tbody');
-  tbody.innerHTML = '';
-
-  cluster.schools.forEach((s, idx)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${idx+1}</td>
-      <td>${cellTagHtml(s.cell)}</td>
-      <td><input type="text" value="${escapeHtml(s.name)}" data-act="name"></td>
-      <td>
-        <select data-act="type">
-          ${Object.keys(TYPE_INFO).map(t=>`<option value="${t}" ${t===s.type?'selected':''}>${t}</option>`).join('')}
-        </select>
-      </td>
-      <td style="white-space:nowrap;color:var(--slate);font-size:11.5px;">${s.classMin}&ndash;${s.classMax}</td>
-      <td><input type="text" value="${escapeHtml(s.semis)}" data-act="semis" style="width:110px"></td>
-      <td><input type="text" value="${escapeHtml(s.headTeacher)}" data-act="headTeacher" style="width:150px"></td>
-      <td><input type="text" value="${escapeHtml(s.contact)}" data-act="contact" style="width:110px"></td>
-      <td>${s.isHub? '' : '<button class="icon-btn" title="Remove School" data-act="remove">✕</button>'}</td>
-    `;
-
-    tr.querySelector('[data-act=name]').addEventListener('input', e=>{
-      s.name = e.target.value;
-      refreshHeader();
-      saveSchoolMetadataDebounced(s);
-    });
-
-    tr.querySelector('[data-act=type]').addEventListener('change', async e=>{
-      s.type = e.target.value;
-      const info = TYPE_INFO[s.type];
-      s.classMin = info.classMin;
-      s.classMax = info.classMax;
-      // Rebuild local class mapping
-      const newClasses = {};
-      for(let i=s.classMin; i<=s.classMax; i++){
-        newClasses[i] = s.classes[i] || {boys:0, girls:0, muslim:0, nonMuslim:0, sindhi:0, urdu:0, english:0, furniture:'available', sections:0};
-      }
-      s.classes = newClasses;
-      await fetch(`/api/schools/${s.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: s.type, classMin: s.classMin, classMax: s.classMax })
-      });
-      showToast('School type and class range updated');
-      renderSchoolsTable();
-      populateEntrySelect();
-    });
-
-    tr.querySelector('[data-act=semis]').addEventListener('input', e=>{
-      s.semis = e.target.value;
-      saveSchoolMetadataDebounced(s);
-    });
-    tr.querySelector('[data-act=headTeacher]').addEventListener('input', e=>{
-      s.headTeacher = e.target.value;
-      saveSchoolMetadataDebounced(s);
-    });
-    tr.querySelector('[data-act=contact]').addEventListener('input', e=>{
-      s.contact = e.target.value;
-      saveSchoolMetadataDebounced(s);
-    });
-
-    const rm = tr.querySelector('[data-act=remove]');
-    if(rm) rm.addEventListener('click', async ()=>{
-      if(confirm(`Remove "${s.name}" from PostgreSQL? All its enrolment data will be deleted.`)){
-        try{
-          const res = await fetch(`/api/schools/${s.id}`, { method: 'DELETE' });
-          const data = await res.json();
-          if(data.success){
-            showToast('School deleted from database');
-            await loadDataFromDb();
-          }else{
-            alert('Delete failed: ' + data.error);
-          }
-        }catch(err){
-          alert('Failed to delete: ' + err.message);
-        }
-      }
-    });
-
-    tbody.appendChild(tr);
-  });
-}
-
-document.getElementById('addCellBtn').addEventListener('click', async ()=>{
-  const cluster = activeCluster();
-  if(!cluster) return;
-  const name = prompt('School name (e.g. GBPS - NEW SCHOOL):');
-  if(!name) return;
-  const type = (prompt('Type: GBPS, GGPS, GBELS, GGELS, or GGHS?', 'GBPS') || 'GBPS').toUpperCase().trim();
-  if(!TYPE_INFO[type]){ alert('Unknown type — school not added.'); return; }
-  const cell = prompt('Which cell group? (e.g. C1, C2, C3)', 'C1') || 'C1';
-
-  try{
-    const res = await fetch(`/api/clusters/${cluster.code}/schools`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, type, cell })
-    });
-    const data = await res.json();
-    if(data.success){
-      showToast('Cell school added to PostgreSQL');
-      await loadDataFromDb();
-    }else{
-      alert('Error adding school: ' + data.error);
-    }
-  }catch(err){
-    alert('Server error: ' + err.message);
-  }
-});
-
-/* ============================================================
-   DATA ENTRY TAB
-   ============================================================ */
-function populateEntrySelect(){
-  const cluster = activeCluster();
-  if(!cluster) return;
-  const sel = document.getElementById('entrySchoolSelect');
-  const prev = sel.value;
-  const groups = {};
-  cluster.schools.forEach(s=>{ (groups[s.cell]=groups[s.cell]||[]).push(s); });
-
-  let html = '';
-  Object.keys(groups).sort((a,b)=> a==='HUB'?-1: b==='HUB'?1: a.localeCompare(b)).forEach(cellKey=>{
-    html += `<optgroup label="${cellKey==='HUB'?'Hub School':'Cell '+cellKey}">`;
-    groups[cellKey].forEach(s=>{
-      html += `<option value="${s.id}">${s.isHub?'&#9733; ':''}${escapeHtml(s.name)}</option>`;
-    });
-    html += `</optgroup>`;
-  });
-  sel.innerHTML = html;
-  if(cluster.schools.find(s=>s.id===prev)) sel.value = prev;
-}
-document.getElementById('entrySchoolSelect').addEventListener('change', renderEntryPanel);
-
-function formatGenderTotalCell(t){
-  return `<b>${t.totalGender}</b>`;
-}
-
-function formatReligionTotalCell(t){
-  if(t.totalReligion === t.totalGender){
-    return `<b>${t.totalReligion}</b>`;
-  }
-  const diff = t.diffReligion;
-  const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
-  return `<b>${t.totalReligion}</b><span class="mismatch-badge-micro" title="Religion (${t.totalReligion}) differs by ${diffStr} from Gender (${t.totalGender})">${diffStr}</span>`;
-}
-
-function formatMediumTotalCell(t){
-  if(t.totalMedium === t.totalGender){
-    return `<b>${t.totalMedium}</b>`;
-  }
-  const diff = t.diffMedium;
-  const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
-  return `<b>${t.totalMedium}</b><span class="mismatch-badge-micro" title="Medium (${t.totalMedium}) differs by ${diffStr} from Gender (${t.totalGender})">${diffStr}</span>`;
-}
-
-function rowCheckHtml(t){
-  if(t.match){
-    return `<span class="tag ok" title="All totals match (${t.totalGender})">✓ OK</span>`;
-  }
-  return `
-    <div class="mismatch-summary-pill">
-      <span class="tag bad">⚠️ Mismatch</span>
-      <div class="mismatch-popover">
-        ${t.mismatches.map(m => `<div class="mismatch-pop-item">• ${escapeHtml(m)}</div>`).join('')}
-      </div>
-    </div>
-  `;
-}
-
-function renderEntryPanel(){
-  populateEntrySelect();
-  const cluster = activeCluster();
-  if(!cluster) return;
-  const sel = document.getElementById('entrySchoolSelect');
-  const school = cluster.schools.find(s=>s.id===sel.value) || cluster.schools[0];
-  if(!school) return;
-  sel.value = school.id;
-
-  // Wire Save Button
-  const saveBtn = document.getElementById('saveEnrollmentBtn');
-  if(saveBtn && !saveBtn._hasSaveListener){
-    saveBtn._hasSaveListener = true;
-    saveBtn.addEventListener('click', handleManualSave);
-  }
-
-  // Wire Sidebar Enrollment Link
-  const sideEnrollment = document.getElementById('sidebarEnrollmentLink');
-  if(sideEnrollment && !sideEnrollment._hasNavListener){
-    sideEnrollment._hasNavListener = true;
-    sideEnrollment.addEventListener('click', (e)=>{
-      e.preventDefault();
-      activateTab('entry');
-    });
-  }
-
-  document.getElementById('entrySchoolMeta').innerHTML =
-    `<b>${escapeHtml(school.name)}</b> ${cellTagHtml(school.cell)} • ${TYPE_INFO[school.type].label} • Classes ${school.classMin}–${school.classMax}<br>
-     SEMIS: <b>${escapeHtml(school.semis)||'—'}</b> • Head/Teacher: <b>${escapeHtml(school.headTeacher)||'—'}</b> ${school.designation? '('+escapeHtml(school.designation)+')':''} • Contact: <b>${escapeHtml(school.contact)||'—'}</b>`;
-
-  const tbody = document.querySelector('#entryTable tbody');
-  tbody.innerHTML = '';
-  classList(school).forEach(cls=>{
-    const cd = school.classes[cls] || {boys:0, girls:0, muslim:0, nonMuslim:0, sindhi:0, urdu:0, english:0, furniture:'available', sections:0};
-    const t = classTotals(cd);
-    const tr = document.createElement('tr');
-    if(!t.match) tr.classList.add('row-mismatch');
-
-    tr.innerHTML = `
-      <td><b>Class ${cls}</b></td>
-      <td class="num"><input type="number" min="0" value="${cd.boys}" data-f="boys"></td>
-      <td class="num"><input type="number" min="0" value="${cd.girls}" data-f="girls"></td>
-      <td class="num ${t.match ? '' : 'mismatch-base-cell'}" data-role="totalGender">${formatGenderTotalCell(t)}</td>
-      <td class="num"><input type="number" min="0" value="${cd.muslim}" data-f="muslim"></td>
-      <td class="num"><input type="number" min="0" value="${cd.nonMuslim}" data-f="nonMuslim"></td>
-      <td class="num ${t.totalReligion === t.totalGender ? '' : 'mismatch-cell bad'}" data-role="totalReligion">${formatReligionTotalCell(t)}</td>
-      <td class="num"><input type="number" min="0" value="${cd.sindhi}" data-f="sindhi"></td>
-      <td class="num"><input type="number" min="0" value="${cd.urdu}" data-f="urdu"></td>
-      <td class="num"><input type="number" min="0" value="${cd.english}" data-f="english"></td>
-      <td class="num ${t.totalMedium === t.totalGender ? '' : 'mismatch-cell bad'}" data-role="totalMedium">${formatMediumTotalCell(t)}</td>
-      <td>
-        <select data-f="furniture">
-          ${FURNITURE_OPTIONS.map(o=>`<option value="${o.v}" ${o.v===cd.furniture?'selected':''}>${o.l}</option>`).join('')}
-        </select>
-      </td>
-      <td>
-        <select data-f="sections">
-          ${Array.from({length:13},(_,n)=>n).map(n=>`<option value="${n}" ${n===Number(cd.sections)?'selected':''}>${sectionLabel(n)}</option>`).join('')}
-        </select>
-      </td>
-      <td data-role="check">${rowCheckHtml(t)}</td>
-    `;
-
-    tr.querySelectorAll('input[data-f], select[data-f]').forEach(inp=>{
-      const evt = inp.tagName==='SELECT' ? 'change' : 'input';
-      inp.addEventListener(evt, ()=>{
-        const f = inp.dataset.f;
-        cd[f] = (inp.type==='number') ? Number(inp.value)||0 : inp.value;
-        const nt = classTotals(cd);
-
-        if(!nt.match){
-          tr.classList.add('row-mismatch');
-        } else {
-          tr.classList.remove('row-mismatch');
-        }
-
-        const tgCell = tr.querySelector('[data-role=totalGender]');
-        if(tgCell){
-          tgCell.className = 'num ' + (nt.match ? '' : 'mismatch-base-cell');
-          tgCell.innerHTML = formatGenderTotalCell(nt);
-        }
-
-        const trCell = tr.querySelector('[data-role=totalReligion]');
-        if(trCell){
-          trCell.className = 'num ' + (nt.totalReligion === nt.totalGender ? '' : 'mismatch-cell bad');
-          trCell.innerHTML = formatReligionTotalCell(nt);
-        }
-
-        const tmCell = tr.querySelector('[data-role=totalMedium]');
-        if(tmCell){
-          tmCell.className = 'num ' + (nt.totalMedium === nt.totalGender ? '' : 'mismatch-cell bad');
-          tmCell.innerHTML = formatMediumTotalCell(nt);
-        }
-
-        const checkCell = tr.querySelector('[data-role=check]');
-        if(checkCell) checkCell.innerHTML = rowCheckHtml(nt);
-
-        renderSchoolValidationBanner(school);
-        saveSchoolClassesDebounced(school.id, school.classes);
-      });
-    });
-    tbody.appendChild(tr);
-  });
-  renderSchoolValidationBanner(school);
-}
-
-function renderSchoolValidationBanner(school){
-  const t = schoolTotals(school);
-  const banner = document.getElementById('schoolValidationBanner');
-  if(!banner) return;
-
-  const mismatched = [];
-  classList(school).forEach(cls => {
-    const cd = school.classes[cls] || {};
-    const ct = classTotals(cd);
-    if(!ct.match){
-      mismatched.push({ cls, ct });
-    }
-  });
-
-  if(mismatched.length === 0){
-    banner.className = 'validation-banner ok';
-    banner.innerHTML = `
-      <div class="val-banner-header">
-        <span class="val-banner-icon">✓</span>
-        <div>
-          <b>All Enrollment Figures Match!</b>
-          <div class="val-banner-sub">
-            Total Enrolment: <b>${t.total}</b> (Boys: ${t.boys}, Girls: ${t.girls}) • Religious Total: <b>${t.muslim+t.nonMuslim}</b> • Medium Total: <b>${t.sindhi+t.urdu+t.english}</b> • Sections: <b>${t.sections}</b>
-          </div>
-        </div>
-      </div>
-    `;
-  }else{
-    banner.className = 'validation-banner bad';
-    banner.innerHTML = `
-      <div class="val-banner-header">
-        <span class="val-banner-icon">⚠️</span>
-        <div style="flex:1;">
-          <div style="font-size:13.5px; font-weight:700;">Validation Discrepancies Detected in ${mismatched.length} Class${mismatched.length > 1 ? 'es' : ''}</div>
-          <div class="val-banner-sub">The breakdown below highlights exactly which totals do not balance so you can correct them quickly:</div>
-          <div class="val-mismatch-cards">
-            ${mismatched.map(m => `
-              <div class="val-mismatch-row">
-                <span class="val-class-badge">Class ${m.cls}</span>
-                <span class="val-stat">Gender Total (Boys+Girls): <b>${m.ct.totalGender}</b></span>
-                <span class="val-stat ${m.ct.totalReligion !== m.ct.totalGender ? 'alert' : ''}">Religion: <b>${m.ct.totalReligion}</b> ${m.ct.diffReligion !== 0 ? `(${m.ct.diffReligion > 0 ? '+'+m.ct.diffReligion : m.ct.diffReligion})` : '✓'}</span>
-                <span class="val-stat ${m.ct.totalMedium !== m.ct.totalGender ? 'alert' : ''}">Medium: <b>${m.ct.totalMedium}</b> ${m.ct.diffMedium !== 0 ? `(${m.ct.diffMedium > 0 ? '+'+m.ct.diffMedium : m.ct.diffMedium})` : '✓'}</span>
-                <span class="val-explain">${m.ct.mismatches.join(' • ')}</span>
-              </div>
-            `).join('')}
-          </div>
-          <div style="font-size:11px; margin-top:8px; opacity:0.85;">
-            💡 <i>Tip: Gender total (Boys + Girls) must equal Religion (Muslim + Non-Muslim) and Medium (Sindhi + Urdu + English).</i>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-}
-
-// Global Ctrl+S / Cmd+S Keyboard Shortcut
-window.addEventListener('keydown', (e)=>{
-  if((e.ctrlKey || e.metaKey) && (e.key==='s' || e.key==='S')){
-    e.preventDefault();
-    const entryPanel = document.getElementById('panel-entry');
-    if(entryPanel && entryPanel.classList.contains('active')){
-      handleManualSave();
-    }
-  }
-});
-
-/* ============================================================
-   DASHBOARD TAB
-   ============================================================ */
-let charts = {};
-function destroyCharts(){ Object.values(charts).forEach(c=>c && c.destroy()); charts = {}; }
-
-function renderDashboard(){
-  const cluster = activeCluster();
-  if(!cluster) return;
-  const g = globalTotals(cluster);
-  document.getElementById('overviewSub').textContent = `Cluster ${cluster.code} — live totals across hub school and ${cluster.schools.length - 1} cell schools in PostgreSQL`;
-
-  const kpiRow = document.getElementById('kpiRow');
-  const totalSchools = cluster.schools.length;
-  const mismatchCount = cluster.schools.filter(s=>!schoolTotals(s).match).length;
-
-  kpiRow.innerHTML = `
-    <div class="kpi"><div class="n">${totalSchools}</div><div class="l">SCHOOLS IN CLUSTER</div></div>
-    <div class="kpi gold"><div class="n">${g.total}</div><div class="l">TOTAL ENROLMENT</div></div>
-    <div class="kpi"><div class="n">${g.boys} / ${g.girls}</div><div class="l">BOYS / GIRLS</div></div>
-    <div class="kpi"><div class="n">${g.muslim} / ${g.nonMuslim}</div><div class="l">MUSLIM / NON-MUSLIM</div></div>
-    <div class="kpi"><div class="n">${g.sections}</div><div class="l">TOTAL SECTIONS</div></div>
-    <div class="kpi ${mismatchCount? 'danger':''}"><div class="n">${mismatchCount}</div><div class="l">SCHOOLS WITH MISMATCH</div></div>
-  `;
-
-  destroyCharts();
-  const labels = cluster.schools.map(s=> (s.isHub? 'HUB • ':'') + s.name);
-  const totals = cluster.schools.map(s=>schoolTotals(s).total);
-
-  charts.bySchool = new Chart(document.getElementById('chartBySchool'), {
-    type: 'bar',
-    data: { labels, datasets: [{ label: 'Students', data: totals, backgroundColor: '#1B5E3A', borderRadius: 2 }] },
-    options: { plugins: { legend: { display: false } }, scales: { x: { ticks: { display: false } } } }
-  });
-
-  charts.gender = new Chart(document.getElementById('chartGender'), {
-    type: 'doughnut',
-    data: { labels: ['Boys', 'Girls'], datasets: [{ data: [g.boys, g.girls], backgroundColor: ['#1B5E3A', '#C9962C'] }] }
-  });
-
-  charts.religion = new Chart(document.getElementById('chartReligion'), {
-    type: 'doughnut',
-    data: { labels: ['Muslim', 'Non-Muslim'], datasets: [{ data: [g.muslim, g.nonMuslim], backgroundColor: ['#1B5E3A', '#A6402A'] }] }
-  });
-
-  charts.medium = new Chart(document.getElementById('chartMedium'), {
-    type: 'doughnut',
-    data: { labels: ['Sindhi', 'Urdu', 'English'], datasets: [{ data: [g.sindhi, g.urdu, g.english], backgroundColor: ['#1B5E3A', '#C9962C', '#5B6B63'] }] }
-  });
-
-  const furn = { available: 0, shortage: 0, not_available: 0 };
-  cluster.schools.forEach(s=>{
-    const f = furnitureCounts(s);
-    furn.available += f.available;
-    furn.shortage += f.shortage;
-    furn.not_available += f.not_available;
-  });
-  charts.furniture = new Chart(document.getElementById('chartFurniture'), {
-    type: 'bar',
-    data: { labels: ['Available', 'Shortage', 'Not Available'], datasets: [{ data: [furn.available, furn.shortage, furn.not_available], backgroundColor: ['#2F7D52', '#C9962C', '#A6402A'], borderRadius: 2 }] },
-    options: { plugins: { legend: { display: false } }, indexAxis: 'y' }
-  });
-
-  charts.sections = new Chart(document.getElementById('chartSections'), {
-    type: 'bar',
-    data: { labels, datasets: [{ label: 'Sections', data: cluster.schools.map(s=>schoolTotals(s).sections), backgroundColor: '#5B6B63', borderRadius: 2 }] },
-    options: { plugins: { legend: { display: false } }, scales: { x: { ticks: { display: false } } } }
-  });
-
-  const tbody = document.querySelector('#summaryTable tbody');
-  tbody.innerHTML = '';
-  cluster.schools.forEach((s, idx)=>{
-    const t = schoolTotals(s);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${idx+1}</td>
-      <td>${cellTagHtml(s.cell)}</td>
-      <td>${s.isHub? '&#9733; ' : ''}${escapeHtml(s.name)}</td>
-      <td><span class="tag type">${s.type}</span></td>
-      <td class="num">${t.boys}</td><td class="num">${t.girls}</td><td class="num"><b>${t.total}</b></td>
-      <td class="num">${t.muslim}</td><td class="num">${t.nonMuslim}</td>
-      <td class="num">${t.sindhi}</td><td class="num">${t.urdu}</td><td class="num">${t.english}</td>
-      <td class="num">${t.sections}</td>
-      <td>${t.match? '<span class="tag ok">✓ Match</span>' : '<span class="tag bad">⚠️ Mismatch</span>'}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-/* ============================================================
-   EXPORT & PRINT
-   ============================================================ */
-document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
-  const cluster = activeCluster();
-  if(!cluster) return;
-  const rows = [[
-    'Cluster','Cell','School','Type','SEMIS','Head/Teacher','Contact','Class','Boys','Girls','Total(Gender)',
-    'Muslim','NonMuslim','Total(Religion)','Sindhi','Urdu','English','Total(Medium)','Furniture','Sections','Match'
-  ]];
-  cluster.schools.forEach(s=>{
-    classList(s).forEach(cls=>{
-      const cd = s.classes[cls] || {};
-      const t = classTotals(cd);
-      rows.push([
-        cluster.code, s.cell, s.name, s.type, s.semis, s.headTeacher, s.contact, cls,
-        cd.boys||0, cd.girls||0, t.totalGender,
-        cd.muslim||0, cd.nonMuslim||0, t.totalReligion,
-        cd.sindhi||0, cd.urdu||0, cd.english||0, t.totalMedium,
-        cd.furniture||'available', sectionLabel(cd.sections), t.match?'YES':'NO'
-      ]);
-    });
-  });
-  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${cluster.code}_cluster_data_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('CSV Export downloaded');
-});
-
-document.getElementById('printBtn').addEventListener('click', ()=>{
-  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('panel-dashboard').classList.add('active');
-  renderDashboard();
-  setTimeout(()=>window.print(), 150);
-});
-
-document.getElementById('resetBtn').addEventListener('click', async ()=>{
-  const cluster = activeCluster();
-  if(!cluster) return;
-  if(confirm(`Reset all class figures for Cluster ${cluster.code} in PostgreSQL to zero? This cannot be undone.`)){
-    try{
-      const res = await fetch(`/api/clusters/${cluster.code}/reset`, { method: 'POST' });
-      const data = await res.json();
-      if(data.success){
-        showToast('Enrolment figures reset in PostgreSQL');
-        await loadDataFromDb();
-      }else{
-        alert('Reset failed: ' + data.error);
-      }
-    }catch(err){
-      alert('Server error: ' + err.message);
-    }
-  }
-});
-
-/* ============================================================
-   INIT
-   ============================================================ */
-updateAuthUI();
-checkHealth();
-setInterval(checkHealth, 15000);
-loadDataFromDb();
-
-})();
-</script>
+<script src="/app.js"></script>
 </body>
 </html>

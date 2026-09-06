@@ -212,4 +212,15 @@ async function startServer() {
   }
 }
 
-startServer();
+// ─── Start ───────────────────────────────────────────────
+// Run as a normal server when executed directly (local / Railway / Render)
+// Export the app for Vercel serverless deployment
+if (require.main === module) {
+  startServer();
+} else {
+  // Vercel serverless — initialise DB once, export app
+  db.initDb()
+    .then(() => console.log('DB ready for serverless'))
+    .catch(err => console.error('DB init error:', err));
+  module.exports = app;
+}
