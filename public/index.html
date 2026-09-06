@@ -201,9 +201,11 @@
         <p>Cluster KX03099 · Khairpur Mirs District — enter enrollment, religion, medium of instruction &amp; facilities</p>
       </div>
       <div class="page-header-right no-print">
-        <div class="form-group" style="min-width:260px">
-          <label class="form-label">Select School</label>
-          <select class="form-select" id="entrySchoolSelect" onchange="loadSchoolForm()"></select>
+        <div class="form-group" style="min-width:280px">
+          <label class="form-label select-school-lbl" for="entrySchoolSelect">
+            <span class="blinking-star">⭐</span> Select Your School <span class="blinking-star">⭐</span>
+          </label>
+          <select class="form-select select-school-highlight" id="entrySchoolSelect" onchange="loadSchoolForm()"></select>
         </div>
         <button class="btn btn-outline" onclick="printCurrentSchoolReport()" style="height:38px;padding:0 12px;display:inline-flex;align-items:center;gap:6px" title="Export or Print this school as an official A4 PDF">
           <span>🖨️</span>

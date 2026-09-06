@@ -209,6 +209,33 @@ input, select, textarea { font-family: var(--font); }
   background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
 }
 
+/* ─── BLINKING STAR & SCHOOL SELECTOR HIGHLIGHT ─── */
+.select-school-lbl {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-weight: 700 !important; color: #1e40af !important;
+  font-size: 12.5px !important; letter-spacing: .2px;
+}
+.blinking-star {
+  display: inline-block;
+  animation: starPulse 1.2s infinite ease-in-out;
+  filter: drop-shadow(0 0 3px rgba(234,179,8,.85));
+  font-size: 14px;
+}
+@keyframes starPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.4) rotate(18deg); opacity: .35; filter: drop-shadow(0 0 7px rgba(245,158,11,1)); }
+}
+.select-school-highlight {
+  border: 2px solid #2563eb !important;
+  background-color: #f8faff !important;
+  font-weight: 600 !important;
+  animation: selectBoxGlow 1.6s infinite ease-in-out;
+}
+@keyframes selectBoxGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,.4); border-color: #2563eb; }
+  50% { box-shadow: 0 0 0 5px rgba(37,99,235,.15), 0 0 12px rgba(212,144,10,.35); border-color: #d97706; }
+}
+
 /* ═══════════════════════════════════════════
    TOTAL CELL
 ═══════════════════════════════════════════ */

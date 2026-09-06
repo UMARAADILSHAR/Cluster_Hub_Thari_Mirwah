@@ -4,13 +4,32 @@
    CONSTANTS
 ───────────────────────────────────── */
 const TYPE_INFO = {
-  GBHS:  { label:'Boys High School',              min:1,  max:10 },
-  GBPS:  { label:'Boys Primary School',           min:1,  max:5  },
-  GGPS:  { label:'Girls Primary School',          min:1,  max:5  },
-  GBELS: { label:'Boys Elementary Lower School',  min:1,  max:8  },
-  GGELS: { label:'Girls Elementary Lower School', min:1,  max:8  },
+  GBHS:  { label:'Boys High School',              min:6,  max:10 },
+  GBPS:  { label:'Boys Primary School',           min:0,  max:5  },
+  GGPS:  { label:'Girls Primary School',          min:0,  max:5  },
+  GBELS: { label:'Boys Elementary Lower School',  min:0,  max:8  },
+  GGELS: { label:'Girls Elementary Lower School', min:0,  max:8  },
   GGHS:  { label:'Girls Higher Secondary School', min:6,  max:12 },
 };
+
+function classLabel(cls) {
+  const n = Number(cls);
+  if (n === 0) return 'Katchi / ECE';
+  return `Class ${cls}`;
+}
+
+function classTag(cls) {
+  const n = Number(cls);
+  if (n === 0) return 'KATCHI / ECE';
+  return `CLASS ${cls}`;
+}
+
+function formatClassRange(min, max) {
+  const nMin = Number(min);
+  const nMax = Number(max);
+  if (nMin === 0) return `Katchi to Class ${nMax}`;
+  return `Class ${nMin} to Class ${nMax}`;
+}
 const FURNITURE_OPTS = [
   { v:'available',    l:'Available'    },
   { v:'shortage',     l:'Shortage'     },
@@ -312,7 +331,7 @@ function populateSchoolSelect() {
   const prev = sel.value;
   const groups = {};
   cluster.schools.forEach(s => { (groups[s.cell] = groups[s.cell] || []).push(s); });
-  let html = '<option value="">— Select a school —</option>';
+  let html = '<option value="">⭐ SELECT YOUR SCHOOL TO BEGIN ⭐</option>';
   Object.keys(groups)
     .sort((a, b) => a === 'HUB' ? -1 : b === 'HUB' ? 1 : a.localeCompare(b))
     .forEach(cell => {
@@ -325,8 +344,11 @@ function populateSchoolSelect() {
   sel.innerHTML = html;
   if (prev && cluster.schools.find(s => s.id === prev)) sel.value = prev;
 
+  if (!sel.value) sel.classList.add('select-school-highlight');
+  else sel.classList.remove('select-school-highlight');
+
   if (expSel) {
-    expSel.innerHTML = html.replace('— Select a school —', '— Choose School to Print —');
+    expSel.innerHTML = html.replace('⭐ SELECT YOUR SCHOOL TO BEGIN ⭐', '— Choose School to Print —');
     if (prev && cluster.schools.find(s => s.id === prev)) expSel.value = prev;
   }
 }
@@ -361,12 +383,14 @@ function loadSchoolForm() {
   const sel    = document.getElementById('entrySchoolSelect');
   const school = cluster.schools.find(s => s.id === sel.value);
   if (!school) {
+    sel?.classList.add('select-school-highlight');
     document.getElementById('classCardsContainer').innerHTML = '';
     document.getElementById('saveFooterArea').style.display = 'none';
     document.getElementById('schoolMetaStrip').innerHTML =
-      '<span style="color:var(--text-xlt)">Select a school above to begin</span>';
+      '<span style="color:#2563eb;font-weight:600">⭐ Please select your school above to view and enter class enrollment data</span>';
     return;
   }
+  sel?.classList.remove('select-school-highlight');
   state.currentSchoolId = school.id;
   renderMetaStrip(school);
   renderClassCards(school);
@@ -380,7 +404,7 @@ function renderMetaStrip(school) {
     <div class="meta-chip"><b>${esc(school.name)}</b></div>
     <div class="meta-chip"><span class="chip-tag ${school.isHub ? 'chip-hub' : 'chip-cell'}">${school.isHub ? 'HUB' : 'Cell ' + school.cell}</span></div>
     <div class="meta-chip"><span class="chip-tag chip-type">${school.type}</span> ${esc(ti.label)}</div>
-    <div class="meta-chip">Classes <b>${school.classMin}–${school.classMax}</b></div>
+    <div class="meta-chip">Classes: <b>${formatClassRange(school.classMin, school.classMax)}</b></div>
     ${school.semis       ? `<div class="meta-chip">SEMIS: <b>${esc(school.semis)}</b></div>` : ''}
     ${school.headTeacher ? `<div class="meta-chip">Head: <b>${esc(school.headTeacher)}</b></div>` : ''}
   `;
@@ -399,8 +423,8 @@ function renderClassCards(school) {
     card.innerHTML = `
       <div class="class-card-hdr" id="hdr-${cls}" onclick="toggleCard(${cls})">
         <div class="class-lbl">
-          <span class="class-badge-pill">CLASS ${cls}</span>
-          <span class="class-title-text">Class ${cls}</span>
+          <span class="class-badge-pill">${classTag(cls)}</span>
+          <span class="class-title-text">${classLabel(cls)}</span>
         </div>
         <div class="class-hdr-right">
           <span id="badge-${cls}">${badge}</span>
@@ -794,7 +818,7 @@ function generateSchoolReportHtml(school, cluster) {
 
     rowsHtml += `
       <tr>
-        <td class="p-class-name">Class ${cls}</td>
+        <td class="p-class-name">${classLabel(cls)}</td>
         <td>${cd.boys || 0}</td>
         <td>${cd.girls || 0}</td>
         <td style="font-weight:700">${t.g}</td>
@@ -855,7 +879,7 @@ function generateSchoolReportHtml(school, cluster) {
           <div>
             <div class="p-info-row"><span class="p-info-lbl">Head Teacher:</span> <span class="p-info-val">${esc(school.headTeacher || 'Not Assigned')}</span></div>
             <div class="p-info-row"><span class="p-info-lbl">Designation:</span> <span class="p-info-val">${esc(school.designation || 'PST / In-charge')}</span></div>
-            <div class="p-info-row"><span class="p-info-lbl">Class Range:</span> <span class="p-info-val">Class ${school.classMin} to Class ${school.classMax}</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">Class Range:</span> <span class="p-info-val">${formatClassRange(school.classMin, school.classMax)}</span></div>
             <div class="p-info-row"><span class="p-info-lbl">Report Date:</span> <span class="p-info-val">${new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })}</span></div>
           </div>
         </div>

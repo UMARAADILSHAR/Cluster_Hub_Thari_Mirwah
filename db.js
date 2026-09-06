@@ -43,11 +43,11 @@ pool.on('error', (err) => {
 
 // School Types and their default class ranges
 const TYPE_INFO = {
-  GBHS:  { label: 'Boys High School',              classMin: 1, classMax: 10 },
-  GBPS:  { label: 'Boys Primary School',           classMin: 1, classMax: 5 },
-  GGPS:  { label: 'Girls Primary School',          classMin: 1, classMax: 5 },
-  GBELS: { label: 'Boys Elementary Lower School',  classMin: 1, classMax: 8 },
-  GGELS: { label: 'Girls Elementary Lower School', classMin: 1, classMax: 8 },
+  GBHS:  { label: 'Boys High School',              classMin: 6, classMax: 10 },
+  GBPS:  { label: 'Boys Primary School',           classMin: 0, classMax: 5 },
+  GGPS:  { label: 'Girls Primary School',          classMin: 0, classMax: 5 },
+  GBELS: { label: 'Boys Elementary Lower School',  classMin: 0, classMax: 8 },
+  GGELS: { label: 'Girls Elementary Lower School', classMin: 0, classMax: 8 },
   GGHS:  { label: 'Girls Higher Secondary School', classMin: 6, classMax: 12 },
 };
 
@@ -60,7 +60,7 @@ function getInitialSeedKX03099() {
     type: 'GBHS',
     cell: 'HUB',
     isHub: true,
-    classMin: 1,
+    classMin: 6,
     classMax: 10,
     semis: '415060805',
     pid: '10469301',
@@ -267,6 +267,24 @@ async function initDb() {
       console.log('✅ Seed completed successfully with 1 Hub and 22 Cell schools.');
     } else {
       console.log(`✅ Database already initialized (${countRes.rows[0].count} clusters found).`);
+      // Schema alignment migration for class ranges
+      await client.query(`
+        UPDATE schools SET class_min = 0, class_max = 5 WHERE type IN ('GBPS', 'GGPS') AND (class_min != 0 OR class_max != 5);
+        UPDATE schools SET class_min = 0, class_max = 8 WHERE type IN ('GBELS', 'GGELS') AND (class_min != 0 OR class_max != 8);
+        UPDATE schools SET class_min = 6, class_max = 10 WHERE type = 'GBHS' AND (class_min != 6 OR class_max != 10);
+        UPDATE schools SET class_min = 6, class_max = 12 WHERE type = 'GGHS' AND (class_min != 6 OR class_max != 12);
+
+        INSERT INTO class_records (school_id, class_number, boys, girls, muslim, non_muslim, sindhi, urdu, english, furniture, sections)
+        SELECT id, 0, 0, 0, 0, 0, 0, 0, 0, 'available', 0
+        FROM schools
+        WHERE class_min = 0
+        ON CONFLICT (school_id, class_number) DO NOTHING;
+
+        DELETE FROM class_records
+        WHERE school_id IN (SELECT id FROM schools WHERE type = 'GBHS')
+          AND class_number < 6;
+      `);
+      console.log('✅ School class ranges and Katchi/ECE records aligned.');
     }
   } catch (err) {
     await client.query('ROLLBACK');
