@@ -261,7 +261,17 @@ async function loadData() {
 }
 
 async function saveClasses(schoolId, classesObj) {
-  const d = await api('PUT', `/api/schools/${schoolId}/classes`, { classes: classesObj });
+  const pin = getSchoolPin(schoolId);
+  const headers = { 'Content-Type': 'application/json' };
+  if (pin) headers['x-school-pin'] = pin;
+  if (state.authUser) headers['authorization'] = 'Bearer admin_token';
+
+  const r = await fetch(`/api/schools/${schoolId}/classes`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify({ classes: classesObj, pin })
+  });
+  const d = await r.json();
   if (!d.success) throw new Error(d.error);
   return true;
 }
@@ -623,13 +633,14 @@ function renderSingleSchoolCard(school) {
 
   const isSubmitted = Boolean(school.isSubmitted || totals.total > 0);
   const isHead = school.cell === 'C2' && school.name.includes('THARI');
+  const isUnlocked = isSchoolUnlocked(school.id);
 
   return `
-    <div class="sg-card ${isHub ? 'is-hub-card' : ''}"
+    <div class="sg-card ${isHub ? 'is-hub-card' : ''} ${isUnlocked ? 'is-unlocked-card' : ''}"
          id="schoolCard-${school.id}"
          data-school-id="${school.id}"
-         onclick="openSchoolEntryPage('${school.id}')"
-         title="Click to open dedicated enrollment data entry form for ${esc(school.name)}">
+         onclick="openSchoolWithSecurityCheck('${school.id}')"
+         title="${isUnlocked ? 'Click to open enrollment entry form for ' + esc(school.name) : 'Security Protected — Personal ID required to access ' + esc(school.name)}">
       
       <div class="sg-card-top">
         <div class="sg-avatar ${avatarClass}">
@@ -647,7 +658,7 @@ function renderSingleSchoolCard(school) {
             <span style="font-size:9.5px;color:var(--text-xlt)">• ${esc(school.type)}</span>
           </div>
         </div>
-        <div class="sg-chevron" title="Click to open entry form">➔</div>
+        <div class="sg-chevron" title="${isUnlocked ? 'Unlocked (Access Granted)' : 'Protected with Personal ID'}">${isUnlocked ? '🔓' : '🔒'}</div>
       </div>
 
       <!-- Enrollment Data inside the card -->
@@ -663,7 +674,7 @@ function renderSingleSchoolCard(school) {
             <span>📚 Classes: <b>${filledClasses}/${expectedClasses}</b></span>
           ` : `
             <span>Classes: <b>${formatClassRange(school.classMin, school.classMax)}</b></span>
-            <span style="color:#0284c7;font-weight:700">👉 Click to open entry form</span>
+            <span style="color:#0284c7;font-weight:700">${isUnlocked ? '👉 Click to enter data' : '🔒 Enter Personal ID'}</span>
           `}
         </div>
       </div>
@@ -671,9 +682,9 @@ function renderSingleSchoolCard(school) {
       <!-- Action buttons matching official portal -->
       <div class="sg-actions-row">
         <button class="sg-btn-action btn-enrollment"
-                onclick="event.stopPropagation(); openSchoolEntryPage('${school.id}')"
-                title="Open dedicated enrollment entry page">
-          <span>📊 Enrollment</span>
+                onclick="event.stopPropagation(); openSchoolWithSecurityCheck('${school.id}')"
+                title="${isUnlocked ? 'Open dedicated enrollment entry page' : 'Protected — Enter Personal ID to open'}">
+          <span>${isUnlocked ? '📊 Enrollment' : '🔒 Enter Data'}</span>
         </button>
         <button class="sg-btn-action btn-staff"
                 onclick="event.stopPropagation(); toast('Staff Data module scheduled for Phase 2', 'info')"
@@ -695,11 +706,134 @@ function renderSingleSchoolCard(school) {
   `;
 }
 
+let pendingUnlockSchoolId = null;
+
+function isSchoolUnlocked(schoolId) {
+  if (isAdmin()) return true;
+  return Boolean(sessionStorage.getItem(`unlocked_school_${schoolId}`));
+}
+
+function getSchoolPin(schoolId) {
+  return sessionStorage.getItem(`pin_val_${schoolId}`) || '';
+}
+
+function openSchoolWithSecurityCheck(schoolId) {
+  if (isSchoolUnlocked(schoolId)) {
+    openSchoolEntryPage(schoolId);
+    return;
+  }
+  openSchoolPinModal(schoolId);
+}
+
+function openSchoolPinModal(schoolId) {
+  const cluster = activeCluster();
+  if (!cluster) return;
+  const school = cluster.schools.find(s => s.id === schoolId);
+  if (!school) return;
+
+  pendingUnlockSchoolId = schoolId;
+  const modal = document.getElementById('schoolPinModal');
+  const nameEl = document.getElementById('pinModalSchoolName');
+  const subEl = document.getElementById('pinModalSchoolSub');
+  const headEl = document.getElementById('pinModalHeadName');
+  const inp = document.getElementById('schoolPinInput');
+  const errEl = document.getElementById('pinModalErr');
+
+  if (nameEl) nameEl.textContent = school.name;
+  if (subEl) subEl.textContent = `SEMIS: ${school.semis || 'N/A'} · Cell ${school.cell} · Personal ID Required`;
+  if (headEl) headEl.textContent = school.headTeacher ? `${school.headTeacher} (${school.designation || 'PST'})` : 'Head Teacher';
+  if (inp) {
+    inp.value = '';
+    inp.type = 'password';
+  }
+  if (errEl) {
+    errEl.style.display = 'none';
+    errEl.textContent = '';
+  }
+
+  if (modal) {
+    modal.classList.add('open');
+    setTimeout(() => inp?.focus(), 150);
+  }
+}
+
+function closeSchoolPinModal() {
+  const modal = document.getElementById('schoolPinModal');
+  if (modal) modal.classList.remove('open');
+  pendingUnlockSchoolId = null;
+}
+
+function togglePinVisibility() {
+  const inp = document.getElementById('schoolPinInput');
+  const btn = document.getElementById('btnTogglePin');
+  if (!inp) return;
+  const isPass = inp.type === 'password';
+  inp.type = isPass ? 'text' : 'password';
+  if (btn) btn.textContent = isPass ? '🔒' : '👁️';
+}
+
+async function submitSchoolPin(event) {
+  if (event) event.preventDefault();
+  if (!pendingUnlockSchoolId) return;
+
+  const inp = document.getElementById('schoolPinInput');
+  const errEl = document.getElementById('pinModalErr');
+  const btn = document.getElementById('btnSubmitPin');
+  const pinVal = (inp?.value || '').trim();
+
+  if (!pinVal) {
+    if (errEl) {
+      errEl.textContent = 'Please enter the Personal ID to unlock.';
+      errEl.style.display = 'block';
+    }
+    return;
+  }
+
+  if (btn) btn.innerHTML = '<span>⏳</span> <span>Verifying…</span>';
+  if (errEl) errEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`/api/schools/${pendingUnlockSchoolId}/verify-pin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: pinVal }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Incorrect Personal ID for this school.');
+    }
+
+    // Success: save token & pin in sessionStorage
+    sessionStorage.setItem(`unlocked_school_${pendingUnlockSchoolId}`, data.token || 'verified');
+    sessionStorage.setItem(`pin_val_${pendingUnlockSchoolId}`, pinVal);
+
+    const targetSchoolId = pendingUnlockSchoolId;
+    closeSchoolPinModal();
+    openSchoolEntryPage(targetSchoolId);
+    toast('🔓 Access granted! Personal ID verified.', 'ok');
+  } catch (err) {
+    if (errEl) {
+      errEl.textContent = err.message || 'Incorrect Personal ID.';
+      errEl.style.display = 'block';
+    }
+    if (inp) inp.select();
+  } finally {
+    if (btn) btn.innerHTML = '<span>🔓 Unlock &amp; Open</span>';
+  }
+}
+
 function openSchoolEntryPage(schoolId) {
   const cluster = activeCluster();
   if (!cluster) return;
   const school = cluster.schools.find(s => s.id === schoolId);
   if (!school) return;
+
+  // Security barrier check
+  if (!isSchoolUnlocked(schoolId)) {
+    openSchoolPinModal(schoolId);
+    return;
+  }
 
   state.currentSchoolId = school.id;
   const hiddenSel = document.getElementById('entrySchoolSelect');
@@ -728,6 +862,9 @@ function openSchoolEntryPage(schoolId) {
       <div class="meta-chip">Classes: <b>${formatClassRange(school.classMin, school.classMax)}</b></div>
       ${school.semis ? `<div class="meta-chip">SEMIS: <b>${esc(school.semis)}</b></div>` : ''}
       ${school.headTeacher ? `<div class="meta-chip">Head: <b>${esc(school.headTeacher)}</b></div>` : ''}
+      <div class="meta-chip" style="margin-left:auto;background:#ecfdf5;border-color:#a7f3d0;color:#15803d">
+        <span>🔓 Personal ID Verified</span>
+      </div>
     `;
   }
 
@@ -768,10 +905,17 @@ function clearSchoolSearch() {
 
 function loadSchoolForm(schoolId) {
   const sId = schoolId || document.getElementById('entrySchoolSelect')?.value || state.currentSchoolId;
-  if (sId) openSchoolEntryPage(sId);
+  if (sId) openSchoolWithSecurityCheck(sId);
 }
 
 window.renderSchoolsGrid = renderSchoolsGrid;
+window.openSchoolWithSecurityCheck = openSchoolWithSecurityCheck;
+window.openSchoolPinModal = openSchoolPinModal;
+window.closeSchoolPinModal = closeSchoolPinModal;
+window.togglePinVisibility = togglePinVisibility;
+window.submitSchoolPin = submitSchoolPin;
+window.isSchoolUnlocked = isSchoolUnlocked;
+window.getSchoolPin = getSchoolPin;
 window.openSchoolEntryPage = openSchoolEntryPage;
 window.backToSchoolsDirectory = backToSchoolsDirectory;
 window.loadSchoolForm = loadSchoolForm;

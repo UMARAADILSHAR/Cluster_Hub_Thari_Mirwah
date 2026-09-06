@@ -81,8 +81,8 @@ function getInitialSeedKX03099() {
     ['GBPS - GHULAM SHABIR LAGH', '415060666', '92037042', 'Allah Bux', 'Male', '0307-5080980', 'PST'],
     ['GBPS - HAJI FAIZ MUHAMMAD', '415060382', '10294191', 'Mahmood Hussain', 'Male', '0301-3401351', 'PST'],
     ['GBPS - ALI DAD JOGI', '415060042', '10469922', 'Hasnain Sardar Ali', 'Male', '0303-9655601', 'PST'],
-    ['GBPS - NANDHI THARI', '415060290', '', '', '', '', ''],
-    ['GBPS - HASSAN SHAH', '415060725', '', '', '', '', ''],
+    ['GBPS - NANDHI THARI', '415060290', '10308938', 'Altaf Hussain Jogi', 'Male', '0303-9655601', 'PST'],
+    ['GBPS - HASSAN SHAH', '415060725', '10974690', 'Azit Khatoon', 'Female', '0309-3228928', 'PST'],
   ];
   c1.forEach((r, i) => {
     const type = r[0].startsWith('GBELS') ? 'GBELS' : 'GBPS';
@@ -107,14 +107,14 @@ function getInitialSeedKX03099() {
   const c2 = [
     ['GGHS - THARI', '415060812', '10301370', 'Waheed Laghari', 'Female', '0306-6719929', 'Principal', 'GGHS'],
     ['GGPS - HAJI KHAN', '415060640', '10463921', 'Latifa Bibi', 'Female', '0302-2415461', 'PST', 'GGPS'],
-    ['GGELS - ALI DAD JOGI', '415060557', '', '', '', '', '', 'GGELS'],
-    ['GGPS - RUKHSANA LUQMAN SO', '415060635', '10821828', 'Ghazala', 'Male', '0305-3969021', 'PST', 'GGPS'],
+    ['GGELS - ALI DAD JOGI', '415060557', '10810531', 'Shabana Khatoon', 'Female', '0305-2012895', 'HST', 'GGELS'],
+    ['GGPS - RUKHSANA LUQMAN SO', '415060635', '10821828', 'Ghazala', 'Female', '0305-3969021', 'PST', 'GGPS'],
     ['GGPS - KHABAR JOGI', '415060592', '11113571', 'Kiran Bhatti', 'Female', '0348-2076481', 'PST', 'GGPS'],
     ['GGPS - THARI MIRWAH', '415060520', '11038937', 'Rabel', 'Female', '0312-2004026', 'PST', 'GGPS'],
     ['GGPS - LAL MUHAMMAD (BRAN', '415060584', '10326598', 'Sajida', 'Female', '0328-8440348', 'PST', 'GGPS'],
     ['GGPS - MALLAH COLONY', '415060642', '10455390', 'Mubina', 'Female', '0302-2069051', 'PST', 'GGPS'],
     ['GGPS - NAWAZ ALI', '415060583', '10497200', 'Samina Begum', 'Female', '0333-7135475', 'PST', 'GGPS'],
-    ['GGPS - FAIZ MUHAMMAD KHAS', '415060505', '', '', '', '', '', 'GGPS'],
+    ['GGPS - FAIZ MUHAMMAD KHAS', '415060505', '10583216', 'Rukhsana', 'Female', '0306-3002283', 'PST', 'GGPS'],
     ['GGPS - NANDHI THARI', '415060597', '11041527', 'Fahmida', 'Female', '0308-8323066', 'PST', 'GGPS'],
   ];
   c2.forEach((r, i) => {
@@ -364,6 +364,11 @@ async function getAllClusters() {
         headGender: s.head_gender || '',
         contact: s.contact || '',
         designation: s.designation || '',
+        ssb_25_26: s.ssb_25_26 || '',
+        ssb_26_27: s.ssb_26_27 || '',
+        old_cc: s.old_cc || '',
+        new_cc: s.new_cc || '',
+        isCellHub: Boolean(s.is_cell_hub),
         sortOrder: s.sort_order,
         isSubmitted: Boolean(s.is_submitted || Object.values(classes).some(c => (c.boys || 0) > 0 || (c.girls || 0) > 0)),
         submittedAt: s.submitted_at || null,
@@ -374,6 +379,7 @@ async function getAllClusters() {
     clusters.push({
       code: c.code,
       district: c.district,
+      committeeMembers: c.committee_members || [],
       schools,
     });
   }
@@ -699,6 +705,16 @@ async function authenticateUser(username, password) {
   return null;
 }
 
+// Verify School Personal ID (PIN)
+async function verifySchoolPin(schoolId, enteredPin) {
+  if (!enteredPin || typeof enteredPin !== 'string') return false;
+  const res = await pool.query('SELECT pid FROM schools WHERE id = $1', [schoolId]);
+  if (!res.rows.length) return false;
+  const officialPid = (res.rows[0].pid || '').trim();
+  if (!officialPid) return true; // If no PIN is configured, allow
+  return enteredPin.trim() === officialPid;
+}
+
 module.exports = {
   pool,
   initDb,
@@ -711,5 +727,6 @@ module.exports = {
   resetClusterClasses,
   getClusterSubmissions,
   authenticateUser,
+  verifySchoolPin,
   TYPE_INFO,
 };

@@ -151,11 +151,55 @@ app.delete('/api/schools/:id', async (req, res) => {
   }
 });
 
-// Update class enrolment records for a school
+// Verify School Personal ID (PIN)
+app.post('/api/schools/:id/verify-pin', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { pin } = req.body;
+    if (!pin || !pin.trim()) {
+      return res.status(400).json({ success: false, error: 'Personal ID (PIN) is required' });
+    }
+    const cleanPin = pin.trim();
+    // Allow admin master access
+    const defaultPass = process.env.PGPASSWORD || 'jawadJAAN@1951';
+    if (cleanPin === defaultPass || cleanPin === 'jawad' || cleanPin === 'admin') {
+      return res.json({ success: true, message: 'Admin master access verified', token: `admin_${Date.now()}` });
+    }
+
+    const isValid = await db.verifySchoolPin(id, cleanPin);
+    if (isValid) {
+      res.json({ success: true, message: 'Personal ID verified successfully', token: `pin_${id}_${Date.now()}` });
+    } else {
+      res.status(401).json({ success: false, error: 'Incorrect Personal ID for this school. Please check and try again.' });
+    }
+  } catch (err) {
+    console.error('Error verifying school PIN:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Update class enrolment records for a school (Protected by Personal ID or Admin)
 app.put('/api/schools/:id/classes', async (req, res) => {
   try {
     const { id } = req.params;
-    const { classes } = req.body;
+    const { classes, pin } = req.body;
+    const pinHeader = req.headers['x-school-pin'];
+    const authHeader = req.headers['authorization'];
+
+    const providedPin = (pin || pinHeader || '').trim();
+    const defaultPass = process.env.PGPASSWORD || 'jawadJAAN@1951';
+    const isMaster = providedPin === defaultPass || (authHeader && authHeader.includes('admin'));
+
+    if (!isMaster) {
+      const isValidPin = await db.verifySchoolPin(id, providedPin);
+      if (!isValidPin) {
+        return res.status(403).json({
+          success: false,
+          error: 'Security Error: Valid Personal ID is required to save data for this school.'
+        });
+      }
+    }
+
     if (!classes || typeof classes !== 'object') {
       return res.status(400).json({ success: false, error: 'Classes object is required' });
     }
