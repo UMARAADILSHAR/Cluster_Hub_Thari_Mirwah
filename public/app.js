@@ -647,15 +647,15 @@ function renderSingleSchoolCard(school) {
           <span>${avatarIcon}</span>
         </div>
         <div class="sg-card-header-text">
-          <div class="sg-school-name">
-            ${esc(school.name)}
-            ${isHub ? '<span class="sg-tag-hub">★ Hub Head</span>' : ''}
+          <div class="sg-school-name" title="${esc(school.name)}">
+            <span class="sg-name-txt">${esc(school.name)}</span>
+            ${isHub ? '<span class="sg-tag-hub">★ Hub</span>' : ''}
             ${isHead ? '<span class="sg-tag-head">Head</span>' : ''}
           </div>
           <div class="sg-card-meta">
             <span class="sg-semis-chip">🪪 ${esc(school.semis || 'N/A')}</span>
             <span class="sg-cell-tag">Cell ${esc(school.cell)}</span>
-            <span style="font-size:9.5px;color:var(--text-xlt)">• ${esc(school.type)}</span>
+            <span class="sg-type-chip">• ${esc(school.type)}</span>
           </div>
         </div>
         <div class="sg-chevron" title="${isUnlocked ? 'Unlocked (Access Granted)' : 'Protected with Personal ID'}">${isUnlocked ? '🔓' : '🔒'}</div>
@@ -671,36 +671,32 @@ function renderSingleSchoolCard(school) {
           ${isSubmitted ? `
             <span>👦 Boys: <b>${totals.boys}</b></span>
             <span>👧 Girls: <b>${totals.girls}</b></span>
-            <span>📚 Classes: <b>${filledClasses}/${expectedClasses}</b></span>
+            <span>📚 Cls: <b>${filledClasses}/${expectedClasses}</b></span>
           ` : `
             <span>Classes: <b>${formatClassRange(school.classMin, school.classMax)}</b></span>
-            <span style="color:#0284c7;font-weight:700">${isUnlocked ? '👉 Click to enter data' : '🔒 Enter Personal ID'}</span>
+            <span class="sg-eb-prompt">${isUnlocked ? '👉 Enter Data' : '🔒 Enter PID'}</span>
           `}
         </div>
       </div>
 
       <!-- Action buttons matching official portal -->
       <div class="sg-actions-row">
-        <button class="sg-btn-action btn-enrollment"
+        <button type="button" class="sg-btn-action btn-enrollment"
                 onclick="event.stopPropagation(); openSchoolWithSecurityCheck('${school.id}')"
                 title="${isUnlocked ? 'Open dedicated enrollment entry page' : 'Protected — Enter Personal ID to open'}">
-          <span>${isUnlocked ? '📊 Enrollment' : '🔒 Enter Data'}</span>
+          <span>${isUnlocked ? '📊 Enter Enrollment' : '🔒 Enter Personal ID'}</span>
         </button>
-        <button class="sg-btn-action btn-staff"
-                onclick="event.stopPropagation(); toast('Staff Data module scheduled for Phase 2', 'info')"
-                title="Staff Data (Scheduled)">
-          <span>👥 Staff</span>
-        </button>
-        <button class="sg-btn-action btn-vacancy"
-                onclick="event.stopPropagation(); toast('Vacancy module scheduled for Phase 2', 'info')"
-                title="Vacancy Module (Scheduled)">
-          <span>⚡ Vacancy</span>
-        </button>
-        <button class="sg-btn-action btn-facilities"
-                onclick="event.stopPropagation(); toast('Facilities module scheduled for Phase 2', 'info')"
-                title="Facilities Module (Scheduled)">
-          <span>🏫 Facilities</span>
-        </button>
+        <div class="sg-actions-aux">
+          <button type="button" class="sg-btn-icon btn-staff"
+                  onclick="event.stopPropagation(); toast('Staff Data module scheduled for Phase 2', 'info')"
+                  title="Staff Data (Scheduled Phase 2)">👥</button>
+          <button type="button" class="sg-btn-icon btn-vacancy"
+                  onclick="event.stopPropagation(); toast('Vacancy module scheduled for Phase 2', 'info')"
+                  title="Vacancy Module (Scheduled Phase 2)">⚡</button>
+          <button type="button" class="sg-btn-icon btn-facilities"
+                  onclick="event.stopPropagation(); toast('Facilities module scheduled for Phase 2', 'info')"
+                  title="Facilities Module (Scheduled Phase 2)">🏫</button>
+        </div>
       </div>
     </div>
   `;

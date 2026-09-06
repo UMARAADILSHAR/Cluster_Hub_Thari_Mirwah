@@ -966,47 +966,41 @@ input, select, textarea { font-family: var(--font); }
   border: 1px solid #a7f3d0;
 }
 
-/* 4-column Responsive Grid */
+/* Responsive Grid with generous min width */
 .sg-cards-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 20px;
 }
-@media (max-width: 1400px) {
-  .sg-cards-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-}
-@media (max-width: 992px) {
-  .sg-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
-}
-@media (max-width: 600px) {
-  .sg-cards-grid { grid-template-columns: 1fr; gap: 16px; }
+@media (max-width: 680px) {
+  .sg-cards-grid { grid-template-columns: 1fr; gap: 14px; }
 }
 
-/* School Card with Soft Gradients, Hover Glow, and Inline Expansion */
+/* School Card: Pure White with Vibrant Green Shadows */
 .sg-card {
   position: relative;
-  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-  border: 1.5px solid #d1fae5;
-  border-radius: 16px;
-  padding: 18px 20px;
-  min-height: 185px;
+  background: #ffffff !important;
+  border: 1.5px solid #a7f3d0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  min-height: 176px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 14px;
+  gap: 10px;
   cursor: pointer;
-  transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 3px 10px rgba(0,0,0,.04);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 18px -2px rgba(16, 185, 129, 0.16), 0 2px 6px rgba(5, 150, 105, 0.08);
 }
 .sg-card:hover {
-  transform: translateY(-4px) scale(1.008);
+  transform: translateY(-4px);
   border-color: #10b981;
-  box-shadow: 0 12px 28px -4px rgba(16, 185, 129, 0.26), 0 0 16px rgba(16, 185, 129, 0.18);
-  background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
+  box-shadow: 0 14px 30px -4px rgba(16, 185, 129, 0.32), 0 4px 14px rgba(5, 150, 105, 0.18);
+  background: #ffffff !important;
 }
 .sg-card.is-selected-school {
   border-color: #059669 !important;
-  background: linear-gradient(145deg, #ecfdf5 0%, #f0fdf4 100%) !important;
+  background: #ffffff !important;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35), 0 10px 25px -4px rgba(16, 185, 129, 0.3) !important;
 }
 .sg-card.is-expanded {
@@ -1020,12 +1014,13 @@ input, select, textarea { font-family: var(--font); }
   transform: none !important;
 }
 .sg-card.is-hub-card {
-  border-color: #93c5fd;
-  background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%);
+  border: 2px solid #34d399 !important;
+  background: #ffffff !important;
+  box-shadow: 0 6px 20px -2px rgba(16, 185, 129, 0.22), 0 2px 8px rgba(5, 150, 105, 0.12) !important;
 }
 .sg-card.is-hub-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 12px 26px -4px rgba(59, 130, 246, 0.26), 0 0 14px rgba(59, 130, 246, 0.18);
+  border-color: #059669 !important;
+  box-shadow: 0 16px 34px -4px rgba(16, 185, 129, 0.38), 0 6px 16px rgba(5, 150, 105, 0.24) !important;
 }
 
 /* Expanded Card Header & Actions */
@@ -1151,104 +1146,135 @@ body.is-admin .admin-only {
 .sg-card-header-text {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 .sg-school-name {
   font-size: 13px;
   font-weight: 800;
-  color: #1e293b;
-  line-height: 1.35;
-  margin-bottom: 5px;
+  color: #0f172a;
+  line-height: 1.25;
+  margin-bottom: 4px;
   text-transform: uppercase;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
   overflow: hidden;
 }
+.sg-name-txt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  display: block;
+}
 .sg-tag-hub {
-  display: inline-block;
-  background: #dbeafe;
-  color: #1d4ed8;
+  display: inline-flex;
+  align-items: center;
+  background: #ecfdf5;
+  color: #047857;
   font-size: 9.5px;
   font-weight: 800;
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: 4px;
-  margin-left: 4px;
-  vertical-align: middle;
+  border: 1px solid #a7f3d0;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .sg-tag-head {
-  display: inline-block;
-  background: #0284c7;
+  display: inline-flex;
+  align-items: center;
+  background: #0d9488;
   color: #ffffff;
   font-size: 9.5px;
   font-weight: 800;
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: 4px;
-  margin-left: 4px;
-  vertical-align: middle;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .sg-card-meta {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 10.5px;
-  color: var(--text-lt);
-  flex-wrap: wrap;
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-wrap: nowrap;
 }
 .sg-semis-chip {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  color: #475569;
-  font-weight: 600;
+  color: #334155;
+  font-weight: 700;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .sg-cell-tag {
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
-  padding: 0 4px;
+  padding: 0 5px;
   border-radius: 4px;
   font-size: 9.5px;
   font-weight: 700;
   color: #475569;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.sg-type-chip {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .sg-chevron {
-  font-size: 18px;
+  font-size: 17px;
   color: #94a3b8;
   line-height: 1;
   transition: transform .2s;
   flex-shrink: 0;
+  margin-left: 4px;
 }
 .sg-card:hover .sg-chevron {
   transform: translateX(3px);
-  color: var(--primary);
+  color: #059669;
 }
 
 /* Enrollment Data Box inside Card */
 .sg-enrollment-box {
-  background: #ffffff;
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 9px;
-  padding: 6px 9px;
+  border-radius: 10px;
+  padding: 7px 10px;
   font-size: 11px;
 }
 .sg-enrollment-box.submitted {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  background: #f0fdf4;
   border-color: #86efac;
 }
 .sg-enrollment-box.pending {
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-  border-color: #fde68a;
+  background: #fefce8;
+  border-color: #fef08a;
 }
 .sg-eb-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 3px;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 .sg-eb-status {
   font-size: 9.5px;
   font-weight: 800;
   letter-spacing: .3px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .sg-enrollment-box.submitted .sg-eb-status { color: #15803d; }
 .sg-enrollment-box.pending .sg-eb-status { color: #b45309; }
@@ -1257,61 +1283,92 @@ body.is-admin .admin-only {
   font-size: 11.5px;
   font-weight: 800;
   color: #0f172a;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .sg-eb-breakdown {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 10px;
+  gap: 6px;
+  font-size: 10.5px;
   color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.sg-eb-breakdown span {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sg-eb-prompt {
+  font-weight: 700;
+  color: #059669;
 }
 
 /* Action Buttons Row */
 .sg-actions-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin-top: 2px;
+  white-space: nowrap;
 }
-.sg-btn-action {
+.sg-btn-action.btn-enrollment {
+  flex: 1;
+  min-width: 0;
+  height: 33px;
   border: none;
-  border-radius: 6px;
-  font-size: 9.5px;
-  font-weight: 700;
-  padding: 5px 2px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
   color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 10px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all .15s;
+  gap: 6px;
   white-space: nowrap;
-  line-height: 1;
-}
-.sg-btn-action.btn-enrollment {
-  background: #2563eb;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+  transition: all 0.2s ease;
 }
 .sg-btn-action.btn-enrollment:hover {
-  background: #1d4ed8;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.35);
 }
-.sg-btn-action.btn-staff {
-  background: #059669;
+.sg-actions-aux {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
-.sg-btn-action.btn-staff:hover {
-  background: #047857;
+.sg-btn-icon {
+  width: 33px;
+  height: 33px;
+  border: 1px solid #d1fae5;
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #065f46;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+  padding: 0;
 }
-.sg-btn-action.btn-vacancy {
-  background: #d97706;
-}
-.sg-btn-action.btn-vacancy:hover {
-  background: #b45309;
-}
-.sg-btn-action.btn-facilities {
-  background: #7c3aed;
-}
-.sg-btn-action.btn-facilities:hover {
-  background: #6d28d9;
+.sg-btn-icon:hover {
+  background: #ffffff;
+  border-color: #10b981;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.25);
 }
 
 /* Empty State */
@@ -1593,12 +1650,13 @@ body.is-admin .admin-only {
     gap: 10px;
   }
   .sg-actions-row {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 6px;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
   }
-  .sg-btn-action {
-    padding: 7px 4px;
-    font-size: 10.5px;
+  .sg-btn-action.btn-enrollment {
+    font-size: 11px !important;
+    height: 34px !important;
   }
 }
 
