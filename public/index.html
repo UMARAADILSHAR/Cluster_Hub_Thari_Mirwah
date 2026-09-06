@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=2.0">
+<link rel="stylesheet" href="/style.css?v=2.1">
 <style>
   /* ─── LETTERHEAD BAND ─── */
   #letterhead {
@@ -201,10 +201,14 @@
         <p>Cluster KX03099 · Khairpur Mirs District — enter enrollment, religion, medium of instruction &amp; facilities</p>
       </div>
       <div class="page-header-right no-print">
-        <div class="form-group" style="min-width:280px">
+        <div class="form-group" style="min-width:260px">
           <label class="form-label">Select School</label>
           <select class="form-select" id="entrySchoolSelect" onchange="loadSchoolForm()"></select>
         </div>
+        <button class="btn btn-outline" onclick="printCurrentSchoolReport()" style="height:38px;padding:0 12px;display:inline-flex;align-items:center;gap:6px" title="Export or Print this school as an official A4 PDF">
+          <span>🖨️</span>
+          <span>Print School PDF</span>
+        </button>
         <button class="btn-save" id="mainSaveBtn" onclick="handleSave()" title="Save (Ctrl+S)">
           <span id="saveBtnIcon">💾</span>
           <span id="saveBtnLbl">Save Data</span>
@@ -238,6 +242,9 @@
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <span id="footerSaveStatus" style="font-size:12px;color:var(--text-lt)"></span>
+        <button class="btn btn-outline btn-sm" onclick="printCurrentSchoolReport()" style="display:inline-flex;align-items:center;gap:6px">
+          🖨️ Print School PDF
+        </button>
         <button class="btn-save" onclick="handleSave()">💾 Save Enrollment Data</button>
       </div>
     </div>
@@ -312,17 +319,38 @@
       <button class="btn btn-primary" onclick="openModal()">Sign In to Unlock</button>
     </div>
     <div id="exportContent" style="display:none">
-      <div class="page-header"><div class="page-header-left"><h1>Export &amp; Print</h1><p>Download records or print official reports</p></div></div>
-      <div class="export-grid">
-        <div class="export-option">
-          <h4>📊 Export CSV</h4>
-          <p>Full class-level enrollment data, formatted for Excel and official reporting.</p>
-          <button class="btn btn-primary" onclick="exportCsv()">Download CSV</button>
+      <div class="page-header"><div class="page-header-left"><h1>Export &amp; Print Official Reports</h1><p>Download spreadsheets or generate official government A4 submission PDF sheets</p></div></div>
+      <div class="export-grid" style="grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;margin-bottom:24px">
+        <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
+          <div>
+            <h4>📄 Print Selected School (A4 PDF)</h4>
+            <p>Generate an official verified single-school submission proforma with seals, full class tables, and signature blocks.</p>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <select class="form-select" id="exportSchoolSelect" style="font-size:12px"></select>
+            <button class="btn btn-primary" onclick="printSelectedSchoolReport()" style="white-space:nowrap">🖨️ Print Form</button>
+          </div>
         </div>
-        <div class="export-option">
-          <h4>🖨️ Print Report</h4>
-          <p>Print a clean summary for official submission or record keeping.</p>
-          <button class="btn btn-outline" onclick="doPrint()">Print Dashboard</button>
+        <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
+          <div>
+            <h4>📚 Export All 23 Schools (A4 PDF)</h4>
+            <p>Prints the complete cluster proforma book. Exactly <b>1 school per A4 page</b> with separate school names, tables, and signature blocks.</p>
+          </div>
+          <button class="btn btn-primary" onclick="printAllSchoolsReport()" style="margin-top:12px">🖨️ Print All Schools (23 Pages)</button>
+        </div>
+        <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
+          <div>
+            <h4>📊 Print Cluster Summary Matrix</h4>
+            <p>Official high-level summary table of all 23 schools with totals and HM/DEO signature blocks for District submission.</p>
+          </div>
+          <button class="btn btn-outline" onclick="printClusterSummaryReport()" style="margin-top:12px">🖨️ Print Summary Matrix</button>
+        </div>
+        <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
+          <div>
+            <h4>📥 Export CSV (Excel)</h4>
+            <p>Raw class-level enrollment data with all fields, compatible with Microsoft Excel and Google Sheets.</p>
+          </div>
+          <button class="btn btn-outline" onclick="exportCsv()" style="margin-top:12px">Download CSV</button>
         </div>
       </div>
       <div class="card">
@@ -374,6 +402,9 @@
 <!-- Toast notification -->
 <div id="toast"></div>
 
-<script src="/app.js?v=2.0"></script>
+<!-- Dedicated Print & A4 PDF Container -->
+<div id="printReportContainer"></div>
+
+<script src="/app.js?v=2.1"></script>
 </body>
 </html>

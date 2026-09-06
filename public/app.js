@@ -308,6 +308,7 @@ function switchPanel(name) {
 function populateSchoolSelect() {
   const cluster = activeCluster(); if (!cluster) return;
   const sel = document.getElementById('entrySchoolSelect');
+  const expSel = document.getElementById('exportSchoolSelect');
   const prev = sel.value;
   const groups = {};
   cluster.schools.forEach(s => { (groups[s.cell] = groups[s.cell] || []).push(s); });
@@ -323,6 +324,11 @@ function populateSchoolSelect() {
     });
   sel.innerHTML = html;
   if (prev && cluster.schools.find(s => s.id === prev)) sel.value = prev;
+
+  if (expSel) {
+    expSel.innerHTML = html.replace('— Select a school —', '— Choose School to Print —');
+    if (prev && cluster.schools.find(s => s.id === prev)) expSel.value = prev;
+  }
 }
 
 function updateSidebarCard() {
@@ -377,7 +383,6 @@ function renderMetaStrip(school) {
     <div class="meta-chip">Classes <b>${school.classMin}–${school.classMax}</b></div>
     ${school.semis       ? `<div class="meta-chip">SEMIS: <b>${esc(school.semis)}</b></div>` : ''}
     ${school.headTeacher ? `<div class="meta-chip">Head: <b>${esc(school.headTeacher)}</b></div>` : ''}
-    ${school.contact     ? `<div class="meta-chip">📞 <b>${esc(school.contact)}</b></div>` : ''}
   `;
 }
 
@@ -768,7 +773,283 @@ function exportCsv() {
   a.click(); toast('CSV downloaded');
 }
 
-function doPrint() { switchPanel('dashboard'); setTimeout(() => window.print(), 200); }
+/* ─────────────────────────────────────
+   OFFICIAL A4 PRINT & PDF GENERATION
+───────────────────────────────────── */
+function generateSchoolReportHtml(school, cluster) {
+  const c = cluster || activeCluster();
+  const nums = classNums(school);
+  const st = schoolTotals(school);
+  const ti = TYPE_INFO[school.type] || { label: school.type };
+
+  let rowsHtml = '';
+  nums.forEach(cls => {
+    const cd = school.classes[cls] || {};
+    const t  = classTotals(cd);
+    const medOpt = MEDIUM_OPTS.find(m => m.v === (cd.medium || 'sindhi'));
+    const medLabel = medOpt ? medOpt.l : (cd.medium || 'Sindhi');
+    const furnOpt = FURNITURE_OPTS.find(f => f.v === (cd.furniture || 'available'));
+    const furnLabel = furnOpt ? furnOpt.l : (cd.furniture || 'Available');
+    const isBalanced = t.match;
+
+    rowsHtml += `
+      <tr>
+        <td class="p-class-name">Class ${cls}</td>
+        <td>${cd.boys || 0}</td>
+        <td>${cd.girls || 0}</td>
+        <td style="font-weight:700">${t.g}</td>
+        <td>${cd.muslim || 0}</td>
+        <td>${cd.nonMuslim || 0}</td>
+        <td><span class="${isBalanced ? 'p-tag-ok' : 'p-tag-bad'}">${isBalanced ? '✓ OK' : '⚠ Mismatch'}</span></td>
+        <td>${esc(medLabel)}</td>
+        <td>${sectionLabel(cd.sections || 0)}</td>
+        <td>${esc(furnLabel)}</td>
+      </tr>
+    `;
+  });
+
+  const totalBoys = nums.reduce((acc, cls) => acc + (school.classes[cls]?.boys || 0), 0);
+  const totalGirls = nums.reduce((acc, cls) => acc + (school.classes[cls]?.girls || 0), 0);
+  const totalMuslim = nums.reduce((acc, cls) => acc + (school.classes[cls]?.muslim || 0), 0);
+  const totalNonMuslim = nums.reduce((acc, cls) => acc + (school.classes[cls]?.nonMuslim || 0), 0);
+  const totalSections = nums.reduce((acc, cls) => acc + (Number(school.classes[cls]?.sections) || 0), 0);
+  const allBalanced = nums.every(cls => classTotals(school.classes[cls] || {}).match);
+
+  const grandTotalRow = `
+    <tr class="p-total-row">
+      <td class="p-class-name">TOTAL</td>
+      <td>${totalBoys}</td>
+      <td>${totalGirls}</td>
+      <td style="font-weight:800">${st.total}</td>
+      <td>${totalMuslim}</td>
+      <td>${totalNonMuslim}</td>
+      <td><span class="${allBalanced ? 'p-tag-ok' : 'p-tag-bad'}">${allBalanced ? '✓ BALANCED' : '⚠ MISMATCH'}</span></td>
+      <td>—</td>
+      <td>${totalSections} sec</td>
+      <td>—</td>
+    </tr>
+  `;
+
+  return `
+    <div class="print-page">
+      <div>
+        <div class="p-header">
+          <img src="/logo.jpg" alt="Seal" class="p-logo">
+          <div class="p-head-text">
+            <div class="p-dept">School Education &amp; Literacy Department · Government of Sindh</div>
+            <div class="p-title">Office of the Headmaster · Cluster Hub GBHS Thari Mirwah</div>
+            <div class="p-sub">Taluka Mirwah · District Khairpur Mirs · Cluster Code: <b>${esc(c.code)}</b> · SEMIS: <b>415060805</b></div>
+          </div>
+          <img src="/logo.jpg" alt="Seal" class="p-logo" style="visibility:hidden">
+        </div>
+
+        <div class="p-doc-badge">Annual School Enrollment &amp; Facilities Verification Proforma (2025–2026)</div>
+
+        <div class="p-school-box">
+          <div>
+            <div class="p-info-row"><span class="p-info-lbl">School Name:</span> <span class="p-info-val" style="font-size:9.5pt;color:#0f6c3a">${esc(school.name)}</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">SEMIS Code:</span> <span class="p-info-val">${esc(school.semis || 'N/A')}</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">Personal ID (PID):</span> <span class="p-info-val">${esc(school.pid || 'N/A')}</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">Cluster Status:</span> <span class="p-info-val">${school.isHub ? 'CLUSTER HUB HEADQUARTERS' : 'Cell ' + esc(school.cell)} · ${esc(school.type)} (${esc(ti.label)})</span></div>
+          </div>
+          <div>
+            <div class="p-info-row"><span class="p-info-lbl">Head Teacher:</span> <span class="p-info-val">${esc(school.headTeacher || 'Not Assigned')}</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">Designation:</span> <span class="p-info-val">${esc(school.designation || 'PST / In-charge')}</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">Class Range:</span> <span class="p-info-val">Class ${school.classMin} to Class ${school.classMax}</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">Report Date:</span> <span class="p-info-val">${new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })}</span></div>
+          </div>
+        </div>
+
+        <table class="p-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Boys</th>
+              <th>Girls</th>
+              <th>Total Students</th>
+              <th>Muslim</th>
+              <th>Non-Muslim</th>
+              <th>Religion Check</th>
+              <th>Medium</th>
+              <th>Sections</th>
+              <th>Furniture</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+            ${grandTotalRow}
+          </tbody>
+        </table>
+
+        <div class="p-cert">
+          <b>Official Undertaking:</b> Certified that the enrollment figures and physical facilities recorded in this proforma have been thoroughly cross-checked and physically verified against the General Register (G.R) and daily attendance registers of the school.
+        </div>
+      </div>
+
+      <div>
+        <div class="p-sigs">
+          <div class="p-sig-box">
+            <div style="height:32px"></div>
+            <div class="p-sig-title">Head Teacher / School In-charge</div>
+            <div class="p-sig-sub">${esc(school.name)} (SEMIS: ${esc(school.semis||'—')})</div>
+          </div>
+          <div class="p-sig-box">
+            <div style="height:32px"></div>
+            <div class="p-sig-title">Headmaster / Cluster Hub Supervisor</div>
+            <div class="p-sig-sub">GBHS Thari Mirwah (Cluster Code: ${esc(c.code)})</div>
+          </div>
+        </div>
+
+        <div class="p-footer-note">
+          Cluster Hub Management Information System • Official Government Proforma • Printed on: ${new Date().toLocaleString()}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function printCurrentSchoolReport() {
+  const cluster = activeCluster(); if (!cluster) return;
+  const sel = document.getElementById('entrySchoolSelect');
+  const schoolId = sel?.value || state.currentSchoolId || cluster.schools[0]?.id;
+  const school = cluster.schools.find(s => s.id === schoolId);
+  if (!school) {
+    alert('Please select a school first to print its official proforma.');
+    return;
+  }
+  const container = document.getElementById('printReportContainer');
+  container.innerHTML = generateSchoolReportHtml(school, cluster);
+  setTimeout(() => window.print(), 100);
+}
+
+function printSelectedSchoolReport() {
+  const cluster = activeCluster(); if (!cluster) return;
+  const sel = document.getElementById('exportSchoolSelect');
+  const schoolId = sel?.value || cluster.schools[0]?.id;
+  const school = cluster.schools.find(s => s.id === schoolId);
+  if (!school) {
+    alert('Please choose a school to print.');
+    return;
+  }
+  const container = document.getElementById('printReportContainer');
+  container.innerHTML = generateSchoolReportHtml(school, cluster);
+  setTimeout(() => window.print(), 100);
+}
+
+function printAllSchoolsReport() {
+  const cluster = activeCluster(); if (!cluster) return;
+  const container = document.getElementById('printReportContainer');
+  let fullHtml = '';
+  cluster.schools.forEach(s => {
+    fullHtml += generateSchoolReportHtml(s, cluster);
+  });
+  container.innerHTML = fullHtml;
+  setTimeout(() => window.print(), 150);
+}
+
+function printClusterSummaryReport() {
+  const cluster = activeCluster(); if (!cluster) return;
+  const g = clusterTotals(cluster);
+  const container = document.getElementById('printReportContainer');
+
+  let rows = '';
+  cluster.schools.forEach((s, i) => {
+    const st = schoolTotals(s);
+    const nums = classNums(s);
+    const totalBoys = nums.reduce((acc, cls) => acc + (s.classes[cls]?.boys || 0), 0);
+    const totalGirls = nums.reduce((acc, cls) => acc + (s.classes[cls]?.girls || 0), 0);
+    const totalMuslim = nums.reduce((acc, cls) => acc + (s.classes[cls]?.muslim || 0), 0);
+    const totalNonMuslim = nums.reduce((acc, cls) => acc + (s.classes[cls]?.nonMuslim || 0), 0);
+
+    rows += `
+      <tr>
+        <td>${i + 1}</td>
+        <td><b>${s.isHub ? 'HUB' : s.cell}</b></td>
+        <td style="text-align:left;font-weight:700">${esc(s.name)}</td>
+        <td>${s.type}</td>
+        <td>${esc(s.semis || '—')}</td>
+        <td style="text-align:left">${esc(s.headTeacher || '—')}</td>
+        <td>${totalBoys}</td>
+        <td>${totalGirls}</td>
+        <td style="font-weight:700">${st.total}</td>
+        <td>${totalMuslim}</td>
+        <td>${totalNonMuslim}</td>
+        <td><span class="${st.match ? 'p-tag-ok' : 'p-tag-bad'}">${st.match ? '✓ OK' : '⚠ Mismatch'}</span></td>
+      </tr>
+    `;
+  });
+
+  container.innerHTML = `
+    <div class="print-page">
+      <div>
+        <div class="p-header">
+          <img src="/logo.jpg" alt="Seal" class="p-logo">
+          <div class="p-head-text">
+            <div class="p-dept">School Education &amp; Literacy Department · Government of Sindh</div>
+            <div class="p-title">Office of the Headmaster · Cluster Hub GBHS Thari Mirwah</div>
+            <div class="p-sub">Taluka Mirwah · District Khairpur Mirs · Cluster Code: <b>${esc(cluster.code)}</b></div>
+          </div>
+          <img src="/logo.jpg" alt="Seal" class="p-logo" style="visibility:hidden">
+        </div>
+
+        <div class="p-doc-badge">Cluster Master Summary Matrix · All 23 Schools (2025–2026)</div>
+
+        <table class="p-table" style="font-size:7.5pt">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Cell</th>
+              <th>School Name</th>
+              <th>Type</th>
+              <th>SEMIS</th>
+              <th>Head Teacher</th>
+              <th>Boys</th>
+              <th>Girls</th>
+              <th>Total</th>
+              <th>Muslim</th>
+              <th>Non-Muslim</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+            <tr class="p-total-row">
+              <td colspan="6" style="text-align:right;font-weight:800">CLUSTER GRAND TOTAL (23 SCHOOLS):</td>
+              <td>${g.boys}</td>
+              <td>${g.girls}</td>
+              <td style="font-weight:800">${g.total}</td>
+              <td>${g.muslim}</td>
+              <td>${g.nonMuslim}</td>
+              <td><span class="p-tag-ok">✓ VERIFIED</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <div class="p-sigs">
+          <div class="p-sig-box">
+            <div style="height:32px"></div>
+            <div class="p-sig-title">Headmaster / Cluster Hub Supervisor</div>
+            <div class="p-sig-sub">GBHS Thari Mirwah (Cluster Code: ${esc(cluster.code)})</div>
+          </div>
+          <div class="p-sig-box">
+            <div style="height:32px"></div>
+            <div class="p-sig-title">District Education Officer (ES&amp;HS / Primary)</div>
+            <div class="p-sig-sub">District Khairpur Mirs, Sindh</div>
+          </div>
+        </div>
+
+        <div class="p-footer-note">
+          Cluster Hub Management Information System • Official Government Document • Printed on: ${new Date().toLocaleString()}
+        </div>
+      </div>
+    </div>
+  `;
+  setTimeout(() => window.print(), 100);
+}
+
+function doPrint() { printAllSchoolsReport(); }
 
 async function resetCluster() {
   const cluster = activeCluster(); if (!cluster) return;

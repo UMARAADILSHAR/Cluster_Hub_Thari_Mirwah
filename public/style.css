@@ -444,7 +444,7 @@ input, select, textarea { font-family: var(--font); }
 #toast.err { background: var(--danger); }
 
 /* ═══════════════════════════════════════════
-   RESPONSIVE + PRINT
+   RESPONSIVE
 ═══════════════════════════════════════════ */
 @media (max-width: 900px) {
   #topNav { padding-left: 20px; }
@@ -452,8 +452,223 @@ input, select, textarea { font-family: var(--font); }
   #main { margin-left: 0; }
   .progress-overview { grid-template-columns: 1fr 1fr; }
 }
+
+/* ═══════════════════════════════════════════
+   OFFICIAL A4 PRINT & PDF STYLESHEET
+═══════════════════════════════════════════ */
+#printReportContainer {
+  display: none;
+}
+
 @media print {
-  #statusBar, #topNav, #sidebar, .save-footer, .no-print { display: none !important; }
-  #main { margin: 0; padding: 0; }
-  .panel { display: block !important; }
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 10mm 12mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 10pt !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Hide entire interactive UI */
+  #statusBar, #letterhead, #utilBar, #sidebar, #main, .no-print, .modal-overlay, #toast, .save-footer {
+    display: none !important;
+  }
+
+  /* Show dedicated print container */
+  #printReportContainer {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-page {
+    page-break-after: always;
+    break-after: page;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0 0 15mm 0;
+    min-height: 265mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .print-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+    margin-bottom: 0;
+  }
+
+  /* Official Sheet Header */
+  .p-header {
+    border-bottom: 2px solid #0f6c3a;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .p-logo {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1.5px solid #d4900a;
+  }
+  .p-head-text {
+    flex: 1;
+    text-align: center;
+  }
+  .p-dept {
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 2px;
+  }
+  .p-title {
+    font-size: 12.5pt;
+    font-weight: 800;
+    color: #0f6c3a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+  }
+  .p-sub {
+    font-size: 8pt;
+    color: #374151;
+    margin-top: 2px;
+  }
+  .p-doc-badge {
+    font-size: 9pt;
+    font-weight: 800;
+    text-align: center;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #111827;
+  }
+
+  /* School Info Box */
+  .p-school-box {
+    border: 1px solid #9ca3af;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    background: #fbfbfb;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 10px;
+    font-size: 8.5pt;
+  }
+  .p-info-row {
+    margin-bottom: 3px;
+    display: flex;
+    gap: 6px;
+  }
+  .p-info-lbl {
+    font-weight: 700;
+    color: #374151;
+    min-width: 92px;
+  }
+  .p-info-val {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  /* Table */
+  .p-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    margin-bottom: 10px;
+  }
+  .p-table th, .p-table td {
+    border: 1px solid #4b5563;
+    padding: 4px 6px;
+    text-align: center;
+  }
+  .p-table th {
+    background: #f3f4f6 !important;
+    color: #111827;
+    font-weight: 700;
+    font-size: 8pt;
+    text-transform: uppercase;
+  }
+  .p-table td.p-class-name {
+    font-weight: 700;
+    text-align: left;
+    padding-left: 8px;
+  }
+  .p-table tr.p-total-row {
+    font-weight: 800;
+    background: #e5e7eb !important;
+    font-size: 9pt;
+  }
+  .p-table tr.p-total-row td {
+    border-top: 2px solid #111827;
+    border-bottom: 2px solid #111827;
+  }
+  .p-tag-ok {
+    font-weight: 700;
+    color: #166534;
+  }
+  .p-tag-bad {
+    font-weight: 700;
+    color: #991b1b;
+  }
+
+  /* Certification & Signatures */
+  .p-cert {
+    font-size: 7.5pt;
+    color: #4b5563;
+    font-style: italic;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .p-sigs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 15px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .p-sig-box {
+    border-top: 1px dashed #4b5563;
+    padding-top: 6px;
+    text-align: center;
+    font-size: 8pt;
+  }
+  .p-sig-title {
+    font-weight: 700;
+    color: #111827;
+  }
+  .p-sig-sub {
+    font-size: 7.5pt;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+  .p-footer-note {
+    font-size: 7pt;
+    color: #9ca3af;
+    text-align: center;
+    margin-top: 10px;
+    border-top: 0.5px solid #e5e7eb;
+    padding-top: 3px;
+  }
 }
