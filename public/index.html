@@ -213,11 +213,6 @@
       Enrollment Data
       <span class="sb-badge urgent">URGENT</span>
     </div>
-    <div class="sb-item" id="sbSubmissions" onclick="switchPanel('submissions')">
-      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Submissions Status
-      <span class="sb-badge" id="sbSubBadge" style="background:#2563eb;color:#fff;font-weight:700">LIVE</span>
-    </div>
     <div class="sb-item locked" title="Coming soon">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Staff Data
@@ -237,6 +232,11 @@
 
   <div class="sb-label">Admin Only</div>
   <nav class="sb-nav">
+    <div class="sb-item" id="sbSubmissions" onclick="requireAdmin('submissions')">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Submissions Status
+      <span class="sb-badge lock" id="sbSubLock">🔒</span>
+    </div>
     <div class="sb-item" id="sbDashboard" onclick="requireAdmin('dashboard')">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       Dashboard
@@ -326,9 +326,16 @@
     </div>
   </section>
 
-  <!-- ── SUBMISSIONS TRACKER PANEL ── -->
+  <!-- ── SUBMISSIONS TRACKER PANEL (Admin Only) ── -->
   <section class="panel" id="panel-submissions">
-    <div class="page-header">
+    <div class="locked-panel" id="submissionsLocked">
+      <div class="locked-icon">📋</div>
+      <h2>Submissions Tracker — Admin Access Required</h2>
+      <p>Sign in with your administrator credentials to view cluster-wide submission records and defaulter lists.</p>
+      <button class="btn btn-primary" onclick="openModal()">Sign In to Unlock</button>
+    </div>
+    <div id="submissionsContent" style="display:none">
+      <div class="page-header">
       <div class="page-header-left">
         <h1>School Submissions Tracker</h1>
         <p>Real-time database status · Submitted vs Pending Schools (Cluster KX03099)</p>
@@ -395,6 +402,7 @@
           <tbody></tbody>
         </table>
       </div>
+    </div>
     </div>
   </section>
 

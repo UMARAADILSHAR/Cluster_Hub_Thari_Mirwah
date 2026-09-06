@@ -174,7 +174,7 @@ async function loadData() {
       updateSidebarCard();
       updateProgressKPIs();
       updateAuthUI();
-      loadSubmissionsReport(false);
+      if (isAdmin()) loadSubmissionsReport(false);
       // auto-load first school
       const sel = document.getElementById('entrySchoolSelect');
       if (sel && !sel.value) {
@@ -273,7 +273,7 @@ function updateAuthUI() {
       document.getElementById('navUsername').textContent = state.authUser.username;
     }
   }
-  ['sbDashLock','sbSchoolsLock','sbExportLock'].forEach(id => {
+  ['sbDashLock','sbSchoolsLock','sbExportLock','sbSubLock'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = admin ? 'none' : 'inline-flex';
   });
@@ -304,8 +304,12 @@ function switchPanel(name) {
 
   if (name === 'enrollment') document.getElementById('sbEnrollment')?.classList.add('active');
   if (name === 'submissions') {
-    document.getElementById('sbSubmissions')?.classList.add('active');
-    loadSubmissionsReport(false);
+    const ok = isAdmin();
+    const lockedEl = document.getElementById('submissionsLocked');
+    const contentEl = document.getElementById('submissionsContent');
+    if (lockedEl) lockedEl.style.display = ok ? 'none' : 'flex';
+    if (contentEl) contentEl.style.display = ok ? 'block' : 'none';
+    if (ok) loadSubmissionsReport(false);
   }
 
   if (name === 'dashboard') {
