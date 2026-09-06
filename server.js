@@ -179,6 +179,31 @@ app.post('/api/clusters/:code/reset', async (req, res) => {
   }
 });
 
+// Real-time school submissions report (submitted vs pending)
+app.get('/api/clusters/:code/submissions', async (req, res) => {
+  try {
+    const { code } = req.params;
+    const report = await db.getClusterSubmissions(code);
+    res.json({ success: true, report });
+  } catch (err) {
+    console.error('Error fetching submissions report:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Convenience submission endpoint
+app.get('/api/submissions', async (req, res) => {
+  try {
+    const code = req.query.cluster || 'KX03099';
+    const report = await db.getClusterSubmissions(code);
+    res.json({ success: true, report });
+  } catch (err) {
+    console.error('Error fetching submissions report:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
 // Fallback to index.html for single-page routing
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

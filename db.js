@@ -267,8 +267,11 @@ async function initDb() {
       console.log('✅ Seed completed successfully with 1 Hub and 22 Cell schools.');
     } else {
       console.log(`✅ Database already initialized (${countRes.rows[0].count} clusters found).`);
-      // Schema alignment migration for class ranges
+      // Schema alignment migration for class ranges & submission status
       await client.query(`
+        ALTER TABLE schools ADD COLUMN IF NOT EXISTS is_submitted BOOLEAN DEFAULT FALSE;
+        ALTER TABLE schools ADD COLUMN IF NOT EXISTS submitted_at TIMESTAMPTZ;
+
         UPDATE schools SET class_min = 0, class_max = 5 WHERE type IN ('GBPS', 'GGPS') AND (class_min != 0 OR class_max != 5);
         UPDATE schools SET class_min = 0, class_max = 8 WHERE type IN ('GBELS', 'GGELS') AND (class_min != 0 OR class_max != 8);
         UPDATE schools SET class_min = 6, class_max = 10 WHERE type = 'GBHS' AND (class_min != 6 OR class_max != 10);
@@ -283,8 +286,16 @@ async function initDb() {
         DELETE FROM class_records
         WHERE school_id IN (SELECT id FROM schools WHERE type = 'GBHS')
           AND class_number < 6;
+
+        -- Auto-flag submitted schools that have recorded enrollment
+        UPDATE schools s
+        SET is_submitted = TRUE,
+            submitted_at = COALESCE(s.submitted_at, NOW())
+        WHERE s.id IN (
+          SELECT school_id FROM class_records WHERE (boys > 0 OR girls > 0) GROUP BY school_id
+        );
       `);
-      console.log('✅ School class ranges and Katchi/ECE records aligned.');
+      console.log('✅ School class ranges and submission tracking columns aligned.');
     }
   } catch (err) {
     await client.query('ROLLBACK');
@@ -354,6 +365,8 @@ async function getAllClusters() {
         contact: s.contact || '',
         designation: s.designation || '',
         sortOrder: s.sort_order,
+        isSubmitted: Boolean(s.is_submitted || Object.values(classes).some(c => (c.boys || 0) > 0 || (c.girls || 0) > 0)),
+        submittedAt: s.submitted_at || null,
         classes,
       });
     }
@@ -540,6 +553,15 @@ async function updateSchoolClasses(schoolId, classesObj) {
         parseInt(cd.sections || 0, 10),
       ]);
     }
+    // Mark school as submitted with current timestamp
+    await client.query(`
+      UPDATE schools
+      SET is_submitted = TRUE,
+          submitted_at = NOW(),
+          updated_at = NOW()
+      WHERE id = $1
+    `, [schoolId]);
+
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
@@ -558,6 +580,100 @@ async function resetClusterClasses(clusterCode) {
       SELECT id FROM schools WHERE cluster_code = $1
     )
   `, [clusterCode]);
+
+  await pool.query(`
+    UPDATE schools
+    SET is_submitted = FALSE,
+        submitted_at = NULL,
+        updated_at = NOW()
+    WHERE cluster_code = $1
+  `, [clusterCode]);
+}
+
+async function getClusterSubmissions(clusterCode) {
+  const res = await pool.query(`
+    SELECT 
+      s.id,
+      s.name,
+      s.type,
+      s.cell,
+      s.is_hub,
+      s.semis,
+      s.pid,
+      s.head_teacher,
+      s.contact,
+      s.designation,
+      s.class_min,
+      s.class_max,
+      s.is_submitted,
+      s.submitted_at,
+      s.sort_order,
+      COALESCE(SUM(cr.boys), 0)::INTEGER AS total_boys,
+      COALESCE(SUM(cr.girls), 0)::INTEGER AS total_girls,
+      COALESCE(SUM(cr.boys + cr.girls), 0)::INTEGER AS total_students,
+      COALESCE(SUM(cr.muslim), 0)::INTEGER AS total_muslim,
+      COALESCE(SUM(cr.non_muslim), 0)::INTEGER AS total_non_muslim,
+      COUNT(cr.id)::INTEGER AS total_classes,
+      COUNT(CASE WHEN (cr.boys > 0 OR cr.girls > 0) THEN 1 END)::INTEGER AS classes_with_data,
+      MAX(cr.updated_at) AS last_class_update
+    FROM schools s
+    LEFT JOIN class_records cr ON s.id = cr.school_id
+    WHERE s.cluster_code = $1
+    GROUP BY s.id
+    ORDER BY 
+      s.is_hub DESC,
+      s.sort_order ASC,
+      s.name ASC
+  `, [clusterCode]);
+
+  const schools = res.rows.map(r => {
+    const isSubmitted = Boolean(r.is_submitted || r.total_students > 0 || r.classes_with_data > 0);
+    return {
+      id: r.id,
+      name: r.name,
+      type: r.type,
+      cell: r.cell,
+      isHub: r.is_hub,
+      semis: r.semis || '',
+      pid: r.pid || '',
+      headTeacher: r.head_teacher || '',
+      contact: r.contact || '',
+      designation: r.designation || '',
+      classMin: r.class_min,
+      classMax: r.class_max,
+      isSubmitted,
+      submittedAt: r.submitted_at || (isSubmitted ? r.last_class_update : null),
+      totalBoys: r.total_boys,
+      totalGirls: r.total_girls,
+      totalStudents: r.total_students,
+      totalMuslim: r.total_muslim,
+      totalNonMuslim: r.total_non_muslim,
+      totalClasses: r.total_classes,
+      classesWithData: r.classes_with_data,
+      percentComplete: r.total_classes > 0 ? Math.round((r.classes_with_data / r.total_classes) * 100) : 0,
+    };
+  });
+
+  const submittedSchools = schools.filter(s => s.isSubmitted);
+  const pendingSchools   = schools.filter(s => !s.isSubmitted);
+  const totalStudents    = schools.reduce((acc, s) => acc + s.totalStudents, 0);
+  const totalBoys        = schools.reduce((acc, s) => acc + s.totalBoys, 0);
+  const totalGirls       = schools.reduce((acc, s) => acc + s.totalGirls, 0);
+
+  return {
+    clusterCode,
+    totalSchools: schools.length,
+    submittedCount: submittedSchools.length,
+    pendingCount: pendingSchools.length,
+    submissionRate: schools.length > 0 ? Math.round((submittedSchools.length / schools.length) * 100) : 0,
+    totalStudents,
+    totalBoys,
+    totalGirls,
+    schools,
+    submittedSchools,
+    pendingSchools,
+    queriedAt: new Date().toISOString(),
+  };
 }
 
 async function authenticateUser(username, password) {
@@ -593,6 +709,7 @@ module.exports = {
   deleteSchool,
   updateSchoolClasses,
   resetClusterClasses,
+  getClusterSubmissions,
   authenticateUser,
   TYPE_INFO,
 };

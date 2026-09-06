@@ -174,6 +174,7 @@ async function loadData() {
       updateSidebarCard();
       updateProgressKPIs();
       updateAuthUI();
+      loadSubmissionsReport(false);
       // auto-load first school
       const sel = document.getElementById('entrySchoolSelect');
       if (sel && !sel.value) {
@@ -294,13 +295,18 @@ function switchPanel(name) {
   const sb = document.getElementById(`sb${name.charAt(0).toUpperCase() + name.slice(1)}`);
   if (sb) sb.classList.add('active');
   document.getElementById('navCrumb').textContent = {
-    enrollment: 'Enrollment Data',
-    dashboard:  'Dashboard',
-    schools:    'Schools Register',
-    export:     'Export & Print',
+    enrollment:  'Enrollment Data',
+    submissions: 'Submissions Tracker',
+    dashboard:   'Dashboard',
+    schools:     'Schools Register',
+    export:      'Export & Print',
   }[name] || name;
 
-  if (name === 'enrollment') document.getElementById('sbEnrollment').classList.add('active');
+  if (name === 'enrollment') document.getElementById('sbEnrollment')?.classList.add('active');
+  if (name === 'submissions') {
+    document.getElementById('sbSubmissions')?.classList.add('active');
+    loadSubmissionsReport(false);
+  }
 
   if (name === 'dashboard') {
     const ok = isAdmin();
@@ -864,7 +870,11 @@ function generateSchoolReportHtml(school, cluster) {
             <div class="p-title">Office of the Headmaster · Cluster Hub GBHS Thari Mirwah</div>
             <div class="p-sub">Taluka Mirwah · District Khairpur Mirs · Cluster Code: <b>${esc(c.code)}</b> · SEMIS: <b>415060805</b></div>
           </div>
-          <img src="/logo.jpg" alt="Seal" class="p-logo" style="visibility:hidden">
+          <div class="p-creator-badge">
+            <div style="font-size:6.5pt;text-transform:uppercase;color:#1e40af;font-weight:700">Website Created By</div>
+            <div class="p-cr-name">Asif Ali Shar</div>
+            <div style="font-size:6.5pt;color:#475569">JEST, GBHS Thari Mirwah</div>
+          </div>
         </div>
 
         <div class="p-doc-badge">Annual School Enrollment &amp; Facilities Verification Proforma (2025–2026)</div>
@@ -925,7 +935,7 @@ function generateSchoolReportHtml(school, cluster) {
         </div>
 
         <div class="p-footer-note">
-          Cluster Hub Management Information System • Official Government Proforma • Printed on: ${new Date().toLocaleString()}
+          Cluster Hub Management Information System • Official Government Proforma • Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah • Printed on: ${new Date().toLocaleString()}
         </div>
       </div>
     </div>
@@ -1013,7 +1023,11 @@ function printClusterSummaryReport() {
             <div class="p-title">Office of the Headmaster · Cluster Hub GBHS Thari Mirwah</div>
             <div class="p-sub">Taluka Mirwah · District Khairpur Mirs · Cluster Code: <b>${esc(cluster.code)}</b></div>
           </div>
-          <img src="/logo.jpg" alt="Seal" class="p-logo" style="visibility:hidden">
+          <div class="p-creator-badge">
+            <div style="font-size:6.5pt;text-transform:uppercase;color:#1e40af;font-weight:700">Website Created By</div>
+            <div class="p-cr-name">Asif Ali Shar</div>
+            <div style="font-size:6.5pt;color:#475569">JEST, GBHS Thari Mirwah</div>
+          </div>
         </div>
 
         <div class="p-doc-badge">Cluster Master Summary Matrix · All 23 Schools (2025–2026)</div>
@@ -1065,7 +1079,7 @@ function printClusterSummaryReport() {
         </div>
 
         <div class="p-footer-note">
-          Cluster Hub Management Information System • Official Government Document • Printed on: ${new Date().toLocaleString()}
+          Cluster Hub Management Information System • Official Government Document • Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah • Printed on: ${new Date().toLocaleString()}
         </div>
       </div>
     </div>
@@ -1084,6 +1098,371 @@ async function resetCluster() {
 }
 
 /* ─────────────────────────────────────
+   SUBMISSIONS TRACKER & REALTIME REPORTS
+───────────────────────────────────── */
+const subState = {
+  data: null,
+  filter: 'all',
+  loading: false,
+};
+
+async function loadSubmissionsReport(forceRefresh = false) {
+  const container = document.getElementById('submissionsTable')?.querySelector('tbody');
+  if (forceRefresh && container) {
+    container.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text-lt)">🔄 Querying PostgreSQL in real-time…</td></tr>';
+  }
+  try {
+    const res = await api('GET', `/api/clusters/${state.activeCode}/submissions`);
+    if (res.success && res.report) {
+      subState.data = res.report;
+      renderSubmissionsView();
+      if (forceRefresh) toast('Live submissions query updated', 'ok');
+    }
+  } catch (err) {
+    console.error('Error fetching submissions report:', err);
+    if (container) {
+      container.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--danger)">⚠️ Error querying database: ${esc(err.message)}</td></tr>`;
+    }
+  }
+}
+
+function renderSubmissionsView() {
+  const rep = subState.data;
+  if (!rep) return;
+
+  const cntAll = document.getElementById('cntAll'); if (cntAll) cntAll.textContent = rep.totalSchools;
+  const cntSub = document.getElementById('cntSub'); if (cntSub) cntSub.textContent = rep.submittedCount;
+  const cntPend = document.getElementById('cntPend'); if (cntPend) cntPend.textContent = rep.pendingCount;
+
+  const sbBadge = document.getElementById('sbSubBadge');
+  if (sbBadge) {
+    sbBadge.textContent = `${rep.submittedCount}/${rep.totalSchools}`;
+    sbBadge.style.background = rep.pendingCount === 0 ? '#16a34a' : '#2563eb';
+  }
+
+  const queryTimeEl = document.getElementById('subQueryTime');
+  if (queryTimeEl) {
+    queryTimeEl.innerHTML = `Live DB: <b>${new Date(rep.queriedAt).toLocaleTimeString()}</b>`;
+  }
+
+  const statsGrid = document.getElementById('subStatsGrid');
+  if (statsGrid) {
+    statsGrid.innerHTML = `
+      <div class="stat-card g">
+        <div class="stat-num">${rep.totalSchools}</div>
+        <div class="stat-lbl">Total Schools</div>
+      </div>
+      <div class="stat-card ${rep.submittedCount > 0 ? 'g' : ''}">
+        <div class="stat-num" style="color:#16a34a">${rep.submittedCount}</div>
+        <div class="stat-lbl">Submitted (${rep.submissionRate}%)</div>
+      </div>
+      <div class="stat-card ${rep.pendingCount > 0 ? 'r' : 'g'}">
+        <div class="stat-num" style="color:${rep.pendingCount > 0 ? '#dc2626' : '#16a34a'}">${rep.pendingCount}</div>
+        <div class="stat-lbl">Pending Defaulters</div>
+      </div>
+      <div class="stat-card g">
+        <div class="stat-num">${rep.totalStudents}</div>
+        <div class="stat-lbl">Enrolled Students</div>
+      </div>
+    `;
+  }
+
+  filterSubmissionsTable();
+}
+
+function setSubFilter(filter) {
+  subState.filter = filter;
+  document.querySelectorAll('.sub-filter-btn').forEach(btn => {
+    const isTarget = btn.dataset.filter === filter;
+    btn.classList.toggle('active', isTarget);
+    btn.classList.toggle('btn-primary', isTarget);
+    btn.classList.toggle('btn-outline', !isTarget);
+  });
+  filterSubmissionsTable();
+}
+
+function filterSubmissionsTable() {
+  const rep = subState.data;
+  if (!rep) return;
+  const tbody = document.querySelector('#submissionsTable tbody');
+  if (!tbody) return;
+
+  const query = (document.getElementById('subSearchInput')?.value || '').toLowerCase().trim();
+  const filter = subState.filter;
+
+  let list = rep.schools.slice();
+  if (filter === 'submitted') list = list.filter(s => s.isSubmitted);
+  if (filter === 'pending')   list = list.filter(s => !s.isSubmitted);
+
+  if (query) {
+    list = list.filter(s =>
+      s.name.toLowerCase().includes(query) ||
+      (s.semis && s.semis.includes(query)) ||
+      (s.headTeacher && s.headTeacher.toLowerCase().includes(query)) ||
+      s.cell.toLowerCase().includes(query) ||
+      s.type.toLowerCase().includes(query)
+    );
+  }
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text-lt)">No schools match the current filter.</td></tr>`;
+    return;
+  }
+
+  let html = '';
+  list.forEach((s, idx) => {
+    const isSub = s.isSubmitted;
+    const subTimeStr = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+    const statusBadge = isSub
+      ? `<span class="tag-submitted">✓ Submitted${subTimeStr ? ' <span style="font-weight:400;font-size:10px">(' + subTimeStr + ')</span>' : ''}</span>`
+      : `<span class="tag-pending">⏳ Pending Defaulter</span>`;
+
+    const progressPct = s.percentComplete || 0;
+    const progressBar = `
+      <div class="sub-prog-wrap">
+        <div style="font-size:11px;font-weight:600">${s.classesWithData} / ${s.totalClasses} classes</div>
+        <div class="sub-prog-bar"><div class="sub-prog-fill ${progressPct === 100 ? 'full' : ''}" style="width:${progressPct}%"></div></div>
+      </div>
+    `;
+
+    const cleanContact = (s.contact || '').replace(/[^0-9]/g, '');
+    const waContact = cleanContact.startsWith('0') ? '92' + cleanContact.substring(1) : cleanContact;
+
+    let actionHtml = '';
+    if (isSub) {
+      actionHtml = `<button class="btn btn-outline btn-sm" onclick="printSingleSchoolById('${s.id}')" title="Print this school's verified proforma">🖨️ Proforma</button>`;
+    } else {
+      if (cleanContact) {
+        actionHtml = `
+          <a href="https://wa.me/${waContact}?text=${encodeURIComponent(getIndividualReminderMsg(s))}" target="_blank" class="btn-wa-remind" title="Send reminder via WhatsApp">
+            <span>📲</span> Remind
+          </a>
+        `;
+      } else {
+        actionHtml = `<span style="font-size:11px;color:var(--text-xlt)">No contact</span>`;
+      }
+    }
+
+    html += `
+      <tr style="${!isSub ? 'background:#fffbfb' : ''}">
+        <td>${idx + 1}</td>
+        <td>${statusBadge}</td>
+        <td><span class="tag ${s.isHub ? 'tag-hub' : 'tag-cell'}">${s.isHub ? 'HUB' : 'Cell ' + s.cell}</span></td>
+        <td>
+          <div style="font-weight:700;color:var(--text)">${s.isHub ? '★ ' : ''}${esc(s.name)}</div>
+          <div style="font-size:11px;color:var(--text-lt)">SEMIS: <b>${esc(s.semis || '—')}</b></div>
+        </td>
+        <td><span class="tag tag-type">${s.type}</span></td>
+        <td style="font-size:11px;color:var(--text-lt)">${formatClassRange(s.classMin, s.classMax)}</td>
+        <td>${progressBar}</td>
+        <td class="num">
+          <span style="font-weight:800;font-size:13px">${s.totalStudents}</span>
+          <div style="font-size:10px;color:var(--text-lt)">${s.totalBoys}B / ${s.totalGirls}G</div>
+        </td>
+        <td>
+          <div style="font-weight:600">${esc(s.headTeacher || 'Not Assigned')}</div>
+          <div style="font-size:11px;color:var(--text-lt)">${esc(s.contact || '—')}</div>
+        </td>
+        <td>${actionHtml}</td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
+
+function getIndividualReminderMsg(school) {
+  return `Dear ${school.headTeacher || 'Head Teacher'},\n\n` +
+    `*URGENT REMINDER: School Enrollment Submission*\n` +
+    `*School:* ${school.name}\n` +
+    `*Cluster:* Hub GBHS Thari Mirwah (KX03099)\n\n` +
+    `Your school data has not yet been submitted in the cluster database. Please open the online portal and submit your class-wise enrollment (Boys/Girls), religion & facilities figures today:\n\n` +
+    `🔗 *Portal Link:* https://cluster-hub-thari-mirwah.vercel.app\n\n` +
+    `*Steps:* Select your school ⭐, fill enrollment, and click *Save School Data*.\n\n` +
+    `Office of the Headmaster, GBHS Thari Mirwah\n` +
+    `Website created by: Asif Ali Shar, JEST, GBHS Thari Mirwah`;
+}
+
+function sharePortalOnWhatsApp() {
+  const msg = `🏫 *Cluster Hub Thari Mirwah (KX03099)*\n` +
+    `*Official Annual School Enrollment & Facilities Portal*\n\n` +
+    `Dear Head Teachers / School In-charges,\n` +
+    `Please submit your school's class-wise enrollment data online:\n\n` +
+    `🔗 *Portal Link:* https://cluster-hub-thari-mirwah.vercel.app\n\n` +
+    `📝 *Quick Steps to Submit:*\n` +
+    `1️⃣ Open link and select your school from the ⭐ dropdown\n` +
+    `2️⃣ Enter class-wise Boys & Girls enrollment, Religion & Facilities\n` +
+    `3️⃣ Click *'Save School Data'* to save directly to database\n` +
+    `4️⃣ Click *'Print School PDF'* to print verified A4 sheet\n\n` +
+    `💻 *Website created by:* Asif Ali Shar, JEST, GBHS Thari Mirwah`;
+
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function sharePendingListWhatsApp() {
+  const rep = subState.data;
+  if (!rep) {
+    toast('Please load submissions data first', 'err');
+    return;
+  }
+  const pending = rep.pendingSchools || [];
+  if (!pending.length) {
+    alert('All schools have submitted their data! No pending schools.');
+    return;
+  }
+
+  let msg = `⚠️ *URGENT: Cluster KX03099 Enrollment Submission Status*\n` +
+    `Total Schools: ${rep.totalSchools} | Submitted: ${rep.submittedCount} | *Pending: ${rep.pendingCount}*\n\n` +
+    `*List of Pending Defaulter Schools:*\n`;
+
+  pending.forEach((s, idx) => {
+    msg += `${idx + 1}. *${s.name}* (${s.type}) - Head: ${s.headTeacher || 'Incharge'} [${s.contact || 'No No.'}]\n`;
+  });
+
+  msg += `\n🔗 *Submit online immediately at:*\nhttps://cluster-hub-thari-mirwah.vercel.app\n\n` +
+    `Office of the Headmaster, GBHS Thari Mirwah\n` +
+    `Website created by: Asif Ali Shar, JEST, GBHS Thari Mirwah`;
+
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function generateSubmissionsReportHtml(rep) {
+  const c = activeCluster() || { code: 'KX03099', district: 'Khairpur Mirs' };
+  let rows = '';
+
+  rep.schools.forEach((s, i) => {
+    const isSub = s.isSubmitted;
+    const subTimeStr = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short' }) : '—';
+
+    rows += `
+      <tr>
+        <td style="text-align:center">${i + 1}</td>
+        <td style="font-weight:700;color:${isSub ? '#166534' : '#991b1b'}">${isSub ? 'SUBMITTED' : 'PENDING'}</td>
+        <td style="text-align:center">${esc(s.cell)}</td>
+        <td style="font-weight:700">${esc(s.name)}</td>
+        <td style="text-align:center">${s.type}</td>
+        <td style="text-align:center">${esc(s.semis || '—')}</td>
+        <td style="text-align:center">${s.classesWithData} / ${s.totalClasses}</td>
+        <td style="text-align:right">${s.totalBoys}</td>
+        <td style="text-align:right">${s.totalGirls}</td>
+        <td style="text-align:right;font-weight:800">${s.totalStudents}</td>
+        <td>${esc(s.headTeacher || '—')}</td>
+        <td style="font-size:7.5pt">${subTimeStr}</td>
+      </tr>
+    `;
+  });
+
+  return `
+    <div class="print-page">
+      <div>
+        <div class="p-header">
+          <img src="/logo.jpg" alt="Seal" class="p-logo">
+          <div class="p-head-text">
+            <div class="p-dept">School Education &amp; Literacy Department · Government of Sindh</div>
+            <div class="p-title">Office of the Headmaster · Cluster Hub GBHS Thari Mirwah</div>
+            <div class="p-sub">Taluka Mirwah · District Khairpur Mirs · Cluster Code: <b>${esc(c.code)}</b> · SEMIS: <b>415060805</b></div>
+          </div>
+          <div class="p-creator-badge">
+            <div style="font-size:6.5pt;text-transform:uppercase;color:#1e40af;font-weight:700">Website Created By</div>
+            <div class="p-cr-name">Asif Ali Shar</div>
+            <div style="font-size:6.5pt;color:#475569">JEST, GBHS Thari Mirwah</div>
+          </div>
+        </div>
+
+        <div class="p-doc-badge" style="background:#1e3a8a;color:#fff">Official School Data Submission Status &amp; Defaulters Verification Proforma (2025–2026)</div>
+
+        <div class="p-school-box" style="margin-bottom:8px">
+          <div>
+            <div class="p-info-row"><span class="p-info-lbl">Total Schools:</span> <span class="p-info-val">${rep.totalSchools} Schools</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">Submitted:</span> <span class="p-info-val" style="color:#166534">${rep.submittedCount} Schools (${rep.submissionRate}%)</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">Pending Defaulters:</span> <span class="p-info-val" style="color:#991b1b">${rep.pendingCount} Schools</span></div>
+          </div>
+          <div>
+            <div class="p-info-row"><span class="p-info-lbl">Total Enrolled:</span> <span class="p-info-val">${rep.totalStudents} Students (${rep.totalBoys} Boys / ${rep.totalGirls} Girls)</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">Cluster Hub:</span> <span class="p-info-val">GBHS Thari Mirwah (KX03099)</span></div>
+            <div class="p-info-row"><span class="p-info-lbl">Report Date:</span> <span class="p-info-val">${new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })} ${new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</span></div>
+          </div>
+        </div>
+
+        <table class="p-submissions-table">
+          <thead>
+            <tr>
+              <th style="width:24px">#</th>
+              <th>Status</th>
+              <th>Cell</th>
+              <th>School Name</th>
+              <th>Type</th>
+              <th>SEMIS</th>
+              <th>Filled</th>
+              <th>Boys</th>
+              <th>Girls</th>
+              <th>Total</th>
+              <th>Head Teacher</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+
+        <div class="p-cert">
+          <b>Official Undertaking:</b> Certified that this submission tracking report reflects the real-time live database status of Cluster Hub KX03099. Schools flagged as Pending Defaulter have been formally notified via official communication to complete online data entry.
+        </div>
+      </div>
+
+      <div>
+        <div class="p-sigs">
+          <div class="p-sig-box">
+            <div style="height:32px"></div>
+            <div class="p-sig-title">Cluster Monitoring In-charge / Incharge Data Cell</div>
+            <div class="p-sig-sub">GBHS Thari Mirwah (Cluster Code: ${esc(c.code)})</div>
+          </div>
+          <div class="p-sig-box">
+            <div style="height:32px"></div>
+            <div class="p-sig-title">Headmaster / Cluster Hub Supervisor</div>
+            <div class="p-sig-sub">GBHS Thari Mirwah · Taluka Mirwah, Khairpur</div>
+          </div>
+        </div>
+
+        <div class="p-footer-note">
+          Cluster Hub Management Information System • Official Government Proforma • Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah • Printed on: ${new Date().toLocaleString()}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function printSubmissionsReport() {
+  const rep = subState.data;
+  if (!rep) {
+    loadSubmissionsReport(true).then(() => {
+      if (subState.data) {
+        const container = document.getElementById('printReportContainer');
+        container.innerHTML = generateSubmissionsReportHtml(subState.data);
+        setTimeout(() => window.print(), 100);
+      }
+    });
+    return;
+  }
+  const container = document.getElementById('printReportContainer');
+  container.innerHTML = generateSubmissionsReportHtml(rep);
+  setTimeout(() => window.print(), 100);
+}
+
+function printSingleSchoolById(schoolId) {
+  const cluster = activeCluster(); if (!cluster) return;
+  const school = cluster.schools.find(s => s.id === schoolId);
+  if (!school) {
+    alert('School not found.');
+    return;
+  }
+  const container = document.getElementById('printReportContainer');
+  container.innerHTML = generateSchoolReportHtml(school, cluster);
+  setTimeout(() => window.print(), 100);
+}
+
+/* ─────────────────────────────────────
    INIT
 ───────────────────────────────────── */
 async function init() {
@@ -1094,3 +1473,4 @@ async function init() {
 }
 
 init();
+

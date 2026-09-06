@@ -3,33 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hub Cluster KX03099 — Enrollment Management System</title>
-<meta name="description" content="Cluster KX03099 Khairpur Mirs District — Class-wise Enrollment & Facilities Data Collection">
+<title>Cluster Hub KX03099 Thari Mirwah — School Enrollment Portal</title>
+<meta name="description" content="Official Online Data Portal. How to submit: 1️⃣ Select your school ⭐ 2️⃣ Fill class-wise enrollment (Boys/Girls), religion & facilities 3️⃣ Click 'Save School Data'. Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah.">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/logo.jpg">
+<link rel="image_src" href="https://cluster-hub-thari-mirwah.vercel.app/logo.jpg">
+
+<!-- WhatsApp & Open Graph Social Link Sharing Metadata -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cluster Hub Thari Mirwah (KX03099)">
+<meta property="og:title" content="Cluster Hub KX03099 Thari Mirwah — School Data Submission Portal">
+<meta property="og:description" content="Official Online Data Portal. How to submit: 1️⃣ Select your school ⭐ 2️⃣ Fill class-wise enrollment (Boys/Girls), religion & facilities 3️⃣ Click 'Save School Data'. Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah.">
+<meta property="og:image" content="https://cluster-hub-thari-mirwah.vercel.app/logo.jpg">
+<meta property="og:image:secure_url" content="https://cluster-hub-thari-mirwah.vercel.app/logo.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="600">
+<meta property="og:image:alt" content="Cluster Hub GBHS Thari Mirwah Emblem">
+<meta property="og:url" content="https://cluster-hub-thari-mirwah.vercel.app/">
+
+<!-- Twitter Card Metadata -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Cluster Hub KX03099 Thari Mirwah — School Data Submission Portal">
+<meta name="twitter:description" content="Official Online Data Portal. How to submit: 1️⃣ Select your school ⭐ 2️⃣ Fill class-wise enrollment (Boys/Girls), religion & facilities 3️⃣ Click 'Save School Data'. Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah.">
+<meta name="twitter:image" content="https://cluster-hub-thari-mirwah.vercel.app/logo.jpg">
+<meta name="author" content="Asif Ali Shar, JEST, GBHS Thari Mirwah">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=2.1">
+<link rel="stylesheet" href="/style.css?v=2.2">
 <style>
   /* ─── LETTERHEAD BAND ─── */
   #letterhead {
     position: fixed; top: 30px; left: 0; right: 0; z-index: 95;
     background: #fff;
     border-bottom: 3px solid var(--accent);
-    display: flex; align-items: center; justify-content: center;
-    gap: 20px;
-    padding: 10px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px;
+    padding: 8px 24px;
     box-shadow: 0 2px 10px rgba(0,0,0,.07);
     min-height: 80px;
   }
+  .lh-left { display: flex; align-items: center; gap: 12px; }
   .lh-logo {
-    width: 64px; height: 64px; border-radius: 50%;
+    width: 62px; height: 62px; border-radius: 50%;
     border: 3px solid var(--accent);
     object-fit: cover; flex: none;
     box-shadow: 0 2px 8px rgba(212,144,10,.25);
   }
-  .lh-text { text-align: center; }
+  .lh-text { text-align: center; flex: 1; }
   .lh-office {
     font-size: 11px; font-weight: 700; color: var(--text-lt);
     text-transform: uppercase; letter-spacing: 1.5px;
@@ -44,6 +67,42 @@
     font-size: 12px; font-weight: 500; color: var(--text-lt);
     margin-top: 3px; letter-spacing: .3px;
   }
+
+  /* Top Right Creator Badge in Letterhead */
+  .lh-creator-box {
+    display: flex; flex-direction: column; align-items: flex-end; text-align: right;
+    background: linear-gradient(135deg, #eff6ff, #f8faff);
+    border: 1.5px solid #bfdbfe; border-radius: 8px;
+    padding: 6px 12px; min-width: 190px; flex: none;
+    box-shadow: 0 2px 6px rgba(37,99,235,.08);
+  }
+  .lh-creator-lbl {
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.8px;
+    color: #2563eb; font-weight: 700;
+  }
+  .lh-creator-name {
+    font-size: 13px; font-weight: 800; color: #1e3a8a; line-height: 1.2;
+  }
+  .lh-creator-role {
+    font-size: 11px; font-weight: 600; color: #4b5563;
+  }
+
+  /* Status Bar Creator Chip */
+  .sb-creator-chip {
+    font-size: 11px; color: #1e40af; background: #eff6ff;
+    border: 1px solid #bfdbfe; padding: 2px 9px; border-radius: 12px;
+    font-weight: 500; display: inline-flex; align-items: center; gap: 4px;
+    margin-right: 8px;
+  }
+
+  /* WhatsApp Share Button */
+  .btn-whatsapp-share {
+    background: #25d366; color: #fff; border: none; font-size: 12px; font-weight: 700;
+    padding: 5px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;
+    cursor: pointer; transition: background .15s, transform .1s;
+    box-shadow: 0 2px 6px rgba(37,211,102,.3);
+  }
+  .btn-whatsapp-share:hover { background: #1ebd56; transform: translateY(-1px); }
 
   /* ─── UTILITY BAR (breadcrumb + auth) ─── */
   #utilBar {
@@ -89,25 +148,32 @@
     <span id="dbStatusText">Connecting to PostgreSQL…</span>
   </div>
   <div class="sb-right">
+    <span class="sb-creator-chip">💻 Website created by <b>Asif Ali Shar</b>, JEST, GBHS Thari Mirwah</span>
     <span id="syncStatus">Ready</span>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════
-     LETTERHEAD BAND (centered)
+     LETTERHEAD BAND (centered with Creator box at top right)
 ══════════════════════════════════════ -->
 <header id="letterhead">
-  <img src="/logo.jpg" alt="GBHS Thari Mirwah Seal" class="lh-logo">
+  <div class="lh-left">
+    <img src="/logo.jpg" alt="GBHS Thari Mirwah Seal" class="lh-logo">
+  </div>
   <div class="lh-text">
     <div class="lh-office">Office of the Headmaster</div>
     <div class="lh-name">Cluster Hub &mdash; GBHS Thari Mirwah</div>
     <div class="lh-sub">Khairpur Mirs District &bull; Sindh Education Department &bull; Cluster KX03099</div>
   </div>
-  <img src="/logo.jpg" alt="Seal" class="lh-logo">
+  <div class="lh-creator-box">
+    <span class="lh-creator-lbl">Website created by</span>
+    <strong class="lh-creator-name">Asif Ali Shar</strong>
+    <span class="lh-creator-role">JEST, GBHS Thari Mirwah</span>
+  </div>
 </header>
 
 <!-- ══════════════════════════════════════
-     UTILITY BAR (breadcrumb + auth)
+     UTILITY BAR (breadcrumb + auth + share)
 ══════════════════════════════════════ -->
 <div id="utilBar">
   <div class="util-breadcrumb">
@@ -116,6 +182,9 @@
     <span class="crumb-active" id="navCrumb">Enrollment Data</span>
   </div>
   <div class="util-right" id="navAuthArea">
+    <button class="btn-whatsapp-share" onclick="sharePortalOnWhatsApp()" title="Share school submission instructions to WhatsApp Group">
+      <span>📲 Share on WhatsApp</span>
+    </button>
     <button class="btn-nav-login" id="openLoginBtn" onclick="openModal()">🔒 Admin Login</button>
     <div class="nav-user-chip" id="navUserChip" style="display:none">
       <div class="nav-avatar" id="navAvatar">A</div>
@@ -143,6 +212,11 @@
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Enrollment Data
       <span class="sb-badge urgent">URGENT</span>
+    </div>
+    <div class="sb-item" id="sbSubmissions" onclick="switchPanel('submissions')">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Submissions Status
+      <span class="sb-badge" id="sbSubBadge" style="background:#2563eb;color:#fff;font-weight:700">LIVE</span>
     </div>
     <div class="sb-item locked" title="Coming soon">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -252,6 +326,78 @@
     </div>
   </section>
 
+  <!-- ── SUBMISSIONS TRACKER PANEL ── -->
+  <section class="panel" id="panel-submissions">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>School Submissions Tracker</h1>
+        <p>Real-time database status · Submitted vs Pending Schools (Cluster KX03099)</p>
+      </div>
+      <div class="page-header-right no-print">
+        <div class="dash-creator-badge">
+          <span style="font-size:18px">💻</span>
+          <div>
+            <div class="dash-cr-title">Website Created By</div>
+            <div class="dash-cr-name">Asif Ali Shar, JEST</div>
+            <div class="dash-cr-sub">GBHS Thari Mirwah</div>
+          </div>
+        </div>
+        <button class="btn btn-outline" onclick="loadSubmissionsReport(true)" title="Refresh live database query">
+          <span>↻</span>
+          <span>Refresh Live DB</span>
+        </button>
+        <button class="btn-whatsapp-share" onclick="sharePendingListWhatsApp()" title="Share pending schools reminder list to WhatsApp Group">
+          <span>📲 WhatsApp Reminder</span>
+        </button>
+        <button class="btn btn-primary" onclick="printSubmissionsReport()" title="Print official verified submission status report (A4 PDF)">
+          <span>🖨️</span>
+          <span>Print Status PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live KPI Summary -->
+    <div class="stats-grid" id="subStatsGrid" style="margin-bottom:18px"></div>
+
+    <!-- Filter toolbar -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-body" style="padding:12px 18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="subFilterGroup">
+          <button class="btn btn-sm btn-primary sub-filter-btn active" data-filter="all" onclick="setSubFilter('all')">All Schools (<span id="cntAll">23</span>)</button>
+          <button class="btn btn-sm btn-outline sub-filter-btn" data-filter="submitted" onclick="setSubFilter('submitted')">✅ Submitted (<span id="cntSub">0</span>)</button>
+          <button class="btn btn-sm btn-outline sub-filter-btn" data-filter="pending" onclick="setSubFilter('pending')">⏳ Pending / Defaulter (<span id="cntPend">0</span>)</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="text" id="subSearchInput" class="form-input" placeholder="Search school, head teacher, cell..." style="width:230px;padding:6px 10px;font-size:12px" oninput="filterSubmissionsTable()">
+          <span id="subQueryTime" style="font-size:11px;color:var(--text-lt)"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submissions Table -->
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table" id="submissionsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Status</th>
+              <th>Cell</th>
+              <th>School Name</th>
+              <th>Type</th>
+              <th>Class Bounds</th>
+              <th>Classes Filled</th>
+              <th class="num">Enrolled</th>
+              <th>Head Teacher</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- ── DASHBOARD PANEL ── -->
   <section class="panel" id="panel-dashboard">
     <div class="locked-panel" id="dashLocked">
@@ -267,6 +413,14 @@
           <p id="dashSubTitle">Live totals from PostgreSQL</p>
         </div>
         <div class="page-header-right">
+          <div class="dash-creator-badge">
+            <span style="font-size:18px">💻</span>
+            <div>
+              <div class="dash-cr-title">Website Created By</div>
+              <div class="dash-cr-name">Asif Ali Shar, JEST</div>
+              <div class="dash-cr-sub">GBHS Thari Mirwah</div>
+            </div>
+          </div>
           <button class="btn btn-outline btn-sm" onclick="renderDashboard()">↻ Refresh</button>
         </div>
       </div>
@@ -346,6 +500,13 @@
             <p>Official high-level summary table of all 23 schools with totals and HM/DEO signature blocks for District submission.</p>
           </div>
           <button class="btn btn-outline" onclick="printClusterSummaryReport()" style="margin-top:12px">🖨️ Print Summary Matrix</button>
+        </div>
+        <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
+          <div>
+            <h4>📋 Print Submission Status &amp; Defaulter List (A4 PDF)</h4>
+            <p>Official verified report of schools that have submitted vs pending/defaulter schools for administrative review.</p>
+          </div>
+          <button class="btn btn-primary" onclick="printSubmissionsReport()" style="margin-top:12px">🖨️ Print Submission Status Proforma</button>
         </div>
         <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
           <div>

@@ -234,10 +234,56 @@ input, select, textarea { font-family: var(--font); }
 @keyframes selectBoxGlow {
   0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,.4); border-color: #2563eb; }
   50% { box-shadow: 0 0 0 5px rgba(37,99,235,.15), 0 0 12px rgba(212,144,10,.35); border-color: #d97706; }
+/* ─── CREATOR BADGES (NAV & DASHBOARD) ─── */
+.dash-creator-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, #eff6ff, #f8faff);
+  border: 1.5px solid #bfdbfe; border-radius: 8px;
+  padding: 5px 12px; text-align: left;
+}
+.dash-cr-title {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.7px;
+  color: #2563eb; font-weight: 700;
+}
+.dash-cr-name {
+  font-size: 12.5px; font-weight: 800; color: #1e3a8a; line-height: 1.15;
+}
+.dash-cr-sub {
+  font-size: 10.5px; color: #4b5563; font-weight: 500;
 }
 
-/* ═══════════════════════════════════════════
-   TOTAL CELL
+/* ─── SUBMISSIONS TRACKER STYLES ─── */
+.tag-submitted {
+  background: #dcfce7 !important; color: #166534 !important;
+  border: 1px solid #86efac !important; font-weight: 700 !important;
+  padding: 3px 8px; border-radius: 4px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;
+}
+.tag-pending {
+  background: #fee2e2 !important; color: #991b1b !important;
+  border: 1px solid #fca5a5 !important; font-weight: 700 !important;
+  padding: 3px 8px; border-radius: 4px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;
+}
+.sub-prog-wrap {
+  min-width: 90px;
+}
+.sub-prog-bar {
+  height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 3px;
+}
+.sub-prog-fill {
+  height: 100%; background: #2563eb; border-radius: 3px; transition: width .3s ease;
+}
+.sub-prog-fill.full {
+  background: #16a34a;
+}
+.btn-wa-remind {
+  background: #25d366; color: #fff; border: none; padding: 4px 9px;
+  border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px; text-decoration: none;
+  transition: background .15s;
+}
+.btn-wa-remind:hover { background: #1ebd56; color: #fff; }
+
+
 ═══════════════════════════════════════════ */
 .total-cell {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -698,4 +744,41 @@ input, select, textarea { font-family: var(--font); }
     border-top: 0.5px solid #e5e7eb;
     padding-top: 3px;
   }
+
+  /* Creator Badge in Print Header */
+  .p-creator-badge {
+    text-align: right;
+    font-size: 7pt;
+    line-height: 1.25;
+    color: #1e40af;
+    font-weight: 600;
+    max-width: 140px;
+    border-left: 1px solid #cbd5e1;
+    padding-left: 8px;
+  }
+  .p-creator-badge .p-cr-name {
+    font-size: 8pt;
+    font-weight: 800;
+    color: #1e3a8a;
+  }
+
+  .p-submissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+    margin-top: 8px;
+    margin-bottom: 12px;
+  }
+  .p-submissions-table th, .p-submissions-table td {
+    border: 1px solid #4b5563;
+    padding: 3px 5px;
+    text-align: left;
+  }
+  .p-submissions-table th {
+    background: #f1f5f9 !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 7.5pt;
+  }
 }
+
