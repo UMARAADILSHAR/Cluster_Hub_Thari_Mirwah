@@ -343,7 +343,41 @@
     <!-- KPI Row -->
     <div class="progress-overview" id="enrollKPIs"></div>
 
-    <!-- Selected school info -->
+    <!-- ══════════════════════════════════════
+         SCHOOLS GRID DIRECTORY (Official Sindh Portal Style)
+    ══════════════════════════════════════ -->
+    <section class="schools-grid-section" id="schoolsGridSection">
+      <div class="sg-toolbar">
+        <div class="sg-toolbar-left">
+          <div class="sg-title-wrap">
+            <span class="sg-main-badge">🏛️ Cluster Schools Directory</span>
+            <span class="sg-sub-text">Click any school card or <b>📊 Enrollment</b> to enter and view enrollment data</span>
+          </div>
+        </div>
+        <div class="sg-toolbar-right">
+          <div class="sg-search-box">
+            <span class="sg-search-icon">🔍</span>
+            <input type="text" id="schoolGridSearch" placeholder="Search school name or SEMIS..." oninput="onSchoolSearchInput(this.value)">
+            <button class="sg-search-clear" id="sgSearchClear" onclick="clearSchoolSearch()" style="display:none">✕</button>
+          </div>
+          <div class="sg-filter-pills" id="sgFilterPills">
+            <button class="sg-pill active" data-cell="ALL" onclick="setSchoolGridFilter('ALL')">All Schools (23)</button>
+            <button class="sg-pill" data-cell="HUB" onclick="setSchoolGridFilter('HUB')">👑 Hub School (1)</button>
+            <button class="sg-pill" data-cell="C1" onclick="setSchoolGridFilter('C1')">👑 Cell C1 (11)</button>
+            <button class="sg-pill" data-cell="C2" onclick="setSchoolGridFilter('C2')">👑 Cell C2 (11)</button>
+          </div>
+          <button class="btn-toggle-grid" id="btnToggleGrid" onclick="toggleSchoolsGrid()" title="Collapse / Expand Schools Grid">
+            <span id="gridToggleIcon">🔼</span> <span id="gridToggleLabel">Minimize Grid</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Container where schools grid by cell is dynamically rendered -->
+      <div id="schoolsCardsWrapper"></div>
+    </section>
+
+    <!-- Selected school info & Data Entry Form Anchor -->
+    <div id="schoolDataEntryAnchor"></div>
     <div class="card" style="margin-bottom:20px">
       <div class="card-body" style="padding:14px 20px">
         <div class="meta-strip" id="schoolMetaStrip">
