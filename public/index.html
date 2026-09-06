@@ -189,13 +189,15 @@
      STATUS BAR
 ══════════════════════════════════════ -->
 <div id="statusBar">
-  <div class="db-pill">
+  <div class="db-pill admin-only" id="dbStatusPill" style="display:none">
     <span class="dot" id="dbDot"></span>
-    <span id="dbStatusText">Connecting to PostgreSQL…</span>
+    <span id="dbStatusText">Database Ready</span>
+  </div>
+  <div class="sb-cluster-info" id="sbClusterInfo">
+    <span>🏛️ Sindh Education Department &bull; Cluster Hub KX03099 (Khairpur Mirs)</span>
   </div>
   <div class="sb-right">
-    <span class="sb-creator-chip desktop-only">💻 Website created by <b>Asif Ali Shar</b>, JEST, GBHS Thari Mirwah</span>
-    <span id="syncStatus">Ready</span>
+    <span id="syncStatus" class="admin-only" style="display:none">Ready</span>
   </div>
 </div>
 
@@ -300,6 +302,11 @@
       Export &amp; Print
       <span class="sb-badge lock" id="sbExportLock">🔒</span>
     </div>
+    <div class="sb-item" id="sbHealth" onclick="openHealthModal()">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      System Health
+      <span class="sb-badge live" style="background:#dcfce7;color:#15803d;font-size:10px;font-weight:700">LIVE</span>
+    </div>
   </nav>
 
   <div class="sb-cluster-card" id="sbClusterCard">
@@ -320,25 +327,12 @@
     <div class="page-header">
       <div class="page-header-left">
         <h1>Class-wise Enrollment Data</h1>
-        <p>Cluster KX03099 · Khairpur Mirs District — enter enrollment, religion, medium of instruction &amp; facilities</p>
-      </div>
-      <div class="page-header-right no-print">
-        <div class="form-group" style="min-width:280px">
-          <label class="form-label select-school-lbl" for="entrySchoolSelect">
-            <span class="blinking-star">⭐</span> Select Your School <span class="blinking-star">⭐</span>
-          </label>
-          <select class="form-select select-school-highlight" id="entrySchoolSelect" onchange="loadSchoolForm()"></select>
-        </div>
-        <button class="btn btn-outline" onclick="printCurrentSchoolReport()" style="height:38px;padding:0 12px;display:inline-flex;align-items:center;gap:6px" title="Export or Print this school as an official A4 PDF">
-          <span>🖨️</span>
-          <span>Print School PDF</span>
-        </button>
-        <button class="btn-save" id="mainSaveBtn" onclick="handleSave()" title="Save (Ctrl+S)">
-          <span id="saveBtnIcon">💾</span>
-          <span id="saveBtnLbl">Save Data</span>
-        </button>
+        <p>Cluster KX03099 · Khairpur Mirs District — click any school card or <b>📊 Enrollment</b> below to open and enter data</p>
       </div>
     </div>
+
+    <!-- Hidden select input to maintain backward-compatibility with scripts -->
+    <input type="hidden" id="entrySchoolSelect" value="">
 
     <!-- KPI Row -->
     <div class="progress-overview" id="enrollKPIs"></div>
@@ -351,7 +345,7 @@
         <div class="sg-toolbar-left">
           <div class="sg-title-wrap">
             <span class="sg-main-badge">🏛️ Cluster Schools Directory</span>
-            <span class="sg-sub-text">Click any school card or <b>📊 Enrollment</b> to enter and view enrollment data</span>
+            <span class="sg-sub-text">Click any school name or <b>📊 Enrollment</b> to open its enrollment form inside the cell</span>
           </div>
         </div>
         <div class="sg-toolbar-right">
@@ -366,46 +360,12 @@
             <button class="sg-pill" data-cell="C1" onclick="setSchoolGridFilter('C1')">👑 Cell C1 (11)</button>
             <button class="sg-pill" data-cell="C2" onclick="setSchoolGridFilter('C2')">👑 Cell C2 (11)</button>
           </div>
-          <button class="btn-toggle-grid" id="btnToggleGrid" onclick="toggleSchoolsGrid()" title="Collapse / Expand Schools Grid">
-            <span id="gridToggleIcon">🔼</span> <span id="gridToggleLabel">Minimize Grid</span>
-          </button>
         </div>
       </div>
 
-      <!-- Container where schools grid by cell is dynamically rendered -->
+      <!-- Container where schools grid by cell is dynamically rendered with inline forms -->
       <div id="schoolsCardsWrapper"></div>
     </section>
-
-    <!-- Selected school info & Data Entry Form Anchor -->
-    <div id="schoolDataEntryAnchor"></div>
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-body" style="padding:14px 20px">
-        <div class="meta-strip" id="schoolMetaStrip">
-          <span style="color:var(--text-xlt)">Select a school above to begin entering data</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Validation Banner -->
-    <div class="val-banner" id="valBanner"></div>
-
-    <!-- Class Cards -->
-    <div id="classCardsContainer"></div>
-
-    <!-- Sticky Save Footer -->
-    <div class="save-footer" id="saveFooterArea" style="display:none">
-      <div>
-        <div class="save-hint">All fields auto-validate. Press <b>Ctrl+S</b> or click Save to persist to PostgreSQL.</div>
-        <div class="save-ts" id="saveTs">Not saved yet</div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <span id="footerSaveStatus" style="font-size:12px;color:var(--text-lt)"></span>
-        <button class="btn btn-outline btn-sm" onclick="printCurrentSchoolReport()" style="display:inline-flex;align-items:center;gap:6px">
-          🖨️ Print School PDF
-        </button>
-        <button class="btn-save" onclick="handleSave()">💾 Save Enrollment Data</button>
-      </div>
-    </div>
   </section>
 
   <!-- ── SUBMISSIONS TRACKER PANEL (Admin Only) ── -->
@@ -648,6 +608,68 @@
         <span id="loginBtnLbl">Unlock Admin Access</span>
       </button>
       <div class="modal-hint">Default accounts: <code>admin</code> or <code>jawad</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SYSTEM HEALTH & DATABASE DIAGNOSTICS MODAL
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="healthModal">
+  <div class="modal-card" style="max-width:540px">
+    <button class="close-modal" onclick="closeHealthModal()">✕</button>
+    <div class="modal-hdr">
+      <div style="width:40px;height:40px;border-radius:10px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;font-size:22px;border:1.5px solid #a7f3d0">
+        🩺
+      </div>
+      <div>
+        <h3>System &amp; Database Health</h3>
+        <p>PostgreSQL Neon Cloud &bull; Live Infrastructure Diagnostics</p>
+      </div>
+    </div>
+    <div class="modal-body" style="padding:18px 22px">
+      <div class="health-status-banner" id="healthModalBanner" style="display:flex;align-items:center;gap:12px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:16px">
+        <span class="dot" id="healthModalDot" style="width:12px;height:12px"></span>
+        <div style="flex:1">
+          <div style="font-weight:700;color:#166534;font-size:14px" id="healthModalStatus">Connecting to PostgreSQL…</div>
+          <div style="font-size:11.5px;color:#15803d" id="healthModalSub">Serverless PostgreSQL cloud database is connected</div>
+        </div>
+      </div>
+
+      <div class="health-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="card" style="padding:10px 14px;background:#f8fafc">
+          <div style="font-size:11px;color:var(--text-lt);font-weight:600">DATABASE NAME</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px" id="hmDbName">neondb</div>
+        </div>
+        <div class="card" style="padding:10px 14px;background:#f8fafc">
+          <div style="font-size:11px;color:var(--text-lt);font-weight:600">QUERY LATENCY</div>
+          <div style="font-size:13px;font-weight:700;color:#059669;margin-top:2px" id="hmLatency">-- ms</div>
+        </div>
+        <div class="card" style="padding:10px 14px;background:#f8fafc">
+          <div style="font-size:11px;color:var(--text-lt);font-weight:600">CLUSTER CODE</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px" id="hmClusterCode">KX03099</div>
+        </div>
+        <div class="card" style="padding:10px 14px;background:#f8fafc">
+          <div style="font-size:11px;color:var(--text-lt);font-weight:600">SCHOOLS REGISTERED</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px" id="hmSchoolsCount">23 Schools</div>
+        </div>
+        <div class="card" style="padding:10px 14px;background:#f8fafc;grid-column:1 / -1">
+          <div style="font-size:11px;color:var(--text-lt);font-weight:600">LAST HEALTH CHECK TIME</div>
+          <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:2px" id="hmTimestamp">--</div>
+        </div>
+      </div>
+
+      <div style="font-size:11.5px;color:var(--text-lt);line-height:1.4;background:#f1f5f9;padding:10px 12px;border-radius:8px;margin-bottom:6px">
+        🔒 <b>Public Privacy:</b> Database connection strings, credentials, and ping latency are hidden from the public view and strictly isolated to this Health View.
+      </div>
+    </div>
+    <div class="modal-foot" style="display:flex;justify-content:space-between;align-items:center">
+      <a href="/api/health" target="_blank" class="btn btn-outline btn-sm" style="font-size:11.5px;text-decoration:none">
+        🔗 Raw /api/health JSON
+      </a>
+      <button class="btn btn-primary btn-sm" onclick="refreshHealthModal()" id="btnRefreshHealth">
+        <span>↻</span> <span>Run Diagnostic Ping</span>
+      </button>
     </div>
   </div>
 </div>
