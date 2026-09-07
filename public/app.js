@@ -166,6 +166,7 @@ async function checkHealth() {
 }
 
 async function openHealthModal() {
+  if (window.innerWidth <= 768) toggleSidebar(false);
   const modal = document.getElementById('healthModal');
   if (!modal) return;
   modal.classList.add('open');
@@ -282,6 +283,7 @@ async function saveClasses(schoolId, classesObj) {
 function isAdmin() { return !!state.authUser; }
 
 function openModal() {
+  if (window.innerWidth <= 768) toggleSidebar(false);
   document.getElementById('authModal').classList.add('open');
   document.getElementById('loginErr').style.display = 'none';
   document.getElementById('loginUser').value = '';
@@ -334,6 +336,7 @@ function doLogout() {
 }
 
 function requireAdmin(panel) {
+  if (window.innerWidth <= 768) toggleSidebar(false);
   if (isAdmin()) { switchPanel(panel); }
   else { state.pendingPanel = panel; openModal(); }
 }
@@ -384,15 +387,27 @@ function updateAuthUI() {
 function toggleSidebar(forceState) {
   const sb = document.getElementById('sidebar');
   const bd = document.getElementById('sidebarBackdrop');
+  const menuBtn = document.getElementById('mobileMenuBtn');
   if (!sb) return;
-  const shouldOpen = (typeof forceState === 'boolean') ? forceState : !sb.classList.contains('sb-open');
+
+  const isCurrentlyOpen = sb.classList.contains('sb-open');
+  const shouldOpen = (typeof forceState === 'boolean') ? forceState : !isCurrentlyOpen;
+
   if (shouldOpen) {
     sb.classList.add('sb-open');
     if (bd) bd.classList.add('active');
+    if (menuBtn) {
+      menuBtn.classList.add('active');
+      menuBtn.setAttribute('aria-expanded', 'true');
+    }
     document.body.classList.add('sb-noscroll');
   } else {
     sb.classList.remove('sb-open');
     if (bd) bd.classList.remove('active');
+    if (menuBtn) {
+      menuBtn.classList.remove('active');
+      menuBtn.setAttribute('aria-expanded', 'false');
+    }
     document.body.classList.remove('sb-noscroll');
   }
 }
@@ -400,21 +415,85 @@ function toggleSidebar(forceState) {
 function toggleLetterhead(forceState) {
   const lh = document.getElementById('letterhead');
   const sb = document.getElementById('statusBar');
+  const btn = document.getElementById('btnToggleHeader');
   const icon = document.getElementById('bannerToggleIcon');
   const label = document.getElementById('bannerToggleLabel');
   if (!lh) return;
+
   const isHidden = (typeof forceState === 'boolean') ? forceState : !lh.classList.contains('banner-hidden');
+
   if (isHidden) {
     lh.classList.add('banner-hidden');
     if (sb) sb.classList.add('banner-hidden');
+    if (btn) btn.classList.remove('active');
     if (icon) icon.textContent = 'ℹ️';
     if (label) label.textContent = 'Info';
   } else {
     lh.classList.remove('banner-hidden');
     if (sb) sb.classList.remove('banner-hidden');
+    if (btn) btn.classList.add('active');
     if (icon) icon.textContent = '✕';
-    if (label) label.textContent = 'Hide';
+    if (label) label.textContent = 'Close';
   }
+}
+
+function initMobileDrawerGestures() {
+  const sb = document.getElementById('sidebar');
+  if (!sb) return;
+
+  let startX = 0;
+  let startY = 0;
+  let isTracking = false;
+
+  document.addEventListener('touchstart', (e) => {
+    if (window.innerWidth > 768) return;
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    const isOpen = sb.classList.contains('sb-open');
+
+    // Track touch if drawer is open or touch begins within 35px of left screen edge
+    if (isOpen || startX < 35) {
+      isTracking = true;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!isTracking || window.innerWidth > 768) return;
+    const touch = e.touches[0];
+    const diffX = touch.clientX - startX;
+    const diffY = touch.clientY - startY;
+
+    // If vertical gesture is dominant, cancel drawer tracking
+    if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 25) {
+      isTracking = false;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    if (!isTracking || window.innerWidth > 768) return;
+    isTracking = false;
+    const touch = e.changedTouches[0];
+    const diffX = touch.clientX - startX;
+    const isOpen = sb.classList.contains('sb-open');
+
+    // Swipe left to close open drawer
+    if (isOpen && diffX < -50) {
+      toggleSidebar(false);
+    }
+    // Swipe right from screen edge to open drawer
+    else if (!isOpen && startX < 35 && diffX > 60) {
+      toggleSidebar(true);
+    }
+  }, { passive: true });
+
+  // Escape key closes mobile drawer
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sb.classList.contains('sb-open')) {
+      toggleSidebar(false);
+    }
+  });
 }
 
 window.toggleSidebar = toggleSidebar;
@@ -1976,6 +2055,10 @@ async function init() {
   updateAuthUI();
   checkHealth();
   setInterval(checkHealth, 15000);
+  if (window.innerWidth <= 768) {
+    toggleLetterhead(true);
+  }
+  initMobileDrawerGestures();
   await loadData();
 }
 

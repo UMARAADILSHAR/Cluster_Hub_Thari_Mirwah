@@ -159,10 +159,14 @@
      MOBILE TOP BAR (Visible <= 768px)
 ══════════════════════════════════════ -->
 <header id="mobileTopBar" class="mobile-only">
-  <button class="btn-mobile-icon" onclick="toggleSidebar(true)" aria-label="Open Navigation Menu">
-    <span style="font-size:22px;line-height:1">☰</span>
+  <button class="btn-mobile-icon btn-hamburger" id="mobileMenuBtn" onclick="toggleSidebar()" aria-label="Toggle Navigation Menu" aria-expanded="false">
+    <div class="hamburger-bars">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
   </button>
-  <div class="mobile-brand">
+  <div class="mobile-brand" onclick="switchPanel('enrollment')" style="cursor:pointer" title="Go to Cluster Schools Directory">
     <img src="/logo.jpg" alt="Seal" class="mobile-logo">
     <div>
       <div class="mobile-title">GBHS Thari Mirwah</div>
@@ -170,10 +174,10 @@
     </div>
   </div>
   <div class="mobile-actions">
-    <button class="btn-mobile-toggle" id="btnToggleHeader" onclick="toggleLetterhead()" title="Show/hide top header information">
-      <span id="bannerToggleIcon">🔽</span> <span id="bannerToggleLabel">Info</span>
+    <button class="btn-mobile-toggle" id="btnToggleHeader" onclick="toggleLetterhead()" title="Show/hide official header information">
+      <span id="bannerToggleIcon">ℹ️</span> <span id="bannerToggleLabel">Info</span>
     </button>
-    <button class="btn-mobile-icon" onclick="sharePortalOnWhatsApp()" title="Share on WhatsApp" style="color:#25d366">
+    <button class="btn-mobile-icon btn-whatsapp-icon" onclick="sharePortalOnWhatsApp()" title="Share on WhatsApp" style="color:#25d366">
       <span style="font-size:17px">📲</span>
     </button>
     <button class="btn-mobile-icon" id="mobileLoginBtn" onclick="openModal()" title="Admin Login">
