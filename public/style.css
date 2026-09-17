@@ -1,33 +1,37 @@
 /* ═══════════════════════════════════════════
-   DESIGN TOKENS
+   ENTERPRISE DESIGN TOKENS
 ═══════════════════════════════════════════ */
 :root {
-  --primary:    #0f6c3a;
-  --primary-lt: #e7f5ee;
-  --primary-md: #c2e4cf;
-  --primary-dk: #0a4a28;
-  --accent:     #d4900a;
-  --danger:     #dc2626;
-  --danger-lt:  #fef2f2;
-  --warn:       #d97706;
-  --ok:         #16a34a;
-  --ok-lt:      #f0fdf4;
-  --white:      #ffffff;
-  --bg:         #f8f9fb;
-  --border:     #e5e8ec;
-  --border-md:  #d1d5db;
-  --text:       #111827;
-  --text-md:    #374151;
-  --text-lt:    #6b7280;
-  --text-xlt:   #9ca3af;
-  --sidebar-w:  256px;
-  --nav-h:      64px;
-  --radius:     10px;
-  --radius-sm:  6px;
-  --shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --shadow:     0 4px 16px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.05);
-  --shadow-md:  0 8px 32px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.06);
-  --font:       'Inter', -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+  --primary:      #047857;
+  --primary-lt:   #ecfdf5;
+  --primary-md:   #a7f3d0;
+  --primary-dk:   #064e3b;
+  --accent:       #d97706;
+  --accent-lt:    #fef3c7;
+  --danger:       #dc2626;
+  --danger-lt:    #fef2f2;
+  --warn:         #d97706;
+  --ok:           #059669;
+  --ok-lt:        #ecfdf5;
+  --white:        #ffffff;
+  --bg:           #f8fafc;
+  --surface:      #ffffff;
+  --border:       #e2e8f0;
+  --border-md:    #cbd5e1;
+  --text:         #0f172a;
+  --text-md:      #334155;
+  --text-lt:      #64748b;
+  --text-xlt:     #94a3b8;
+  --sidebar-w:    260px;
+  --nav-h:        64px;
+  --radius:       12px;
+  --radius-sm:    8px;
+  --shadow-xs:    0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm:    0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow:       0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-md:    0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-lg:    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.06);
+  --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* ═══════════════════════════════════════════
@@ -45,16 +49,16 @@ input, select, textarea { font-family: var(--font); }
 ═══════════════════════════════════════════ */
 #statusBar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: var(--primary-dk); color: #d1fae5;
+  background: #0f172a; color: #cbd5e1;
   height: 30px; display: flex; align-items: center;
   padding: 0 20px; gap: 20px;
   font-size: 11.5px; font-weight: 500;
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid #1e293b;
 }
 #statusBar .db-pill { display: flex; align-items: center; gap: 6px; }
-#statusBar .dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 5px #22c55e; transition: all .3s; }
-#statusBar .dot.err  { background: #ef4444; box-shadow: 0 0 5px #ef4444; }
-#statusBar .dot.sync { background: #f59e0b; box-shadow: 0 0 5px #f59e0b; }
+#statusBar .dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981; transition: all .3s; }
+#statusBar .dot.err  { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+#statusBar .dot.sync { background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
 #statusBar .sb-right { margin-left: auto; display: flex; align-items: center; gap: 12px; opacity: .85; }
 
 /* ═══════════════════════════════════════════
@@ -320,6 +324,86 @@ input, select, textarea { font-family: var(--font); }
 .chip-hub  { background: #fef3c7; color: #92400e; }
 .chip-cell { background: var(--primary-lt); color: var(--primary); }
 .chip-type { background: #ede9fe; color: #5b21b6; }
+
+/* ═══════════════════════════════════════════
+   CLASS QUICK-JUMP NAVIGATOR BAR
+═══════════════════════════════════════════ */
+.class-quicknav-bar {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.quicknav-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.quicknav-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.quicknav-sub {
+  font-size: 11px;
+  color: var(--text-lt);
+}
+.quicknav-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.quicknav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-md);
+  background: #f8fafc;
+  color: var(--text-md);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.quicknav-pill:hover {
+  background: #f1f5f9;
+  border-color: var(--primary-md);
+  color: var(--primary-dk);
+  transform: translateY(-1px);
+}
+.quicknav-pill.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary-dk);
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+}
+.qnav-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+.qnav-pill-dot.ok {
+  background: #10b981;
+}
+.qnav-pill-dot.bad {
+  background: #ef4444;
+}
+.qnav-pill-dot.empty {
+  background: #cbd5e1;
+}
 
 /* ═══════════════════════════════════════════
    CLASS ENROLLMENT CARD

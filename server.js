@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const db = require('./db.js');
+const reports = require('./reports.js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -247,6 +248,99 @@ app.get('/api/submissions', async (req, res) => {
   }
 });
 
+
+// ═════════════════════════════════════════════════════════════════
+// SERVER-SIDE OFFICIAL REPORT & PRINT ENDPOINTS
+// ═════════════════════════════════════════════════════════════════
+
+// 1. Single School Proforma Report
+app.get('/reports/school/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const autoPrint = req.query.print === '1' || req.query.print === 'true';
+    const clusters = await db.getAllClusters();
+    let targetSchool = null;
+    let targetCluster = null;
+
+    for (const c of clusters) {
+      const s = c.schools.find(sch => sch.id === id || sch.semis === id);
+      if (s) {
+        targetSchool = s;
+        targetCluster = c;
+        break;
+      }
+    }
+
+    if (!targetSchool) {
+      return res.status(404).send('<h2>Error 404: School not found</h2><p><a href="/">← Return to Portal</a></p>');
+    }
+
+    const html = reports.renderSchoolReport(targetSchool, targetCluster, autoPrint);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (err) {
+    console.error('Error rendering school report:', err);
+    res.status(500).send(`<h2>Error rendering report</h2><p>${err.message}</p>`);
+  }
+});
+
+// 2. Complete Cluster Booklet (All 23 Schools)
+app.get('/reports/all', async (req, res) => {
+  try {
+    const clusterCode = req.query.cluster || 'KX03099';
+    const autoPrint = req.query.print === '1' || req.query.print === 'true';
+    const clusters = await db.getAllClusters();
+    const cluster = clusters.find(c => c.code === clusterCode) || clusters[0];
+
+    if (!cluster) {
+      return res.status(404).send('<h2>Error 404: Cluster not found</h2>');
+    }
+
+    const html = reports.renderAllSchoolsReport(cluster, autoPrint);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (err) {
+    console.error('Error rendering cluster booklet:', err);
+    res.status(500).send(`<h2>Error rendering report</h2><p>${err.message}</p>`);
+  }
+});
+
+// 3. Cluster Master Summary Matrix
+app.get('/reports/summary', async (req, res) => {
+  try {
+    const clusterCode = req.query.cluster || 'KX03099';
+    const autoPrint = req.query.print === '1' || req.query.print === 'true';
+    const clusters = await db.getAllClusters();
+    const cluster = clusters.find(c => c.code === clusterCode) || clusters[0];
+
+    if (!cluster) {
+      return res.status(404).send('<h2>Error 404: Cluster not found</h2>');
+    }
+
+    const html = reports.renderClusterSummaryReport(cluster, autoPrint);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (err) {
+    console.error('Error rendering cluster summary:', err);
+    res.status(500).send(`<h2>Error rendering report</h2><p>${err.message}</p>`);
+  }
+});
+
+// 4. Submissions Status & Defaulters Proforma
+app.get('/reports/submissions', async (req, res) => {
+  try {
+    const clusterCode = req.query.cluster || 'KX03099';
+    const autoPrint = req.query.print === '1' || req.query.print === 'true';
+    const report = await db.getClusterSubmissions(clusterCode);
+
+    const html = reports.renderSubmissionsReport(report, autoPrint);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (err) {
+    console.error('Error rendering submissions report:', err);
+    res.status(500).send(`<h2>Error rendering report</h2><p>${err.message}</p>`);
+  }
+});
 
 // Fallback to index.html for single-page routing
 app.get('*', (req, res) => {

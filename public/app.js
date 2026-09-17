@@ -944,10 +944,53 @@ function openSchoolEntryPage(schoolId) {
   }
 
   renderClassCards(school);
+  renderClassQuicknav(school);
   renderValBanner(school);
 
   switchPanel('entry');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderClassQuicknav(school) {
+  const container = document.getElementById('classQuicknavPills');
+  if (!container) return;
+  const classes = classNums(school);
+  container.innerHTML = classes.map((cls, idx) => {
+    const cd = school.classes[cls] || {};
+    const t = classTotals(cd);
+    const badgeClass = t.match && t.g > 0 ? 'ok' : t.g === 0 ? 'empty' : 'bad';
+    return `
+      <button type="button" class="quicknav-pill ${idx === 0 ? 'active' : ''}" id="qnav-pill-${cls}" onclick="jumpToClass(${cls})">
+        <span class="qnav-pill-title">${classTag(cls)}</span>
+        <span class="qnav-pill-dot ${badgeClass}" id="qnav-dot-${cls}"></span>
+      </button>
+    `;
+  }).join('');
+}
+
+function jumpToClass(cls) {
+  document.querySelectorAll('.quicknav-pill').forEach(p => p.classList.remove('active'));
+  const pill = document.getElementById(`qnav-pill-${cls}`);
+  if (pill) pill.classList.add('active');
+
+  const body = document.getElementById(`body-${cls}`);
+  const chev = document.getElementById(`chev-${cls}`);
+  if (body && !body.classList.contains('open')) {
+    body.classList.add('open');
+    if (chev) chev.classList.add('open');
+  }
+
+  const card = document.getElementById(`classCard-${cls}`);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      const inp = document.getElementById(`f-${cls}-boys`);
+      if (inp) {
+        inp.focus();
+        if (inp.select) inp.select();
+      }
+    }, 280);
+  }
 }
 
 function backToSchoolsDirectory() {
@@ -1134,6 +1177,24 @@ function attachClassListeners(card, cls, school) {
       updateProgressKPIs();
       triggerAutoSave(school);
     });
+
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const inputs = Array.from(card.querySelectorAll('input[data-f], select[data-f]'));
+        const idx = inputs.indexOf(inp);
+        if (idx >= 0 && idx < inputs.length - 1) {
+          inputs[idx + 1].focus();
+        } else {
+          // Advance to next class in sequence
+          const cNums = classNums(school);
+          const cIdx = cNums.indexOf(cls);
+          if (cIdx >= 0 && cIdx < cNums.length - 1) {
+            jumpToClass(cNums[cIdx + 1]);
+          }
+        }
+      }
+    });
   });
 }
 
@@ -1146,11 +1207,18 @@ function refreshClassUI(cls, cd) {
   const tcG = document.getElementById(`tc-g-${cls}`);
   if (tcG) tcG.innerHTML = `<span class="tn">${t.g}</span><span class="tl">AUTO TOTAL</span>`;
 
-  // Religion total
+  // Religion total with exact difference calculation
   const tcR = document.getElementById(`tc-r-${cls}`);
   if (tcR) {
-    tcR.className = `total-cell ${rOk ? 'ok' : rBad ? 'bad' : ''}`;
-    tcR.innerHTML = `<span class="tn">${t.r}</span><span class="tl">${rBad ? '⚠ MISMATCH' : rOk ? '✓ MATCH' : 'AUTO TOTAL'}</span>`;
+    tcR.className = `total-cell compact-cell ${rOk ? 'ok' : rBad ? 'bad' : ''}`;
+    let diffMsg = 'AUTO TOTAL';
+    if (rBad) {
+      const diff = Math.abs(t.g - t.r);
+      diffMsg = t.r < t.g ? `⚠ NEED +${diff}` : `⚠ EXCESS -${diff}`;
+    } else if (rOk) {
+      diffMsg = '✓ MATCH';
+    }
+    tcR.innerHTML = `<span class="tn">${t.r}</span><span class="tl">${diffMsg}</span>`;
   }
 
   // Header badge and running total
@@ -1158,6 +1226,12 @@ function refreshClassUI(cls, cd) {
   const clsTotal = document.getElementById(`clsTotal-${cls}`);
   if (badge)    badge.innerHTML        = badgeHtml(t);
   if (clsTotal) clsTotal.textContent  = t.g > 0 ? `${t.g} students` : '';
+
+  // Class quicknav dot
+  const qDot = document.getElementById(`qnav-dot-${cls}`);
+  if (qDot) {
+    qDot.className = `qnav-pill-dot ${t.match && t.g > 0 ? 'ok' : t.g === 0 ? 'empty' : 'bad'}`;
+  }
 }
 
 function toggleCard(cls) {
@@ -1211,6 +1285,8 @@ let autoSaveTimeout = null;
 function triggerAutoSave(school) {
   clearTimeout(autoSaveTimeout);
   syncStatus.textContent = 'Unsaved…'; dbDot.className = 'dot sync';
+  const fsEl = document.getElementById('footerSaveStatus');
+  if (fsEl) fsEl.innerHTML = '<span style="color:#d97706;font-weight:600">● Unsaved changes…</span>';
   autoSaveTimeout = setTimeout(() => performSave(school, true), 800);
 }
 
@@ -1258,7 +1334,10 @@ async function performSave(school, isAuto) {
 window.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
     e.preventDefault();
-    if (document.getElementById('panel-enrollment').classList.contains('active')) handleSave();
+    if (document.getElementById('panel-entry')?.classList.contains('active') ||
+        document.getElementById('panel-enrollment')?.classList.contains('active')) {
+      handleSave();
+    }
   }
 });
 
@@ -1537,9 +1616,7 @@ function printCurrentSchoolReport(specifiedSchoolId) {
     alert('Please select a school first to print its official proforma.');
     return;
   }
-  const container = document.getElementById('printReportContainer');
-  container.innerHTML = generateSchoolReportHtml(school, cluster);
-  setTimeout(() => window.print(), 100);
+  window.open(`/reports/school/${school.id}?print=1`, '_blank');
 }
 
 function printSelectedSchoolReport() {
@@ -1551,126 +1628,17 @@ function printSelectedSchoolReport() {
     alert('Please choose a school to print.');
     return;
   }
-  const container = document.getElementById('printReportContainer');
-  container.innerHTML = generateSchoolReportHtml(school, cluster);
-  setTimeout(() => window.print(), 100);
+  window.open(`/reports/school/${school.id}?print=1`, '_blank');
 }
 
 function printAllSchoolsReport() {
   const cluster = activeCluster(); if (!cluster) return;
-  const container = document.getElementById('printReportContainer');
-  let fullHtml = '';
-  cluster.schools.forEach(s => {
-    fullHtml += generateSchoolReportHtml(s, cluster);
-  });
-  container.innerHTML = fullHtml;
-  setTimeout(() => window.print(), 150);
+  window.open(`/reports/all?cluster=${cluster.code}&print=1`, '_blank');
 }
 
 function printClusterSummaryReport() {
   const cluster = activeCluster(); if (!cluster) return;
-  const g = clusterTotals(cluster);
-  const container = document.getElementById('printReportContainer');
-
-  let rows = '';
-  cluster.schools.forEach((s, i) => {
-    const st = schoolTotals(s);
-    const nums = classNums(s);
-    const totalBoys = nums.reduce((acc, cls) => acc + (s.classes[cls]?.boys || 0), 0);
-    const totalGirls = nums.reduce((acc, cls) => acc + (s.classes[cls]?.girls || 0), 0);
-    const totalMuslim = nums.reduce((acc, cls) => acc + (s.classes[cls]?.muslim || 0), 0);
-    const totalNonMuslim = nums.reduce((acc, cls) => acc + (s.classes[cls]?.nonMuslim || 0), 0);
-
-    rows += `
-      <tr>
-        <td>${i + 1}</td>
-        <td><b>${s.isHub ? 'HUB' : s.cell}</b></td>
-        <td style="text-align:left;font-weight:700">${esc(s.name)}</td>
-        <td>${s.type}</td>
-        <td>${esc(s.semis || '—')}</td>
-        <td style="text-align:left">${esc(s.headTeacher || '—')}</td>
-        <td>${totalBoys}</td>
-        <td>${totalGirls}</td>
-        <td style="font-weight:700">${st.total}</td>
-        <td>${totalMuslim}</td>
-        <td>${totalNonMuslim}</td>
-        <td><span class="${st.match ? 'p-tag-ok' : 'p-tag-bad'}">${st.match ? '✓ OK' : '⚠ Mismatch'}</span></td>
-      </tr>
-    `;
-  });
-
-  container.innerHTML = `
-    <div class="print-page">
-      <div>
-        <div class="p-header">
-          <img src="/logo.jpg" alt="Seal" class="p-logo">
-          <div class="p-head-text">
-            <div class="p-dept">School Education &amp; Literacy Department · Government of Sindh</div>
-            <div class="p-title">Office of the Headmaster · Cluster Hub GBHS Thari Mirwah</div>
-            <div class="p-sub">Taluka Mirwah · District Khairpur Mirs · Cluster Code: <b>${esc(cluster.code)}</b></div>
-          </div>
-          <div class="p-creator-badge">
-            <div style="font-size:6.5pt;text-transform:uppercase;color:#1e40af;font-weight:700">Website Created By</div>
-            <div class="p-cr-name">Asif Ali Shar</div>
-            <div style="font-size:6.5pt;color:#475569">JEST, GBHS Thari Mirwah</div>
-          </div>
-        </div>
-
-        <div class="p-doc-badge">Cluster Master Summary Matrix · All 23 Schools (2025–2026)</div>
-
-        <table class="p-table" style="font-size:7.5pt">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Cell</th>
-              <th>School Name</th>
-              <th>Type</th>
-              <th>SEMIS</th>
-              <th>Head Teacher</th>
-              <th>Boys</th>
-              <th>Girls</th>
-              <th>Total</th>
-              <th>Muslim</th>
-              <th>Non-Muslim</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows}
-            <tr class="p-total-row">
-              <td colspan="6" style="text-align:right;font-weight:800">CLUSTER GRAND TOTAL (23 SCHOOLS):</td>
-              <td>${g.boys}</td>
-              <td>${g.girls}</td>
-              <td style="font-weight:800">${g.total}</td>
-              <td>${g.muslim}</td>
-              <td>${g.nonMuslim}</td>
-              <td><span class="p-tag-ok">✓ VERIFIED</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div>
-        <div class="p-sigs">
-          <div class="p-sig-box">
-            <div style="height:32px"></div>
-            <div class="p-sig-title">Headmaster / Cluster Hub Supervisor</div>
-            <div class="p-sig-sub">GBHS Thari Mirwah (Cluster Code: ${esc(cluster.code)})</div>
-          </div>
-          <div class="p-sig-box">
-            <div style="height:32px"></div>
-            <div class="p-sig-title">District Education Officer (ES&amp;HS / Primary)</div>
-            <div class="p-sig-sub">District Khairpur Mirs, Sindh</div>
-          </div>
-        </div>
-
-        <div class="p-footer-note">
-          Cluster Hub Management Information System • Official Government Document • Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah • Printed on: ${new Date().toLocaleString()}
-        </div>
-      </div>
-    </div>
-  `;
-  setTimeout(() => window.print(), 100);
+  window.open(`/reports/summary?cluster=${cluster.code}&print=1`, '_blank');
 }
 
 function doPrint() { printAllSchoolsReport(); }
@@ -2020,32 +1988,14 @@ function generateSubmissionsReportHtml(rep) {
 }
 
 function printSubmissionsReport() {
-  const rep = subState.data;
-  if (!rep) {
-    loadSubmissionsReport(true).then(() => {
-      if (subState.data) {
-        const container = document.getElementById('printReportContainer');
-        container.innerHTML = generateSubmissionsReportHtml(subState.data);
-        setTimeout(() => window.print(), 100);
-      }
-    });
-    return;
-  }
-  const container = document.getElementById('printReportContainer');
-  container.innerHTML = generateSubmissionsReportHtml(rep);
-  setTimeout(() => window.print(), 100);
+  const cluster = activeCluster();
+  const code = cluster?.code || 'KX03099';
+  window.open(`/reports/submissions?cluster=${code}&print=1`, '_blank');
 }
 
 function printSingleSchoolById(schoolId) {
-  const cluster = activeCluster(); if (!cluster) return;
-  const school = cluster.schools.find(s => s.id === schoolId);
-  if (!school) {
-    alert('School not found.');
-    return;
-  }
-  const container = document.getElementById('printReportContainer');
-  container.innerHTML = generateSchoolReportHtml(school, cluster);
-  setTimeout(() => window.print(), 100);
+  if (!schoolId) return;
+  window.open(`/reports/school/${schoolId}?print=1`, '_blank');
 }
 
 /* ─────────────────────────────────────
