@@ -362,11 +362,11 @@ function updateAuthUI() {
   if (mobileLoginBtn) {
     if (admin) {
       mobileLoginBtn.title = `Admin: ${state.authUser.username} (Tap to logout)`;
-      mobileLoginBtn.innerHTML = `<span style="font-size:11px;font-weight:700;color:var(--success);background:#dcfce7;padding:3px 6px;border-radius:4px">👤 Admin</span>`;
+      mobileLoginBtn.innerHTML = `<span style="font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-lt);padding:3px 6px;border-radius:4px">Admin</span>`;
       mobileLoginBtn.onclick = doLogout;
     } else {
       mobileLoginBtn.title = 'Admin Login';
-      mobileLoginBtn.innerHTML = `<span style="font-size:15px">🔒</span>`;
+      mobileLoginBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
       mobileLoginBtn.onclick = openModal;
     }
   }
@@ -377,7 +377,7 @@ function updateAuthUI() {
   const sbAccess = document.getElementById('sbAccess');
   if (sbAccess)
     sbAccess.innerHTML = admin
-      ? `<span style="color:var(--primary)">🟢 Admin: ${state.authUser.username}</span>`
+      ? `<span style="color:var(--primary);font-weight:700">Admin: ${esc(state.authUser.username)}</span>`
       : 'Public Entry';
 }
 
@@ -426,13 +426,13 @@ function toggleLetterhead(forceState) {
     lh.classList.add('banner-hidden');
     if (sb) sb.classList.add('banner-hidden');
     if (btn) btn.classList.remove('active');
-    if (icon) icon.textContent = 'ℹ️';
+    if (icon) icon.textContent = 'Info';
     if (label) label.textContent = 'Info';
   } else {
     lh.classList.remove('banner-hidden');
     if (sb) sb.classList.remove('banner-hidden');
     if (btn) btn.classList.add('active');
-    if (icon) icon.textContent = '✕';
+    if (icon) icon.textContent = 'Hide';
     if (label) label.textContent = 'Close';
   }
 }
@@ -572,7 +572,7 @@ function populateSchoolSelect() {
     .forEach(cell => {
       html += `<optgroup label="${cell === 'HUB' ? 'Hub School' : 'Cell ' + cell}">`;
       groups[cell].forEach(s => {
-        html += `<option value="${s.id}">${s.isHub ? '★ ' : ''}${esc(s.name)}</option>`;
+        html += `<option value="${s.id}">${s.isHub ? '[HUB] ' : ''}${esc(s.name)}</option>`;
       });
       html += '</optgroup>';
     });
@@ -666,11 +666,13 @@ function renderSchoolsGrid() {
       <div class="sg-cell-section">
         <div class="sg-cell-header">
           <div class="sg-cell-header-left">
-            <span class="sg-cell-crown">👑</span>
+            <span class="sg-cell-crown">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            </span>
             <span class="sg-cell-name">${esc(cellTitle)}</span>
           </div>
           <div class="sg-cell-header-right">
-            <span class="sg-cell-count">${cellBadgeCount}</span>
+            <span class="sg-cell-count">${cellBadgeCount} Schools</span>
           </div>
         </div>
 
@@ -684,7 +686,7 @@ function renderSchoolsGrid() {
   if (totalMatched === 0) {
     html = `
       <div class="sg-empty-state">
-        <span style="font-size:36px">🔍</span>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <h3>No schools matched "${esc(schoolGridState.searchKeyword)}"</h3>
         <p>Try searching for a different school name, SEMIS code, or clear the filter.</p>
         <button class="btn btn-outline btn-sm" onclick="clearSchoolSearch()">Clear Search</button>
@@ -700,7 +702,6 @@ function renderSingleSchoolCard(school) {
   const isHub = Boolean(school.isHub);
   const isGirls = school.type.startsWith('GG');
   const avatarClass = isHub ? 'hub' : (isGirls ? 'girls' : 'boys');
-  const avatarIcon = isHub ? '🏛️' : (school.type.includes('HS') ? '🏛️' : (isGirls ? '👧' : '👦'));
 
   // Calculate classes filled count
   let filledClasses = 0;
@@ -719,63 +720,59 @@ function renderSingleSchoolCard(school) {
          id="schoolCard-${school.id}"
          data-school-id="${school.id}"
          onclick="openSchoolWithSecurityCheck('${school.id}')"
-         title="${isUnlocked ? 'Click to open enrollment entry form for ' + esc(school.name) : 'Security Protected — Personal ID required to access ' + esc(school.name)}">
+         title="${isUnlocked ? 'Click to open enrollment entry form for ' + esc(school.name) : 'Personal ID required to access ' + esc(school.name)}">
       
       <div class="sg-card-top">
         <div class="sg-avatar ${avatarClass}">
-          <span>${avatarIcon}</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </div>
         <div class="sg-card-header-text">
           <div class="sg-school-name" title="${esc(school.name)}">
             <span class="sg-name-txt">${esc(school.name)}</span>
-            ${isHub ? '<span class="sg-tag-hub">★ Hub</span>' : ''}
-            ${isHead ? '<span class="sg-tag-head">Head</span>' : ''}
+            ${isHub ? '<span class="sg-tag-hub">HUB</span>' : ''}
+            ${isHead ? '<span class="sg-tag-head">CELL HUB</span>' : ''}
           </div>
           <div class="sg-card-meta">
-            <span class="sg-semis-chip">🪪 ${esc(school.semis || 'N/A')}</span>
+            <span class="sg-semis-chip">SEMIS: ${esc(school.semis || 'N/A')}</span>
             <span class="sg-cell-tag">Cell ${esc(school.cell)}</span>
-            <span class="sg-type-chip">• ${esc(school.type)}</span>
+            <span class="sg-type-chip">${esc(school.type)}</span>
           </div>
         </div>
-        <div class="sg-chevron" title="${isUnlocked ? 'Unlocked (Access Granted)' : 'Protected with Personal ID'}">${isUnlocked ? '🔓' : '🔒'}</div>
+        <div class="sg-chevron">
+          <span class="sg-lock-status ${isUnlocked ? 'unlocked' : 'locked'}">${isUnlocked ? 'Unlocked' : 'PIN Protected'}</span>
+        </div>
       </div>
 
       <!-- Enrollment Data inside the card -->
       <div class="sg-enrollment-box ${isSubmitted ? 'submitted' : 'pending'}">
         <div class="sg-eb-top">
-          <span class="sg-eb-status">${isSubmitted ? '✅ SUBMITTED' : '⏳ PENDING'}</span>
+          <span class="sg-eb-status">${isSubmitted ? 'SUBMITTED' : 'PENDING'}</span>
           <span class="sg-eb-total">${isSubmitted ? `<b>${totals.total}</b> Enrolled` : '0 Enrolled'}</span>
         </div>
         <div class="sg-eb-breakdown">
           ${isSubmitted ? `
-            <span>👦 Boys: <b>${totals.boys}</b></span>
-            <span>👧 Girls: <b>${totals.girls}</b></span>
-            <span>📚 Cls: <b>${filledClasses}/${expectedClasses}</b></span>
+            <span>Boys: <b>${totals.boys}</b></span>
+            <span>Girls: <b>${totals.girls}</b></span>
+            <span>Classes: <b>${filledClasses}/${expectedClasses}</b></span>
           ` : `
             <span>Classes: <b>${formatClassRange(school.classMin, school.classMax)}</b></span>
-            <span class="sg-eb-prompt">${isUnlocked ? '👉 Enter Data' : '🔒 Enter PID'}</span>
+            <span class="sg-eb-prompt">${isUnlocked ? 'Enter Data' : 'Enter Personal ID'}</span>
           `}
         </div>
       </div>
 
-      <!-- Action buttons matching official portal -->
+      <!-- Action buttons -->
       <div class="sg-actions-row">
         <button type="button" class="sg-btn-action btn-enrollment"
                 onclick="event.stopPropagation(); openSchoolWithSecurityCheck('${school.id}')"
-                title="${isUnlocked ? 'Open dedicated enrollment entry page' : 'Protected — Enter Personal ID to open'}">
-          <span>${isUnlocked ? '📊 Enter Enrollment' : '🔒 Enter Personal ID'}</span>
+                title="${isUnlocked ? 'Open dedicated enrollment entry page' : 'Enter Personal ID to open'}">
+          <span>${isUnlocked ? 'Open Enrollment Entry' : 'Unlock with Personal ID'}</span>
         </button>
-        <div class="sg-actions-aux">
-          <button type="button" class="sg-btn-icon btn-staff"
-                  onclick="event.stopPropagation(); toast('Staff Data module scheduled for Phase 2', 'info')"
-                  title="Staff Data (Scheduled Phase 2)">👥</button>
-          <button type="button" class="sg-btn-icon btn-vacancy"
-                  onclick="event.stopPropagation(); toast('Vacancy module scheduled for Phase 2', 'info')"
-                  title="Vacancy Module (Scheduled Phase 2)">⚡</button>
-          <button type="button" class="sg-btn-icon btn-facilities"
-                  onclick="event.stopPropagation(); toast('Facilities module scheduled for Phase 2', 'info')"
-                  title="Facilities Module (Scheduled Phase 2)">🏫</button>
-        </div>
+        <button type="button" class="sg-btn-action-outline"
+                onclick="event.stopPropagation(); printSingleSchoolById('${school.id}')"
+                title="Print official proforma">
+          <span>Print Proforma</span>
+        </button>
       </div>
     </div>
   `;
@@ -844,7 +841,7 @@ function togglePinVisibility() {
   if (!inp) return;
   const isPass = inp.type === 'password';
   inp.type = isPass ? 'text' : 'password';
-  if (btn) btn.textContent = isPass ? '🔒' : '👁️';
+  if (btn) btn.textContent = isPass ? 'Show' : 'Hide';
 }
 
 async function submitSchoolPin(event) {
@@ -864,7 +861,7 @@ async function submitSchoolPin(event) {
     return;
   }
 
-  if (btn) btn.innerHTML = '<span>⏳</span> <span>Verifying…</span>';
+  if (btn) btn.innerHTML = '<span>Verifying…</span>';
   if (errEl) errEl.style.display = 'none';
 
   try {
@@ -886,7 +883,7 @@ async function submitSchoolPin(event) {
     const targetSchoolId = pendingUnlockSchoolId;
     closeSchoolPinModal();
     openSchoolEntryPage(targetSchoolId);
-    toast('🔓 Access granted! Personal ID verified.', 'ok');
+    toast('Access granted! Personal ID verified.', 'ok');
   } catch (err) {
     if (errEl) {
       errEl.textContent = err.message || 'Incorrect Personal ID.';
@@ -894,7 +891,7 @@ async function submitSchoolPin(event) {
     }
     if (inp) inp.select();
   } finally {
-    if (btn) btn.innerHTML = '<span>🔓 Unlock &amp; Open</span>';
+    if (btn) btn.innerHTML = '<span>Unlock &amp; Open</span>';
   }
 }
 
@@ -937,8 +934,8 @@ function openSchoolEntryPage(schoolId) {
       <div class="meta-chip">Classes: <b>${formatClassRange(school.classMin, school.classMax)}</b></div>
       ${school.semis ? `<div class="meta-chip">SEMIS: <b>${esc(school.semis)}</b></div>` : ''}
       ${school.headTeacher ? `<div class="meta-chip">Head: <b>${esc(school.headTeacher)}</b></div>` : ''}
-      <div class="meta-chip" style="margin-left:auto;background:#ecfdf5;border-color:#a7f3d0;color:#15803d">
-        <span>🔓 Personal ID Verified</span>
+      <div class="meta-chip" style="margin-left:auto;background:#ffffff;border:1px solid #10b981;color:#047857;font-weight:700">
+        <span>Personal ID Verified</span>
       </div>
     `;
   }
@@ -1079,9 +1076,9 @@ function renderClassCards(school) {
 }
 
 function badgeHtml(t) {
-  if (t.match && t.g > 0) return '<span class="class-badge ok">✓ Balanced</span>';
+  if (t.match && t.g > 0) return '<span class="class-badge ok">Balanced</span>';
   if (t.g === 0)           return '<span class="class-badge empty">Empty</span>';
-  return                          '<span class="class-badge bad">⚠ Mismatch</span>';
+  return                          '<span class="class-badge bad">Mismatch</span>';
 }
 
 function classFormHtml(cls, cd, t) {
@@ -1091,14 +1088,14 @@ function classFormHtml(cls, cd, t) {
     <div class="enroll-grid-2x2">
       <!-- STEP 1: GENDER -->
       <div class="enroll-sec">
-        <div class="enroll-title">① Gender Count</div>
+        <div class="enroll-title">1. Gender Count</div>
         <div class="g3 compact-g3">
           <div class="form-group">
-            <label class="form-label">👦 Boys</label>
+            <label class="form-label">Boys</label>
             <input type="number" class="form-input num compact" min="0" value="${cd.boys||0}" data-f="boys" id="f-${cls}-boys" placeholder="0">
           </div>
           <div class="form-group">
-            <label class="form-label">👧 Girls</label>
+            <label class="form-label">Girls</label>
             <input type="number" class="form-input num compact" min="0" value="${cd.girls||0}" data-f="girls" id="f-${cls}-girls" placeholder="0">
           </div>
           <div class="form-group">
@@ -1112,21 +1109,21 @@ function classFormHtml(cls, cd, t) {
 
       <!-- STEP 2: RELIGION -->
       <div class="enroll-sec">
-        <div class="enroll-title">② Religion <span class="enroll-subtitle">(must match Gender)</span></div>
+        <div class="enroll-title">2. Religion Breakdown <span class="enroll-subtitle">(must match Gender)</span></div>
         <div class="g3 compact-g3">
           <div class="form-group">
-            <label class="form-label">☪ Muslim</label>
+            <label class="form-label">Muslim</label>
             <input type="number" class="form-input num compact" min="0" value="${cd.muslim||0}" data-f="muslim" id="f-${cls}-muslim" placeholder="0">
           </div>
           <div class="form-group">
-            <label class="form-label">✝ Non-Muslim</label>
+            <label class="form-label">Non-Muslim</label>
             <input type="number" class="form-input num compact" min="0" value="${cd.nonMuslim||0}" data-f="nonMuslim" id="f-${cls}-nonMuslim" placeholder="0">
           </div>
           <div class="form-group">
             <label class="form-label">Religion Total</label>
             <div class="total-cell compact-cell ${rOk ? 'ok' : rBad ? 'bad' : ''}" id="tc-r-${cls}">
               <span class="tn">${t.r}</span>
-              <span class="tl">${rBad ? '⚠ MISMATCH' : rOk ? '✓ MATCH' : 'AUTO TOTAL'}</span>
+              <span class="tl">${rBad ? 'MISMATCH' : rOk ? 'MATCH' : 'AUTO TOTAL'}</span>
             </div>
           </div>
         </div>
@@ -1134,7 +1131,7 @@ function classFormHtml(cls, cd, t) {
 
       <!-- STEP 3: MEDIUM -->
       <div class="enroll-sec">
-        <div class="enroll-title">③ Medium of Instruction</div>
+        <div class="enroll-title">3. Medium of Instruction</div>
         <div class="form-group">
           <label class="form-label">Language of Teaching</label>
           <select class="form-select compact" data-f="medium" id="f-${cls}-medium">
@@ -1145,7 +1142,7 @@ function classFormHtml(cls, cd, t) {
 
       <!-- STEP 4: FACILITIES -->
       <div class="enroll-sec">
-        <div class="enroll-title">④ Facilities & Sections</div>
+        <div class="enroll-title">4. Facilities &amp; Sections</div>
         <div class="g2 compact-g2">
           <div class="form-group">
             <label class="form-label">Furniture Status</label>
@@ -1214,9 +1211,9 @@ function refreshClassUI(cls, cd) {
     let diffMsg = 'AUTO TOTAL';
     if (rBad) {
       const diff = Math.abs(t.g - t.r);
-      diffMsg = t.r < t.g ? `⚠ NEED +${diff}` : `⚠ EXCESS -${diff}`;
+      diffMsg = t.r < t.g ? `NEED +${diff}` : `EXCESS -${diff}`;
     } else if (rOk) {
-      diffMsg = '✓ MATCH';
+      diffMsg = 'MATCH';
     }
     tcR.innerHTML = `<span class="tn">${t.r}</span><span class="tl">${diffMsg}</span>`;
   }
@@ -1254,13 +1251,13 @@ function renderValBanner(school) {
     const st = schoolTotals(school);
     if (st.total > 0) {
       banner.className = 'val-banner ok';
-      banner.innerHTML = `<span style="font-size:16px">✓</span>
+      banner.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"></polyline></svg>
         <div><b>All figures balance!</b> Total: ${st.total} students (${st.boys} boys, ${st.girls} girls) · ${st.sections} sections</div>`;
     } else { banner.className = 'val-banner'; }
     return;
   }
   banner.className = 'val-banner bad';
-  banner.innerHTML = `<b>⚠ Validation errors in ${errors.length} class${errors.length > 1 ? 'es' : ''}:</b>
+  banner.innerHTML = `<b>Validation errors in ${errors.length} class${errors.length > 1 ? 'es' : ''}:</b>
     <table class="mm-table">
       <thead><tr><th>Class</th><th>Gender (B+G)</th><th>Religion</th><th>Medium</th><th>Problem</th></tr></thead>
       <tbody>
@@ -1268,13 +1265,13 @@ function renderValBanner(school) {
           <tr>
             <td><b>Class ${cls}</b></td>
             <td>${t.g}</td>
-            <td class="${t.r !== t.g ? 'mm-diff ' + (t.r > t.g ? 'pos' : 'neg') : ''}">${t.r}${t.r !== t.g ? ` (${t.r > t.g ? '+' : ''}${t.r - t.g})` : ' ✓'}</td>
-            <td class="${t.m !== t.g ? 'mm-diff ' + (t.m > t.g ? 'pos' : 'neg') : ''}">${t.m}${t.m !== t.g ? ` (${t.m > t.g ? '+' : ''}${t.m - t.g})` : ' ✓'}</td>
+            <td class="${t.r !== t.g ? 'mm-diff ' + (t.r > t.g ? 'pos' : 'neg') : ''}">${t.r}${t.r !== t.g ? ` (${t.r > t.g ? '+' : ''}${t.r - t.g})` : ' OK'}</td>
+            <td class="${t.m !== t.g ? 'mm-diff ' + (t.m > t.g ? 'pos' : 'neg') : ''}">${t.m}${t.m !== t.g ? ` (${t.m > t.g ? '+' : ''}${t.m - t.g})` : ' OK'}</td>
             <td>${t.diffs.map(d => `${d.field}: ${d.diff > 0 ? '+' : ''}${d.diff}`).join(', ')}</td>
           </tr>`).join('')}
       </tbody>
     </table>
-    <div style="margin-top:8px;font-size:11.5px;opacity:.85">💡 Boys+Girls must equal Muslim+Non-Muslim and Sindhi+Urdu+English.</div>`;
+    <div style="margin-top:8px;font-size:11.5px;color:#334155;font-weight:600">Note: Boys+Girls must equal Muslim+Non-Muslim and Sindhi+Urdu+English.</div>`;
 }
 
 /* ─────────────────────────────────────
@@ -1306,7 +1303,7 @@ async function performSave(school, isAuto) {
   const tsEl     = document.getElementById('saveTs');
   const fsEl     = document.getElementById('footerSaveStatus');
 
-  if (mainBtn) { mainBtn.className = 'btn-save saving'; if (icon) icon.textContent = '⏳'; if (lbl) lbl.textContent = isAuto ? 'Auto-saving…' : 'Saving…'; }
+  if (mainBtn) { mainBtn.className = 'btn-save saving'; if (icon) icon.textContent = ''; if (lbl) lbl.textContent = isAuto ? 'Auto-saving…' : 'Saving…'; }
   syncStatus.textContent = 'Saving…'; dbDot.className = 'dot sync';
 
   try {
@@ -1317,17 +1314,17 @@ async function performSave(school, isAuto) {
     renderSchoolsGrid();
     const now = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
     dbDot.className = 'dot'; syncStatus.textContent = 'Saved';
-    if (tsEl) tsEl.innerHTML = `✓ Last saved at <b>${now}</b>`;
-    if (fsEl) fsEl.innerHTML = `<span style="color:var(--ok)">✓ Saved ${now}</span>`;
-    if (!isAuto) toast(`✓ Saved: ${school.name}`, 'ok');
+    if (tsEl) tsEl.innerHTML = `Last saved at <b>${now}</b>`;
+    if (fsEl) fsEl.innerHTML = `<span style="color:var(--ok);font-weight:600">Saved ${now}</span>`;
+    if (!isAuto) toast(`Saved: ${school.name}`, 'ok');
     if (mainBtn) {
-      mainBtn.className = 'btn-save saved'; if (icon) icon.textContent = '✓'; if (lbl) lbl.textContent = 'Saved!';
-      setTimeout(() => { mainBtn.className = 'btn-save'; if (icon) icon.textContent = '💾'; if (lbl) lbl.textContent = 'Save Data'; }, 1600);
+      mainBtn.className = 'btn-save saved'; if (icon) icon.textContent = ''; if (lbl) lbl.textContent = 'Saved!';
+      setTimeout(() => { mainBtn.className = 'btn-save'; if (icon) icon.textContent = ''; if (lbl) lbl.textContent = 'Save Data'; }, 1600);
     }
   } catch (e) {
     dbDot.className = 'dot err'; syncStatus.textContent = 'Save failed';
     toast('Save error: ' + e.message, 'err');
-    if (mainBtn) { mainBtn.className = 'btn-save'; if (icon) icon.textContent = '⚠️'; if (lbl) lbl.textContent = 'Retry Save'; }
+    if (mainBtn) { mainBtn.className = 'btn-save'; if (icon) icon.textContent = ''; if (lbl) lbl.textContent = 'Retry Save'; }
   }
 }
 
@@ -1377,12 +1374,12 @@ function renderDashboard() {
     tr.innerHTML = `
       <td>${i+1}</td>
       <td><span class="tag ${s.isHub ? 'tag-hub' : 'tag-cell'}">${s.isHub ? 'HUB' : 'Cell ' + s.cell}</span></td>
-      <td>${s.isHub ? '★ ' : ''}<b>${esc(s.name)}</b></td>
+      <td>${s.isHub ? '<span class="sg-tag-hub">HUB</span> ' : ''}<b>${esc(s.name)}</b></td>
       <td><span class="tag tag-type">${s.type}</span></td>
       <td class="num">${t.boys}</td><td class="num">${t.girls}</td>
       <td class="num"><b>${t.total}</b></td>
       <td class="num">${t.sections}</td>
-      <td>${t.match ? '<span class="tag tag-ok">✓ OK</span>' : '<span class="tag tag-bad">⚠ Error</span>'}</td>
+      <td>${t.match ? '<span class="tag tag-ok">Balanced</span>' : '<span class="tag tag-bad">Mismatch</span>'}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -1495,7 +1492,7 @@ function generateSchoolReportHtml(school, cluster) {
         <td style="font-weight:700">${t.g}</td>
         <td>${cd.muslim || 0}</td>
         <td>${cd.nonMuslim || 0}</td>
-        <td><span class="${isBalanced ? 'p-tag-ok' : 'p-tag-bad'}">${isBalanced ? '✓ OK' : '⚠ Mismatch'}</span></td>
+        <td><span class="${isBalanced ? 'p-tag-ok' : 'p-tag-bad'}">${isBalanced ? 'OK' : 'Mismatch'}</span></td>
         <td>${esc(medLabel)}</td>
         <td>${sectionLabel(cd.sections || 0)}</td>
         <td>${esc(furnLabel)}</td>
@@ -1518,7 +1515,7 @@ function generateSchoolReportHtml(school, cluster) {
       <td style="font-weight:800">${st.total}</td>
       <td>${totalMuslim}</td>
       <td>${totalNonMuslim}</td>
-      <td><span class="${allBalanced ? 'p-tag-ok' : 'p-tag-bad'}">${allBalanced ? '✓ BALANCED' : '⚠ MISMATCH'}</span></td>
+      <td><span class="${allBalanced ? 'p-tag-ok' : 'p-tag-bad'}">${allBalanced ? 'BALANCED' : 'MISMATCH'}</span></td>
       <td>—</td>
       <td>${totalSections} sec</td>
       <td>—</td>
@@ -1663,7 +1660,7 @@ const subState = {
 async function loadSubmissionsReport(forceRefresh = false) {
   const container = document.getElementById('submissionsTable')?.querySelector('tbody');
   if (forceRefresh && container) {
-    container.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text-lt)">🔄 Querying PostgreSQL in real-time…</td></tr>';
+    container.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text-lt)">Querying PostgreSQL in real-time…</td></tr>';
   }
   try {
     const res = await api('GET', `/api/clusters/${state.activeCode}/submissions`);
@@ -1675,7 +1672,7 @@ async function loadSubmissionsReport(forceRefresh = false) {
   } catch (err) {
     console.error('Error fetching submissions report:', err);
     if (container) {
-      container.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--danger)">⚠️ Error querying database: ${esc(err.message)}</td></tr>`;
+      container.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--danger)">Error querying database: ${esc(err.message)}</td></tr>`;
     }
   }
 }
@@ -1768,8 +1765,8 @@ function filterSubmissionsTable() {
     const isSub = s.isSubmitted;
     const subTimeStr = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
     const statusBadge = isSub
-      ? `<span class="tag-submitted">✓ Submitted${subTimeStr ? ' <span style="font-weight:400;font-size:10px">(' + subTimeStr + ')</span>' : ''}</span>`
-      : `<span class="tag-pending">⏳ Pending Defaulter</span>`;
+      ? `<span class="tag-submitted">Submitted${subTimeStr ? ' <span style="font-weight:400;font-size:10px">(' + subTimeStr + ')</span>' : ''}</span>`
+      : `<span class="tag-pending">Pending Defaulter</span>`;
 
     const progressPct = s.percentComplete || 0;
     const progressBar = `
@@ -1784,12 +1781,12 @@ function filterSubmissionsTable() {
 
     let actionHtml = '';
     if (isSub) {
-      actionHtml = `<button class="btn btn-outline btn-sm" onclick="printSingleSchoolById('${s.id}')" title="Print this school's verified proforma">🖨️ Proforma</button>`;
+      actionHtml = `<button class="btn btn-outline btn-sm" onclick="printSingleSchoolById('${s.id}')" title="Print this school's verified proforma">Proforma</button>`;
     } else {
       if (cleanContact) {
         actionHtml = `
           <a href="https://wa.me/${waContact}?text=${encodeURIComponent(getIndividualReminderMsg(s))}" target="_blank" class="btn-wa-remind" title="Send reminder via WhatsApp">
-            <span>📲</span> Remind
+            Remind
           </a>
         `;
       } else {
@@ -1803,7 +1800,7 @@ function filterSubmissionsTable() {
         <td>${statusBadge}</td>
         <td><span class="tag ${s.isHub ? 'tag-hub' : 'tag-cell'}">${s.isHub ? 'HUB' : 'Cell ' + s.cell}</span></td>
         <td>
-          <div style="font-weight:700;color:var(--text)">${s.isHub ? '★ ' : ''}${esc(s.name)}</div>
+          <div style="font-weight:700;color:var(--text)">${s.isHub ? '<span class="sg-tag-hub">HUB</span> ' : ''}${esc(s.name)}</div>
           <div style="font-size:11px;color:var(--text-lt)">SEMIS: <b>${esc(s.semis || '—')}</b></div>
         </td>
         <td><span class="tag tag-type">${s.type}</span></td>
@@ -1831,24 +1828,24 @@ function getIndividualReminderMsg(school) {
     `*School:* ${school.name}\n` +
     `*Cluster:* Hub GBHS Thari Mirwah (KX03099)\n\n` +
     `Your school data has not yet been submitted in the cluster database. Please open the online portal and submit your class-wise enrollment (Boys/Girls), religion & facilities figures today:\n\n` +
-    `🔗 *Portal Link:* https://cluster-hub-thari-mirwah.vercel.app\n\n` +
-    `*Steps:* Select your school ⭐, fill enrollment, and click *Save School Data*.\n\n` +
+    `Portal Link: https://cluster-hub-thari-mirwah.vercel.app\n\n` +
+    `Steps: Select your school, fill enrollment, and click 'Save School Data'.\n\n` +
     `Office of the Headmaster, GBHS Thari Mirwah\n` +
     `Website created by: Asif Ali Shar, JEST, GBHS Thari Mirwah`;
 }
 
 function sharePortalOnWhatsApp() {
-  const msg = `🏫 *Cluster Hub Thari Mirwah (KX03099)*\n` +
-    `*Official Annual School Enrollment & Facilities Portal*\n\n` +
+  const msg = `Cluster Hub Thari Mirwah (KX03099)\n` +
+    `Official Annual School Enrollment & Facilities Portal\n\n` +
     `Dear Head Teachers / School In-charges,\n` +
     `Please submit your school's class-wise enrollment data online:\n\n` +
-    `🔗 *Portal Link:* https://cluster-hub-thari-mirwah.vercel.app\n\n` +
-    `📝 *Quick Steps to Submit:*\n` +
-    `1️⃣ Open link and select your school from the ⭐ dropdown\n` +
-    `2️⃣ Enter class-wise Boys & Girls enrollment, Religion & Facilities\n` +
-    `3️⃣ Click *'Save School Data'* to save directly to database\n` +
-    `4️⃣ Click *'Print School PDF'* to print verified A4 sheet\n\n` +
-    `💻 *Website created by:* Asif Ali Shar, JEST, GBHS Thari Mirwah`;
+    `Portal Link: https://cluster-hub-thari-mirwah.vercel.app\n\n` +
+    `Quick Steps to Submit:\n` +
+    `1. Open link and select your school from the dropdown\n` +
+    `2. Enter class-wise Boys & Girls enrollment, Religion & Facilities\n` +
+    `3. Click 'Save School Data' to save directly to database\n` +
+    `4. Click 'Print School PDF' to print verified A4 sheet\n\n` +
+    `Website created by: Asif Ali Shar, JEST, GBHS Thari Mirwah`;
 
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
 }
@@ -1865,15 +1862,15 @@ function sharePendingListWhatsApp() {
     return;
   }
 
-  let msg = `⚠️ *URGENT: Cluster KX03099 Enrollment Submission Status*\n` +
-    `Total Schools: ${rep.totalSchools} | Submitted: ${rep.submittedCount} | *Pending: ${rep.pendingCount}*\n\n` +
-    `*List of Pending Defaulter Schools:*\n`;
+  let msg = `URGENT: Cluster KX03099 Enrollment Submission Status\n` +
+    `Total Schools: ${rep.totalSchools} | Submitted: ${rep.submittedCount} | Pending: ${rep.pendingCount}\n\n` +
+    `List of Pending Defaulter Schools:\n`;
 
   pending.forEach((s, idx) => {
     msg += `${idx + 1}. *${s.name}* (${s.type}) - Head: ${s.headTeacher || 'Incharge'} [${s.contact || 'No No.'}]\n`;
   });
 
-  msg += `\n🔗 *Submit online immediately at:*\nhttps://cluster-hub-thari-mirwah.vercel.app\n\n` +
+  msg += `\nSubmit online immediately at:\nhttps://cluster-hub-thari-mirwah.vercel.app\n\n` +
     `Office of the Headmaster, GBHS Thari Mirwah\n` +
     `Website created by: Asif Ali Shar, JEST, GBHS Thari Mirwah`;
 

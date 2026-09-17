@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cluster Hub KX03099 Thari Mirwah — School Enrollment Portal</title>
-<meta name="description" content="Official Online Data Portal. How to submit: 1️⃣ Select your school ⭐ 2️⃣ Fill class-wise enrollment (Boys/Girls), religion & facilities 3️⃣ Click 'Save School Data'. Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah.">
+<meta name="description" content="Official Online Data Portal for Cluster Hub GBHS Thari Mirwah (KX03099). Select your school, enter class enrollment, religion and facilities, and save or print verified government proforma. Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah.">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/logo.jpg">
 <link rel="image_src" href="https://cluster-hub-thari-mirwah.vercel.app/logo.jpg">
@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Cluster Hub Thari Mirwah (KX03099)">
 <meta property="og:title" content="Cluster Hub KX03099 Thari Mirwah — School Data Submission Portal">
-<meta property="og:description" content="Official Online Data Portal. How to submit: 1️⃣ Select your school ⭐ 2️⃣ Fill class-wise enrollment (Boys/Girls), religion & facilities 3️⃣ Click 'Save School Data'. Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah.">
+<meta property="og:description" content="Official Online Data Portal for Cluster Hub GBHS Thari Mirwah (KX03099). Select your school, enter class enrollment, religion and facilities, and save or print verified government proforma. Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah.">
 <meta property="og:image" content="https://cluster-hub-thari-mirwah.vercel.app/logo.jpg">
 <meta property="og:image:secure_url" content="https://cluster-hub-thari-mirwah.vercel.app/logo.jpg">
 <meta property="og:image:type" content="image/jpeg">
@@ -25,7 +25,7 @@
 <!-- Twitter Card Metadata -->
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Cluster Hub KX03099 Thari Mirwah — School Data Submission Portal">
-<meta name="twitter:description" content="Official Online Data Portal. How to submit: 1️⃣ Select your school ⭐ 2️⃣ Fill class-wise enrollment (Boys/Girls), religion & facilities 3️⃣ Click 'Save School Data'. Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah.">
+<meta name="twitter:description" content="Official Online Data Portal for Cluster Hub GBHS Thari Mirwah (KX03099). Select your school, enter class enrollment, religion and facilities, and save or print verified government proforma. Website created by Asif Ali Shar, JEST, GBHS Thari Mirwah.">
 <meta name="twitter:image" content="https://cluster-hub-thari-mirwah.vercel.app/logo.jpg">
 <meta name="author" content="Asif Ali Shar, JEST, GBHS Thari Mirwah">
 
@@ -175,13 +175,13 @@
   </div>
   <div class="mobile-actions">
     <button class="btn-mobile-toggle" id="btnToggleHeader" onclick="toggleLetterhead()" title="Show/hide official header information">
-      <span id="bannerToggleIcon">ℹ️</span> <span id="bannerToggleLabel">Info</span>
+      <span id="bannerToggleIcon">Info</span>
     </button>
     <button class="btn-mobile-icon btn-whatsapp-icon" onclick="sharePortalOnWhatsApp()" title="Share on WhatsApp" style="color:#25d366">
-      <span style="font-size:17px">📲</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.976.532 1.943.824 3.149.824 3.182 0 5.768-2.587 5.768-5.766.001-3.187-2.575-5.666-5.768-5.666zm3.376 8.204c-.14.394-.813.738-1.127.785-.304.047-.704.073-2.146-.523-1.636-.677-2.71-2.335-2.791-2.444-.082-.109-.672-.894-.672-1.706 0-.812.424-1.213.576-1.37.151-.157.33-.197.44-.197.11 0 .22 0 .317.005.103.006.24-.04.375.284.14.338.48 1.171.522 1.258.042.086.07.188.013.301-.057.112-.086.182-.172.282-.086.1-.18.223-.257.3-.086.086-.176.18-.076.353.1.172.443.731.951 1.184.654.582 1.206.762 1.378.848.172.086.273.072.375-.044.103-.116.44-.513.558-.689.117-.176.234-.147.394-.088.16.058 1.016.479 1.19.566.175.086.291.13.334.204.043.074.043.43-.097.824z"/></svg>
     </button>
     <button class="btn-mobile-icon" id="mobileLoginBtn" onclick="openModal()" title="Admin Login">
-      <span style="font-size:15px">🔒</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </button>
   </div>
 </header>
@@ -198,7 +198,7 @@
     <span id="dbStatusText">Database Ready</span>
   </div>
   <div class="sb-cluster-info" id="sbClusterInfo">
-    <span>🏛️ Sindh Education Department &bull; Cluster Hub KX03099 (Khairpur Mirs)</span>
+    <span>Sindh Education Department &bull; Cluster Hub KX03099 (Khairpur Mirs)</span>
   </div>
   <div class="sb-right">
     <span id="syncStatus" class="admin-only" style="display:none">Ready</span>
@@ -236,9 +236,9 @@
   </div>
   <div class="util-right" id="navAuthArea">
     <button class="btn-whatsapp-share desktop-only" onclick="sharePortalOnWhatsApp()" title="Share school submission instructions to WhatsApp Group">
-      <span>📲 Share on WhatsApp</span>
+      <span>Share on WhatsApp</span>
     </button>
-    <button class="btn-nav-login" id="openLoginBtn" onclick="openModal()">🔒 Admin Login</button>
+    <button class="btn-nav-login" id="openLoginBtn" onclick="openModal()">Admin Login</button>
     <div class="nav-user-chip" id="navUserChip" style="display:none">
       <div class="nav-avatar" id="navAvatar">A</div>
       <span id="navUsername">admin</span>
@@ -270,17 +270,17 @@
     <div class="sb-item locked" title="Coming soon">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Staff Data
-      <span class="sb-badge lock">🔒</span>
+      <span class="sb-badge lock">Locked</span>
     </div>
     <div class="sb-item locked" title="Coming soon">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
       Vacancy
-      <span class="sb-badge lock">🔒</span>
+      <span class="sb-badge lock">Locked</span>
     </div>
     <div class="sb-item locked" title="Coming soon">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Facilities
-      <span class="sb-badge lock">🔒</span>
+      <span class="sb-badge lock">Locked</span>
     </div>
   </nav>
 
@@ -289,22 +289,22 @@
     <div class="sb-item" id="sbSubmissions" onclick="requireAdmin('submissions')">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       Submissions Status
-      <span class="sb-badge lock" id="sbSubLock">🔒</span>
+      <span class="sb-badge lock" id="sbSubLock">Admin</span>
     </div>
     <div class="sb-item" id="sbDashboard" onclick="requireAdmin('dashboard')">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       Dashboard
-      <span class="sb-badge lock" id="sbDashLock">🔒</span>
+      <span class="sb-badge lock" id="sbDashLock">Admin</span>
     </div>
     <div class="sb-item" id="sbSchools" onclick="requireAdmin('schools')">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
       Schools Register
-      <span class="sb-badge lock" id="sbSchoolsLock">🔒</span>
+      <span class="sb-badge lock" id="sbSchoolsLock">Admin</span>
     </div>
     <div class="sb-item" id="sbExport" onclick="requireAdmin('export')">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Export &amp; Print
-      <span class="sb-badge lock" id="sbExportLock">🔒</span>
+      <span class="sb-badge lock" id="sbExportLock">Admin</span>
     </div>
     <div class="sb-item" id="sbHealth" onclick="openHealthModal()">
       <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -317,7 +317,7 @@
     <div class="cc-row"><span class="cc-label">Cluster</span><span class="cc-val" id="sbCode">KX03099</span></div>
     <div class="cc-row"><span class="cc-label">District</span><span id="sbDistrict">Khairpur Mirs</span></div>
     <div class="cc-row"><span class="cc-label">Access</span><span id="sbAccess" style="color:var(--primary);font-weight:600">Public Entry</span></div>
-    <div class="cc-status">⚡ Enrollment data collection is urgent</div>
+    <div class="cc-status">Enrollment data collection active</div>
   </div>
 </aside>
 
@@ -331,7 +331,7 @@
     <div class="page-header">
       <div class="page-header-left">
         <h1>Cluster Schools Directory</h1>
-        <p>Cluster KX03099 · Khairpur Mirs District — click any school card or <b>📊 Enrollment</b> to open its data entry page</p>
+        <p>Cluster KX03099 · Khairpur Mirs District — select any school card to open its data entry page</p>
       </div>
     </div>
 
@@ -348,21 +348,21 @@
       <div class="sg-toolbar">
         <div class="sg-toolbar-left">
           <div class="sg-title-wrap">
-            <span class="sg-main-badge">🏛️ Cluster Schools Directory</span>
-            <span class="sg-sub-text">Click any school card or <b>📊 Enrollment</b> to open its dedicated data entry page</span>
+            <span class="sg-main-badge">Cluster Schools Directory</span>
+            <span class="sg-sub-text">Click any school card or <b>Enrollment</b> to open its dedicated data entry page</span>
           </div>
         </div>
         <div class="sg-toolbar-right">
           <div class="sg-search-box">
-            <span class="sg-search-icon">🔍</span>
+            <svg class="sg-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" id="schoolGridSearch" placeholder="Search school name or SEMIS..." oninput="onSchoolSearchInput(this.value)">
             <button class="sg-search-clear" id="sgSearchClear" onclick="clearSchoolSearch()" style="display:none">✕</button>
           </div>
           <div class="sg-filter-pills" id="sgFilterPills">
             <button class="sg-pill active" data-cell="ALL" onclick="setSchoolGridFilter('ALL')">All Schools (23)</button>
-            <button class="sg-pill" data-cell="HUB" onclick="setSchoolGridFilter('HUB')">👑 Hub School (1)</button>
-            <button class="sg-pill" data-cell="C1" onclick="setSchoolGridFilter('C1')">👑 Cell C1 (11)</button>
-            <button class="sg-pill" data-cell="C2" onclick="setSchoolGridFilter('C2')">👑 Cell C2 (11)</button>
+            <button class="sg-pill" data-cell="HUB" onclick="setSchoolGridFilter('HUB')">Hub School (1)</button>
+            <button class="sg-pill" data-cell="C1" onclick="setSchoolGridFilter('C1')">Cell C1 (11)</button>
+            <button class="sg-pill" data-cell="C2" onclick="setSchoolGridFilter('C2')">Cell C2 (11)</button>
           </div>
         </div>
       </div>
@@ -387,13 +387,12 @@
       </div>
       <div class="page-header-right no-print">
         <button class="btn btn-outline" onclick="backToSchoolsDirectory()" title="Return to schools grid">
-          <span>⊞</span> <span>All Schools Grid</span>
+          <span>All Schools Grid</span>
         </button>
         <button class="btn btn-outline" onclick="printCurrentSchoolReport()" title="Export or Print this school as an official A4 PDF">
-          <span>🖨️</span> <span>Print School PDF</span>
+          <span>Print School PDF</span>
         </button>
         <button class="btn-save" id="mainSaveBtn" onclick="handleSave()" title="Save (Ctrl+S)">
-          <span id="saveBtnIcon">💾</span>
           <span id="saveBtnLbl">Save Data</span>
         </button>
       </div>
@@ -412,7 +411,7 @@
     <!-- Quick-Jump Class Navigator Bar -->
     <div class="class-quicknav-bar" id="classQuicknavBar">
       <div class="quicknav-hdr">
-        <span class="quicknav-title">⚡ Jump to Class:</span>
+        <span class="quicknav-title">Jump to Class:</span>
         <span class="quicknav-sub">Click to scroll &amp; focus on any class</span>
       </div>
       <div class="quicknav-pills" id="classQuicknavPills"></div>
@@ -435,9 +434,9 @@
       <div style="display:flex;gap:8px;align-items:center">
         <span id="footerSaveStatus" style="font-size:12px;color:var(--text-lt)"></span>
         <button class="btn btn-outline btn-sm" onclick="printCurrentSchoolReport()" style="display:inline-flex;align-items:center;gap:6px">
-          🖨️ Print School PDF
+          Print School PDF
         </button>
-        <button class="btn-save" onclick="handleSave()">💾 Save Enrollment Data</button>
+        <button class="btn-save" onclick="handleSave()">Save Enrollment Data</button>
       </div>
     </div>
   </section>
@@ -445,7 +444,9 @@
   <!-- ── SUBMISSIONS TRACKER PANEL (Admin Only) ── -->
   <section class="panel" id="panel-submissions">
     <div class="locked-panel" id="submissionsLocked">
-      <div class="locked-icon">📋</div>
+      <div class="locked-icon">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
       <h2>Submissions Tracker — Admin Access Required</h2>
       <p>Sign in with your administrator credentials to view cluster-wide submission records and defaulter lists.</p>
       <button class="btn btn-primary" onclick="openModal()">Sign In to Unlock</button>
@@ -458,7 +459,7 @@
       </div>
       <div class="page-header-right no-print">
         <div class="dash-creator-badge">
-          <span style="font-size:18px">💻</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           <div>
             <div class="dash-cr-title">Website Created By</div>
             <div class="dash-cr-name">Asif Ali Shar, JEST</div>
@@ -470,10 +471,9 @@
           <span>Refresh Live DB</span>
         </button>
         <button class="btn-whatsapp-share" onclick="sharePendingListWhatsApp()" title="Share pending schools reminder list to WhatsApp Group">
-          <span>📲 WhatsApp Reminder</span>
+          <span>WhatsApp Reminder</span>
         </button>
         <button class="btn btn-primary" onclick="printSubmissionsReport()" title="Print official verified submission status report (A4 PDF)">
-          <span>🖨️</span>
           <span>Print Status PDF</span>
         </button>
       </div>
@@ -487,8 +487,8 @@
       <div class="card-body" style="padding:12px 18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
         <div style="display:flex;gap:8px;flex-wrap:wrap" id="subFilterGroup">
           <button class="btn btn-sm btn-primary sub-filter-btn active" data-filter="all" onclick="setSubFilter('all')">All Schools (<span id="cntAll">23</span>)</button>
-          <button class="btn btn-sm btn-outline sub-filter-btn" data-filter="submitted" onclick="setSubFilter('submitted')">✅ Submitted (<span id="cntSub">0</span>)</button>
-          <button class="btn btn-sm btn-outline sub-filter-btn" data-filter="pending" onclick="setSubFilter('pending')">⏳ Pending / Defaulter (<span id="cntPend">0</span>)</button>
+          <button class="btn btn-sm btn-outline sub-filter-btn" data-filter="submitted" onclick="setSubFilter('submitted')">Submitted (<span id="cntSub">0</span>)</button>
+          <button class="btn btn-sm btn-outline sub-filter-btn" data-filter="pending" onclick="setSubFilter('pending')">Pending / Defaulter (<span id="cntPend">0</span>)</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <input type="text" id="subSearchInput" class="form-input" placeholder="Search school, head teacher, cell..." style="width:230px;padding:6px 10px;font-size:12px" oninput="filterSubmissionsTable()">
@@ -525,7 +525,9 @@
   <!-- ── DASHBOARD PANEL ── -->
   <section class="panel" id="panel-dashboard">
     <div class="locked-panel" id="dashLocked">
-      <div class="locked-icon">📊</div>
+      <div class="locked-icon">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
       <h2>Dashboard — Admin Access Required</h2>
       <p>Sign in with your administrator username and password to view cluster-wide analytics.</p>
       <button class="btn btn-primary" onclick="openModal()">Sign In to Unlock</button>
@@ -538,7 +540,7 @@
         </div>
         <div class="page-header-right">
           <div class="dash-creator-badge">
-            <span style="font-size:18px">💻</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             <div>
               <div class="dash-cr-title">Website Created By</div>
               <div class="dash-cr-name">Asif Ali Shar, JEST</div>
@@ -569,7 +571,9 @@
   <!-- ── SCHOOLS PANEL ── -->
   <section class="panel" id="panel-schools">
     <div class="locked-panel" id="schoolsLocked">
-      <div class="locked-icon">🏫</div>
+      <div class="locked-icon">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
       <h2>Schools Register — Admin Access Required</h2>
       <p>Administrator login required to manage the schools register.</p>
       <button class="btn btn-primary" onclick="openModal()">Sign In to Unlock</button>
@@ -593,7 +597,9 @@
   <!-- ── EXPORT PANEL ── -->
   <section class="panel" id="panel-export">
     <div class="locked-panel" id="exportLocked">
-      <div class="locked-icon">📥</div>
+      <div class="locked-icon">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
       <h2>Export &amp; Print — Admin Access Required</h2>
       <p>Administrator login required to export data and print reports.</p>
       <button class="btn btn-primary" onclick="openModal()">Sign In to Unlock</button>
@@ -603,45 +609,45 @@
       <div class="export-grid" style="grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;margin-bottom:24px">
         <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
           <div>
-            <h4>📄 Print Selected School (A4 PDF)</h4>
+            <h4>Print Selected School (A4 PDF)</h4>
             <p>Generate an official verified single-school submission proforma with seals, full class tables, and signature blocks.</p>
           </div>
           <div style="margin-top:12px;display:flex;gap:8px">
             <select class="form-select" id="exportSchoolSelect" style="font-size:12px"></select>
-            <button class="btn btn-primary" onclick="printSelectedSchoolReport()" style="white-space:nowrap">🖨️ Print Form</button>
+            <button class="btn btn-primary" onclick="printSelectedSchoolReport()" style="white-space:nowrap">Print Proforma</button>
           </div>
         </div>
         <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
           <div>
-            <h4>📚 Export All 23 Schools (A4 PDF)</h4>
+            <h4>Export All 23 Schools (A4 PDF)</h4>
             <p>Prints the complete cluster proforma book. Exactly <b>1 school per A4 page</b> with separate school names, tables, and signature blocks.</p>
           </div>
-          <button class="btn btn-primary" onclick="printAllSchoolsReport()" style="margin-top:12px">🖨️ Print All Schools (23 Pages)</button>
+          <button class="btn btn-primary" onclick="printAllSchoolsReport()" style="margin-top:12px">Print All Schools (23 Pages)</button>
         </div>
         <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
           <div>
-            <h4>📊 Print Cluster Summary Matrix</h4>
+            <h4>Print Cluster Summary Matrix</h4>
             <p>Official high-level summary table of all 23 schools with totals and HM/DEO signature blocks for District submission.</p>
           </div>
-          <button class="btn btn-outline" onclick="printClusterSummaryReport()" style="margin-top:12px">🖨️ Print Summary Matrix</button>
+          <button class="btn btn-outline" onclick="printClusterSummaryReport()" style="margin-top:12px">Print Summary Matrix</button>
         </div>
         <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
           <div>
-            <h4>📋 Print Submission Status &amp; Defaulter List (A4 PDF)</h4>
+            <h4>Print Submission Status &amp; Defaulter List (A4 PDF)</h4>
             <p>Official verified report of schools that have submitted vs pending/defaulter schools for administrative review.</p>
           </div>
-          <button class="btn btn-primary" onclick="printSubmissionsReport()" style="margin-top:12px">🖨️ Print Submission Status Proforma</button>
+          <button class="btn btn-primary" onclick="printSubmissionsReport()" style="margin-top:12px">Print Submission Status Proforma</button>
         </div>
         <div class="export-option" style="display:flex;flex-direction:column;justify-content:space-between">
           <div>
-            <h4>📥 Export CSV (Excel)</h4>
+            <h4>Export CSV (Excel)</h4>
             <p>Raw class-level enrollment data with all fields, compatible with Microsoft Excel and Google Sheets.</p>
           </div>
           <button class="btn btn-outline" onclick="exportCsv()" style="margin-top:12px">Download CSV</button>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><h3 style="color:var(--danger)">⚠️ Reset Cluster Data</h3></div>
+        <div class="card-header"><h3 style="color:var(--danger)">Reset Cluster Data</h3></div>
         <div class="card-body">
           <p style="font-size:13px;color:var(--text-lt);margin-bottom:14px">Resets all class enrollment figures to zero. School names and SEMIS codes are preserved.</p>
           <button class="btn btn-danger" onclick="resetCluster()">Reset All Class Figures</button>
@@ -659,8 +665,8 @@
   <div class="modal-card" style="max-width:440px">
     <button class="close-modal" onclick="closeSchoolPinModal()">✕</button>
     <div class="modal-hdr">
-      <div style="width:44px;height:44px;border-radius:12px;background:#ecfdf5;border:1.5px solid #86efac;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">
-        🔐
+      <div style="width:44px;height:44px;border-radius:12px;background:#ecfdf5;border:1.5px solid #86efac;display:flex;align-items:center;justify-content:center;color:#047857;flex-shrink:0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
       </div>
       <div>
         <h3 id="pinModalSchoolName" style="font-size:16px;line-height:1.3;margin:0 0 4px 0">School Security Verification</h3>
@@ -671,7 +677,7 @@
       <div class="modal-err" id="pinModalErr" style="display:none;margin-bottom:12px"></div>
       
       <div class="pin-hint-box" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#166534">
-        🛡️ <b>Data Privacy Protected:</b> Enter the Head Teacher's official Government <b>Personal ID</b> to open and edit enrollment data for this school.
+        <b>Data Privacy Protected:</b> Enter the Head Teacher's official Government <b>Personal ID</b> to open and edit enrollment data for this school.
       </div>
 
       <div class="form-group" style="margin-bottom:14px">
@@ -687,13 +693,13 @@
                  autocomplete="off"
                  inputmode="numeric"
                  required
-                 style="font-size:16px;letter-spacing:1px;padding-right:40px;height:42px">
+                 style="font-size:16px;letter-spacing:1px;padding-right:55px;height:42px">
           <button type="button"
                   id="btnTogglePin"
                   onclick="togglePinVisibility()"
-                  style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#64748b"
+                  style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#047857;padding:4px 6px"
                   title="Show / Hide PIN">
-            👁️
+            Show
           </button>
         </div>
         <span class="form-hint" style="font-size:11px;margin-top:5px;display:block">
@@ -704,7 +710,7 @@
     <div class="modal-foot" style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px">
       <button type="button" class="btn btn-outline btn-sm" onclick="closeSchoolPinModal()">Cancel</button>
       <button type="button" class="btn btn-primary btn-sm" id="btnSubmitPin" onclick="submitSchoolPin(event)" style="padding:8px 18px">
-        <span>🔓 Unlock &amp; Open</span>
+        <span>Unlock &amp; Open</span>
       </button>
     </div>
   </div>
@@ -751,8 +757,8 @@
   <div class="modal-card" style="max-width:540px">
     <button class="close-modal" onclick="closeHealthModal()">✕</button>
     <div class="modal-hdr">
-      <div style="width:40px;height:40px;border-radius:10px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;font-size:22px;border:1.5px solid #a7f3d0">
-        🩺
+      <div style="width:40px;height:40px;border-radius:10px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;color:#047857;border:1.5px solid #a7f3d0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       </div>
       <div>
         <h3>System &amp; Database Health</h3>
@@ -769,35 +775,35 @@
       </div>
 
       <div class="health-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-        <div class="card" style="padding:10px 14px;background:#f8fafc">
+        <div class="card" style="padding:10px 14px;background:#ffffff">
           <div style="font-size:11px;color:var(--text-lt);font-weight:600">DATABASE NAME</div>
           <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px" id="hmDbName">neondb</div>
         </div>
-        <div class="card" style="padding:10px 14px;background:#f8fafc">
+        <div class="card" style="padding:10px 14px;background:#ffffff">
           <div style="font-size:11px;color:var(--text-lt);font-weight:600">QUERY LATENCY</div>
           <div style="font-size:13px;font-weight:700;color:#059669;margin-top:2px" id="hmLatency">-- ms</div>
         </div>
-        <div class="card" style="padding:10px 14px;background:#f8fafc">
+        <div class="card" style="padding:10px 14px;background:#ffffff">
           <div style="font-size:11px;color:var(--text-lt);font-weight:600">CLUSTER CODE</div>
           <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px" id="hmClusterCode">KX03099</div>
         </div>
-        <div class="card" style="padding:10px 14px;background:#f8fafc">
+        <div class="card" style="padding:10px 14px;background:#ffffff">
           <div style="font-size:11px;color:var(--text-lt);font-weight:600">SCHOOLS REGISTERED</div>
           <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px" id="hmSchoolsCount">23 Schools</div>
         </div>
-        <div class="card" style="padding:10px 14px;background:#f8fafc;grid-column:1 / -1">
+        <div class="card" style="padding:10px 14px;background:#ffffff;grid-column:1 / -1">
           <div style="font-size:11px;color:var(--text-lt);font-weight:600">LAST HEALTH CHECK TIME</div>
           <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:2px" id="hmTimestamp">--</div>
         </div>
       </div>
 
-      <div style="font-size:11.5px;color:var(--text-lt);line-height:1.4;background:#f1f5f9;padding:10px 12px;border-radius:8px;margin-bottom:6px">
-        🔒 <b>Public Privacy:</b> Database connection strings, credentials, and ping latency are hidden from the public view and strictly isolated to this Health View.
+      <div style="font-size:11.5px;color:var(--text-lt);line-height:1.4;background:#f8fafc;border:1px solid #e2e8f0;padding:10px 12px;border-radius:8px;margin-bottom:6px">
+        <b>Public Privacy:</b> Database connection strings, credentials, and ping latency are hidden from the public view and strictly isolated to this Health View.
       </div>
     </div>
     <div class="modal-foot" style="display:flex;justify-content:space-between;align-items:center">
       <a href="/api/health" target="_blank" class="btn btn-outline btn-sm" style="font-size:11.5px;text-decoration:none">
-        🔗 Raw /api/health JSON
+        Raw /api/health JSON
       </a>
       <button class="btn btn-primary btn-sm" onclick="refreshHealthModal()" id="btnRefreshHealth">
         <span>↻</span> <span>Run Diagnostic Ping</span>
